@@ -53,12 +53,12 @@ def get_all_tracks_from_library():
         token_info = get_token()
     except NotLoggedInException:
         print("User not logged in!")
-        return redirect(url_for('login', _external=False))
+        return redirect(url_for('login', _external=False), 400)
     sp = spotipy.Spotify(auth=token_info['access_token'])
     all_songs = []
-    iter = 0
+    count = 0
     while True:
-        items = sp.current_user_saved_tracks(limit=50, offset=iter * 50, market='DE')['items']
+        items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market='DE')['items']
         artists_ids = []
         song_ids = []
         dates = []
@@ -75,11 +75,42 @@ def get_all_tracks_from_library():
             for genre in artists['artists'][i]['genres']:
                 if genre not in my_genres:
                     my_genres.append(genre)
-        iter += 1
+        count += 1
         if len(items) < 50:
             break
     songs = all_songs
     return jsonify(all_songs)
+
+
+# In case they add genres to songs
+# @app.route('/backend/getAllTracks', methods=['GET'])
+# def get_all_tracks():
+#     global songs
+#     try:
+#         token_info = get_token()
+#     except NotLoggedInException:
+#         print("User not logged in!")
+#         return redirect(url_for('login', _external=False))
+#
+#     sp = spotipy.Spotify(auth=token_info['access_token'])
+#     all_songs = []
+#     count = 0
+#     user = sp.me()
+#     market = user['country']
+#     while True:
+#         items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
+#
+#         for i in range(0, len(items)):
+#             song_id = items[i]['track']['id']
+#             genres = items[i]['genres']
+#             artist_id = items[i]['track']['artists'][0]['id']
+#             date = items[i]['track']['album']['release_date']
+#             all_songs.append({"id": song_id, "artist_id" : artist_id, "genres": genres, "date-created": date})
+#         count += 1
+#         if len(items) < 50:
+#             break
+#     songs = all_songs
+#     return jsonify(all_songs)
 
 
 @app.route('/backend/getPlaylists')
