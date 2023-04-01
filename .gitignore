@@ -133,3 +133,6 @@ secrets*
 
 # .idea
 /.idea/*
+
+# JSON Files
+/backend/JSON files/*

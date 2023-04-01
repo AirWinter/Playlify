@@ -1,16 +1,13 @@
-import json
-
 from flask import Flask, request, url_for, session, redirect, jsonify
 from spotipy.oauth2 import SpotifyOAuth
-import spotipy
-from secrets import id, secret, secret_key
-from utils import filter_by_genre, chunks
+from backend import secrets
+from utils import filter_by_genre, filter_by_language, chunks
 import time
-
-# import json
+import spotipy
+import json
 
 app = Flask(__name__)
-app.secret_key = secret_key
+app.secret_key = secrets.secret_key
 app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
 TOKEN_INFO = "token_info"
 my_genres = []
@@ -36,15 +33,25 @@ def callback():
     code = request.args.get('code')
     token_info = sp_oath.get_access_token(code)
     session[TOKEN_INFO] = token_info
-    return redirect(url_for('getTracks', _external=True))
+    return redirect(url_for('home', _external=True))
 
 
-@app.route('/getTracks', methods=['GET'])
-def getTracks():
+@app.route('/logout')
+def logout():
+    if session.get(TOKEN_INFO, None) is None:
+        print("Already logged out")
+    else:
+        session.clear()
+        print("User logged out!")
+    return redirect(url_for('home', _external=False), 200)
+
+
+@app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
+def get_all_tracks_from_library():
     global songs
     try:
         token_info = get_token()
-    except:
+    except NotLoggedInException:
         print("User not logged in!")
         return redirect(url_for('login', _external=False))
     sp = spotipy.Spotify(auth=token_info['access_token'])
@@ -70,16 +77,16 @@ def getTracks():
                     my_genres.append(genre)
         iter += 1
         if len(items) < 50:
-            break;
+            break
     songs = all_songs
     return jsonify(all_songs)
 
 
-@app.route('/getPlaylists')
+@app.route('/backend/getPlaylists')
 def get_playlist():
     try:
         token_info = get_token()
-    except:
+    except NotLoggedInException:
         print("User not logged in!")
         return redirect(url_for('login', _external=False))
 
@@ -92,16 +99,16 @@ def get_playlist():
     return jsonify(playlist_names)
 
 
-@app.route('/createPlaylist', methods=['POST'])
+@app.route('/backend/createPlaylist', methods=['POST'])
 def create_playlist():
     global songs
     print(songs)
 
+    # Pass refresh token in header when calling the endpoint
     if 'refresh_token' not in request.headers:
         print("Didn't pass refresh token in request header")
         return redirect(url_for('home'), 400)
 
-    # Pass refresh token in header when calling the endpoint
     sp_oath = create_spotify_oath()
     token_info = sp_oath.refresh_access_token(request.headers['refresh_token'])
 
@@ -109,13 +116,10 @@ def create_playlist():
     user = sp.me()
 
     name = json.loads(request.data)['name']
-    isPublic = json.loads(request.data)['public']
-
-
-    genre = json.loads(request.data)['genre']
+    is_public = json.loads(request.data)['public']
 
     # Create empty playlist
-    response_create = sp.user_playlist_create(user=user['id'], name=name, public=isPublic)
+    response_create = sp.user_playlist_create(user=user['id'], name=name, public=is_public)
 
     print(f"Created: {response_create}")
     playlist_id = response_create['id']
@@ -124,13 +128,18 @@ def create_playlist():
         description = json.loads(request.data)['description']
         print(f"Description: {description}")
         response_change = sp.playlist_change_details(playlist_id=playlist_id, description=description)
-        print(response_change)
+        print(f"Changed: {response_change}")
+
+    genre = json.loads(request.data)['genre']
+    print(genre)
+    songs_to_add = filter_by_language(genre, songs)
+    print(f"Songs to add: {songs_to_add}")
+
+    return populate_playlist_by_genre(sp, playlist_id, songs_to_add)
 
 
+def populate_playlist_by_genre(sp, playlist_id, songs_to_add):
     # Populate Playlist
-    # Note if there are more than 100 songs to add then do chunks
-    songs_to_add = filter_by_genre(genre, songs)
-    print(songs_to_add)
     for list_of_songs in chunks(songs_to_add, 100):
         response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
         print(f"Populated: {response_populate}")
@@ -138,21 +147,16 @@ def create_playlist():
     return redirect(url_for('home'), 200)
 
 
-@app.route('/logout')
-def logout():
-    if session.get(TOKEN_INFO, None) is None:
-        print("Already logged out")
-    else:
-        session.clear()
-        print("User logged out!")
-    return redirect(url_for('home', _external=False), 200)
+class NotLoggedInException(Exception):
+    "Raised when user is not logged in"
+    pass
 
 
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
 
     if token_info is None:
-        raise Exception("There is no session token!")
+        raise NotLoggedInException("There is no session token!")
 
     now = int(time.time())
     is_expired = token_info['expires_at'] - now < 60
@@ -164,8 +168,8 @@ def get_token():
 
 def create_spotify_oath():
     return SpotifyOAuth(
-        client_id=id,
-        client_secret=secret,
+        client_id=secrets.client_id,
+        client_secret=secrets.secret,
         redirect_uri=url_for('callback', _external=True),
         scope="user-library-read playlist-modify-public playlist-modify-private user-read-private playlist-read-private"
     )

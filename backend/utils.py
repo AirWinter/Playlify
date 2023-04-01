@@ -1,7 +1,7 @@
 def filter_by_genre(genre, songs):
     res = []
     for song in songs:
-        if genre in song['genres']:
+        if genre in song['genres'] and song['id'] not in res:
             res.append(song['id'])
     return res
 
@@ -9,7 +9,7 @@ def filter_by_language(language, songs):
     res = []
     for song in songs:
         for genre in song['genres']:
-            if language in genre:
+            if language in genre and song['id'] not in res:
                 res.append(song['id'])
     return res
 
