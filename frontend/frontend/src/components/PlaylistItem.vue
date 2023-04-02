@@ -5,9 +5,11 @@
         <p>Playlist Item View</p>
         <hr />
         <br />
-        <button type="button" class="btn btn-success">
-          Create new Playlist
-        </button>
+        <a href="/create-playlist"
+          ><button type="button" class="btn btn-success">
+            Create new Playlist
+          </button></a
+        >
         <br /><br />
         <!-- Create table containing existing playlists-->
         <table class="table table-hover">
@@ -40,6 +42,7 @@
 import axios from "axios";
 
 export default {
+  name: "PlaylistItem",
   data() {
     return {
       playlists: [],

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import GetStarted from "../components/GetStarted.vue";
 import PlaylistItem from "../components/PlaylistItem.vue";
+import CreatePlaylist from "../components/CreatePlaylist.vue";
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: "/my-playlists",
     name: "PlaylistItem",
     component: PlaylistItem,
+  },
+  {
+    path: "/create-playlist",
+    name: "CreatePlaylist",
+    component: CreatePlaylist,
   },
 ];
 
