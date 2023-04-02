@@ -46,6 +46,28 @@ def logout():
     return redirect(url_for('home', _external=False), 200)
 
 
+@app.route('/songsAdded')
+def songs_added():
+    return 'Successfully added songs to playlist!'
+
+
+@app.route('/backend/getPlaylists')
+def get_playlist():
+    try:
+        token_info = get_token()
+    except NotLoggedInException:
+        print("User not logged in!")
+        return redirect(url_for('login', _external=False))
+
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    user = sp.me()
+    playlists = sp.user_playlists(user=user['id'], limit=50, offset=0)
+    playlist_names = []
+    for playlist in playlists['items']:
+        playlist_names.append({"name": playlist['name']})
+    return jsonify(playlist_names)
+
+
 @app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
 def get_all_tracks_from_library():
     global songs
@@ -113,28 +135,8 @@ def get_all_tracks_from_library():
 #     return jsonify(all_songs)
 
 
-@app.route('/backend/getPlaylists')
-def get_playlist():
-    try:
-        token_info = get_token()
-    except NotLoggedInException:
-        print("User not logged in!")
-        return redirect(url_for('login', _external=False))
-
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-    user = sp.me()
-    playlists = sp.user_playlists(user=user['id'], limit=50, offset=0)
-    playlist_names = []
-    for playlist in playlists['items']:
-        playlist_names.append({"name": playlist['name']})
-    return jsonify(playlist_names)
-
-
 @app.route('/backend/createPlaylist', methods=['POST'])
 def create_playlist():
-    global songs
-    print(songs)
-
     # Pass refresh token in header when calling the endpoint
     if 'refresh_token' not in request.headers:
         print("Didn't pass refresh token in request header")
@@ -147,7 +149,10 @@ def create_playlist():
     user = sp.me()
 
     name = json.loads(request.data)['name']
-    is_public = json.loads(request.data)['public']
+    is_public = False # False by default
+    # If public is specified then overwrite
+    if 'public' in json.loads(request.data).keys():
+        is_public = json.loads(request.data)['public']
 
     # Create empty playlist
     response_create = sp.user_playlist_create(user=user['id'], name=name, public=is_public)
@@ -161,25 +166,52 @@ def create_playlist():
         response_change = sp.playlist_change_details(playlist_id=playlist_id, description=description)
         print(f"Changed: {response_change}")
 
-    genre = json.loads(request.data)['genre']
-    print(genre)
-    songs_to_add = filter_by_language(genre, songs)
+    # genre = json.loads(request.data)['genre']
+    # print(genre)
+    songs_to_add = json.loads(request.data)['songs_to_add']
     print(f"Songs to add: {songs_to_add}")
 
-    return populate_playlist_by_genre(sp, playlist_id, songs_to_add)
+    return add_songs(sp, playlist_id, songs_to_add)
 
 
-def populate_playlist_by_genre(sp, playlist_id, songs_to_add):
+@app.route('/backend/getSongsToAdd', methods=['GET'])
+def get_songs_to_add():
+    global songs
+    print(songs)
+
+    filters = json.loads(request.data)['filters']
+    print(filters)
+    songs_to_add = songs
+
+    # Apply all the filters on the songs
+    for apply_filter in filters.keys():
+        if apply_filter == "genre":
+            songs_to_add = list(filter(lambda s: filters[apply_filter] in s['genres'], songs_to_add))
+        elif apply_filter == "created_before":
+            songs_to_add = list(filter(lambda s: s['date-created'] <= filters[apply_filter], songs_to_add))
+        elif apply_filter == "created_after":
+            songs_to_add = list(filter(lambda s: s['date-created'] >= filters[apply_filter], songs_to_add))
+        # elif apply_filter == "language": # TODO: Figure out how to do contains on each genre
+        #     apply_filter(lambda s: filters["language"] in s[''])
+
+    # Map resulting list of songs to just their Id's
+    songs_to_add = list(map(lambda s: s['id'], songs_to_add))
+    print(f"Songs to add: {songs_to_add}")
+
+    return jsonify(songs_to_add)
+
+
+def add_songs(sp, playlist_id, songs_to_add):
     # Populate Playlist
     for list_of_songs in chunks(songs_to_add, 100):
         response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
         print(f"Populated: {response_populate}")
 
-    return redirect(url_for('home'), 200)
+    return redirect(url_for('songs_added'), 200)
 
 
 class NotLoggedInException(Exception):
-    "Raised when user is not logged in"
+    """Raised when user is not logged in"""
     pass
 
 
