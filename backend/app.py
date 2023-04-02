@@ -1,4 +1,5 @@
 from flask import Flask, request, url_for, session, redirect, jsonify
+from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 from backend import secrets
 from utils import filter_by_genre, filter_by_language, chunks
@@ -9,6 +10,10 @@ import json
 app = Flask(__name__)
 app.secret_key = secrets.secret_key
 app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
+
+CORS(app, resources={r"/*":{'origins':"*"}})
+# CORS(app, resources={r'/*':{'origins': 'http://localhost:8080',"allow_headers": "Access-Control-Allow-Origin"}})
+
 TOKEN_INFO = "token_info"
 my_genres = []
 songs = []
