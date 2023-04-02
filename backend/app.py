@@ -169,11 +169,10 @@ def create_playlist():
     if 'description' in json.loads(request.data).keys():
         description = json.loads(request.data)['description']
         print(f"Description: {description}")
-        response_change = sp.playlist_change_details(playlist_id=playlist_id, description=description)
-        print(f"Changed: {response_change}")
+        if len(description) > 0:
+            response_change = sp.playlist_change_details(playlist_id=playlist_id, description=description)
+            print(f"Changed: {response_change}")
 
-    # genre = json.loads(request.data)['genre']
-    # print(genre)
     songs_to_add = json.loads(request.data)['songs_to_add']
     print(f"Songs to add: {songs_to_add}")
 
