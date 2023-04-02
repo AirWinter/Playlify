@@ -40,6 +40,7 @@
 
 <script>
 import "@formkit/themes/genesis";
+import axios from "axios";
 
 export default {
   name: "CreatePlaylist",
@@ -51,6 +52,26 @@ export default {
         public: false,
       },
     };
+  },
+  methods: {
+    handleSubmit(values) {
+      this.playlist.name = values.name;
+      this.playlist.description = values.description;
+      this.playlist.public = values.public;
+      const path = "http://localhost:5000/backend/createPlaylist";
+      const token =
+        "AQCwQsBThaF00FfAXH1p9P04Myn_8UyoLhk8TOrgX4T6bosRPj4SjY0P3Ypbn3PlEGWO4JRmoitqefPvLBj5DHrTXAV_mgsUhY_kZN1TaAzRHgxWYtfKR4qpL2SndI6Bgz0";
+      axios({
+        method: "post",
+        url: path,
+        headers: { refresh_token: token },
+        data: {
+          name: this.playlist.name,
+          description: this.playlist.description,
+          public: this.playlist.public,
+        },
+      });
+    },
   },
 };
 </script>
