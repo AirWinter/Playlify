@@ -58,19 +58,20 @@ def songs_added():
 
 @app.route('/backend/getPlaylists')
 def get_playlist():
-    try:
-        token_info = get_token()
-    except NotLoggedInException:
-        print("User not logged in!")
-        return redirect(url_for('login', _external=False))
+    if 'refresh_token' not in request.headers:
+        print("Didn't pass refresh token in request header")
+        return redirect(url_for('home'), 400)
+
+    sp_oath = create_spotify_oath()
+    token_info = sp_oath.refresh_access_token(request.headers['refresh_token'])
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()
     playlists = sp.user_playlists(user=user['id'], limit=50, offset=0)
-    playlist_names = []
+    my_playlists = []
     for playlist in playlists['items']:
-        playlist_names.append({"name": playlist['name']})
-    return jsonify(playlist_names)
+        my_playlists.append({"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
+    return jsonify(my_playlists)
 
 
 @app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
