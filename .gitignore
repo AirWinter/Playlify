@@ -136,3 +136,9 @@ secrets*
 
 # JSON Files
 /backend/JSON files/*
+
+# Node Modules
+/frontend/node_modules/*
+
+# package-lock
+/frontend/package-lock.json
