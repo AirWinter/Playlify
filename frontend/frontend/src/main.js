@@ -3,7 +3,20 @@ import App from "./App.vue";
 import router from "./router";
 // install bootstrap first
 import "bootstrap/dist/css/bootstrap.css";
-// install formkit before
-import { plugin, defaultConfig } from "@formkit/vue";
+// FormKit imports
+import { plugin as formKitPlugin, defaultConfig } from "@formkit/vue";
+import { createMultiStepPlugin } from "@formkit/addons";
+import "@formkit/themes/genesis";
+import "@formkit/addons/css/multistep";
 
-createApp(App).use(router).use(plugin, defaultConfig).mount("#app");
+createApp(App)
+  .use(
+    formKitPlugin,
+    defaultConfig({
+      plugins: [
+        createMultiStepPlugin({ tabStyle: "progress", allowIncomplete: false }),
+      ],
+    })
+  )
+  .use(router)
+  .mount("#app");

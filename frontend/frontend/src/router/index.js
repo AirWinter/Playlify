@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import GetStarted from "../components/GetStarted.vue";
 import PlaylistItem from "../components/PlaylistItem.vue";
 import CreatePlaylist from "../components/CreatePlaylist.vue";
+import MultiStep from "../components/MultiStep.vue";
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: "/create-playlist",
     name: "CreatePlaylist",
     component: CreatePlaylist,
+  },
+  {
+    path: "/multi-step",
+    name: "MultiStep",
+    component: MultiStep,
   },
 ];
 
