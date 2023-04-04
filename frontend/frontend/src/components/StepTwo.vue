@@ -1,15 +1,28 @@
 <template>
-  <FormKit type="text" label="Talk Title" validation="required" />
   <FormKit
-    type="textarea"
-    label="Talk Brief"
-    validation="required|length:100"
-    help="What is your talk about?"
+    type="select"
+    label="Genre of your playlist"
+    name="genre"
+    :options="[
+      { label: 'Pop', value: 'pop' },
+      { label: 'Rock', value: 'rock' },
+      { label: 'Rap', value: 'rap' },
+      { label: 'Indie', value: 'indie' },
+      { label: 'R&B', value: 'r-n-b' },
+    ]"
   />
-  <FormKit
-    type="radio"
-    label="Talk Track"
-    help="Which track are you submitting for?"
-    :options="['Development', 'Testing', 'Leadership']"
-  />
+  <div class="double">
+    <FormKit
+      type="month"
+      help="Add songs created after this date"
+      label="Songs Created After"
+      name="created-after-month"
+    />
+    <FormKit
+      type="month"
+      help="Add songs created before this date"
+      label="Songs Created Before"
+      name="created-before-month"
+    />
+  </div>
 </template>

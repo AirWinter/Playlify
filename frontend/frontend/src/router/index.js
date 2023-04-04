@@ -3,6 +3,7 @@ import GetStarted from "../components/GetStarted.vue";
 import PlaylistItem from "../components/PlaylistItem.vue";
 import CreatePlaylist from "../components/CreatePlaylist.vue";
 import MultiStep from "../components/MultiStep.vue";
+import MultiStepV2 from "../components/MultiStepV2.vue";
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: "/multi-step",
     name: "MultiStep",
     component: MultiStep,
+  },
+  {
+    path: "/multi-step-v2",
+    name: "MultiStepV2",
+    component: MultiStepV2,
   },
 ];
 
