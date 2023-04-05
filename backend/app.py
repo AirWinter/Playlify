@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = secrets.secret_key
 app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
 
-CORS(app, resources={r"/*":{'origins':"*"}})
+CORS(app, resources={r"/*": {'origins': "*"}})
 # CORS(app, resources={r'/*':{'origins': 'http://localhost:8080',"allow_headers": "Access-Control-Allow-Origin"}})
 
 TOKEN_INFO = "token_info"
@@ -71,18 +71,20 @@ def get_playlist():
     playlists = sp.user_playlists(user=user['id'], limit=50, offset=0)
     my_playlists = []
     for playlist in playlists['items']:
-        my_playlists.append({"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
+        my_playlists.append(
+            {"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
     return jsonify(my_playlists)
 
 
 @app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
 def get_all_tracks_from_library():
     global songs
-    try:
-        token_info = get_token()
-    except NotLoggedInException:
-        print("User not logged in!")
-        return redirect(url_for('login', _external=False), 400)
+    if 'refresh_token' not in request.headers:
+        print("Didn't pass refresh token in request header")
+        return redirect(url_for('home'), 400)
+
+    sp_oath = create_spotify_oath()
+    token_info = sp_oath.refresh_access_token(request.headers['refresh_token'])
     sp = spotipy.Spotify(auth=token_info['access_token'])
     all_songs = []
     count = 0
@@ -158,7 +160,7 @@ def create_playlist():
     user = sp.me()
 
     name = json.loads(request.data)['name']
-    is_public = False # False by default
+    is_public = False  # False by default
     # If public is specified then overwrite
     if 'public' in json.loads(request.data).keys():
         is_public = json.loads(request.data)['public']
@@ -185,9 +187,9 @@ def create_playlist():
 @app.route('/backend/getSongsToAdd', methods=['GET'])
 def get_songs_to_add():
     global songs
-    print(songs)
-
-    filters = json.loads(request.data)['filters']
+    filters = {"genre": request.args.get('genre'),
+               "created_after_month": request.args.get('created_after_month'),
+               "created_before_month": request.args.get('created_before_month')}
     print(filters)
     songs_to_add = songs
 
@@ -196,18 +198,20 @@ def get_songs_to_add():
         # Only filter if the genre filter is not 'Any'
         if apply_filter == "genre" and filters[apply_filter] != "any":
             songs_to_add = list(filter(lambda s: filters[apply_filter] in s['genres'], songs_to_add))
-        elif apply_filter == "created_before":
-            songs_to_add = list(filter(lambda s: s['date-created'] <= filters[apply_filter], songs_to_add))
-        elif apply_filter == "created_after":
+        elif apply_filter == "created_after_month" and filters[apply_filter] != "-------":
             songs_to_add = list(filter(lambda s: s['date-created'] >= filters[apply_filter], songs_to_add))
-        # elif apply_filter == "language": # TODO: Figure out how to do contains on each genre
-        #     apply_filter(lambda s: filters["language"] in s[''])
+        elif apply_filter == "created_before_month" and filters[apply_filter] != "-------":
+            songs_to_add = list(filter(lambda s: s['date-created'] <= filters[apply_filter], songs_to_add))
+        elif apply_filter == "language" and filters[apply_filter] != "any":
+            songs_to_add = list(
+                filter(lambda s: any(filters[apply_filter] in any_genre for any_genre in s['genres']), songs_to_add))
 
     # Map resulting list of songs to just their Id's
     songs_to_add = list(map(lambda s: s['id'], songs_to_add))
     print(f"Songs to add: {songs_to_add}")
 
     return jsonify(songs_to_add)
+
 
 @app.route('/backend/getAllMyGenres', methods=['GET'])
 def get_all_my_genres():
