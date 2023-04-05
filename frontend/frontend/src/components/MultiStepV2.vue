@@ -1,4 +1,5 @@
 <script>
+import axios from "axios";
 export default {
   name: "MultiStepV2",
   data() {
@@ -11,22 +12,68 @@ export default {
         },
         filters: {
           genre: "any",
-          created_after_month: "2023-02",
-          created_before_month: "2023-04",
+          created_after_month: "-------",
+          created_before_month: "-------",
         },
       },
+      genre_options: [
+        { label: "Any", value: "any" },
+        { label: "Pop", value: "pop" },
+        { label: "Rock", value: "rock" },
+        { label: "Rap", value: "rap" },
+        { label: "Indie", value: "indie" },
+        { label: "R&B", value: "r-n-b" },
+      ],
     };
   },
   methods: {
-    handleNextOne(value) {
-      console.log("HERE");
-      console.log(value);
-      console.log(value.playlistInformation.name);
+    async handleNextOne(value) {
+      //   console.log("HERE");
+      //   console.log(value);
+      //   console.log(value.playlistInformation.name);
       this.playlistInformation = value.playlistInformation;
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getAllMyGenres",
+      }).then((value) => (this.genre_options = value.data));
     },
-    handleSubmit(value) {
-      console.log("HEREeeeeeee");
-      console.log(value.filters.created_after_month);
+    async handleSubmit(param) {
+      console.log(param.playlistInformation);
+      console.log(param.filters);
+      const token =
+        "AQCwQsBThaF00FfAXH1p9P04Myn_8UyoLhk8TOrgX4T6bosRPj4SjY0P3Ypbn3PlEGWO4JRmoitqefPvLBj5DHrTXAV_mgsUhY_kZN1TaAzRHgxWYtfKR4qpL2SndI6Bgz0";
+
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getAllTracksFromLibrary",
+        headers: { refresh_token: token },
+      }).then((value) => console.log(value.data));
+
+      var songs_to_add_array = null;
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getSongsToAdd",
+
+        params: {
+          genre: param.filters.genre,
+          created_after_month: param.filters.created_after_month,
+          created_before_month: param.filters.created_before_month,
+        },
+      }).then((value) => (songs_to_add_array = value.data));
+
+      console.log(songs_to_add_array);
+
+      await axios({
+        method: "post",
+        url: "http://localhost:5000/backend/createPlaylist",
+        headers: { refresh_token: token },
+        data: {
+          name: param.playlistInformation.name,
+          description: param.playlistInformation.description,
+          public: param.playlistInformation.public,
+          songs_to_add: songs_to_add_array,
+        },
+      });
     },
   },
 };
@@ -92,15 +139,9 @@ export default {
           type="select"
           label="Genre of your playlist"
           name="genre"
-          :options="[
-            { label: 'Pop', value: 'pop' },
-            { label: 'Rock', value: 'rock' },
-            { label: 'Rap', value: 'rap' },
-            { label: 'Indie', value: 'indie' },
-            { label: 'R&B', value: 'r-n-b' },
-            { label: 'Any', value: 'any' },
-          ]"
+          :options="genre_options"
         />
+
         <FormKit
           type="month"
           help="Add songs created after this date"
@@ -117,12 +158,14 @@ export default {
           <!-- incrementStep returns a callable function -->
           <FormKit
             type="button"
-            @click="handlers.incrementStep(-1, node.context)()"
+            @click="
+              handleSubmit(value), handlers.incrementStep(-1, node.context)()
+            "
             label="Custom Previous"
           />
         </template>
         <template #stepNext>
-          <FormKit type="submit" @click="handleSubmit(value)" />
+          <FormKit type="submit" />
         </template>
       </FormKit>
       <pre wrap>{{ value }}</pre>
