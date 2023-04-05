@@ -2,7 +2,7 @@ from flask import Flask, request, url_for, session, redirect, jsonify
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 from backend import secrets
-from utils import filter_by_genre, filter_by_language, chunks
+from utils import chunks, stringify
 import time
 import spotipy
 import json
@@ -17,6 +17,7 @@ CORS(app, resources={r"/*":{'origins':"*"}})
 TOKEN_INFO = "token_info"
 my_genres = []
 songs = []
+all_my_genres = {'any': "Any"}
 
 
 @app.route('/home')
@@ -103,6 +104,8 @@ def get_all_tracks_from_library():
             for genre in artists['artists'][i]['genres']:
                 if genre not in my_genres:
                     my_genres.append(genre)
+                if genre not in all_my_genres.keys():
+                    all_my_genres[genre] = stringify(genre)
         count += 1
         if len(items) < 50:
             break
@@ -190,7 +193,8 @@ def get_songs_to_add():
 
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
-        if apply_filter == "genre":
+        # Only filter if the genre filter is not 'Any'
+        if apply_filter == "genre" and filters[apply_filter] != "any":
             songs_to_add = list(filter(lambda s: filters[apply_filter] in s['genres'], songs_to_add))
         elif apply_filter == "created_before":
             songs_to_add = list(filter(lambda s: s['date-created'] <= filters[apply_filter], songs_to_add))
@@ -204,6 +208,11 @@ def get_songs_to_add():
     print(f"Songs to add: {songs_to_add}")
 
     return jsonify(songs_to_add)
+
+@app.route('/backend/getAllMyGenres', methods=['GET'])
+def get_all_my_genres():
+    global all_my_genres
+    return all_my_genres
 
 
 def add_songs(sp, playlist_id, songs_to_add):
