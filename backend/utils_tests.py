@@ -1,5 +1,5 @@
 import unittest
-from utils import filter_by_date, filter_by_genre
+from utils import filter_by_date, filter_by_genre, stringify
 
 
 class TestUtils(unittest.TestCase):
@@ -109,6 +109,22 @@ class TestUtils(unittest.TestCase):
             filter_by_date("1979", "1978", self.songs)
 
             self.assertTrue("Start date has to be before end date" in context.exception)
+
+    def test_stringify_rnb(self):
+        expected = "R N B"
+        result = stringify("r-n-b")
+        self.assertEqual(expected, result)
+
+
+    def test_stringify_pop(self):
+        expected = "Pop"
+        result = stringify("pop")
+        self.assertEqual(expected, result)
+
+    def test_stringify_french_hip_hop(self):
+        expected = "French Hip Hop"
+        result = stringify("french hip-hop")
+        self.assertEqual(expected, result)
 
 
 if __name__ == '__main__':
