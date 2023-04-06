@@ -31,6 +31,12 @@ const routes = [
     name: "MultiStepV2",
     component: MultiStepV2,
   },
+  //TODO: Create the PageNotFound component
+  // {
+  //   path: '/:catchAll(.*)*',
+  //   name: "PageNotFound",
+  //   component: PageNotFound,
+  //  },
 ];
 
 const router = createRouter({

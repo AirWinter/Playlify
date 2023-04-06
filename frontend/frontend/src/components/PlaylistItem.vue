@@ -5,7 +5,7 @@
         <p>Playlist Item View</p>
         <hr />
         <br />
-        <a href="/create-playlist"
+        <a href="/multi-step-v2"
           ><button type="button" class="btn btn-success">
             Create new Playlist
           </button></a

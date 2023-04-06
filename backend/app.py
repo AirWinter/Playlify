@@ -41,7 +41,7 @@ def callback():
     code = request.args.get('code')
     token_info = sp_oath.get_access_token(code)
     session[TOKEN_INFO] = token_info
-    return redirect(url_for('home', _external=True))
+    return redirect("http://localhost:8080/my-playlists")
 
 
 @app.route('/logout')
