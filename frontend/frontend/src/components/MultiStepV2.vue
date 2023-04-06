@@ -36,19 +36,19 @@ export default {
       await axios({
         method: "get",
         url: "http://localhost:5000/backend/getAllMyGenres",
-      }).then((value) => (this.genre_options = value.data));
+      }).then((value) => console.log(value)((this.genre_options = value.data)));
     },
     async handleSubmit(param) {
       this.loading = true;
       console.log(param.playlistInformation);
       console.log(param.filters);
-      const token =
-        "AQCwQsBThaF00FfAXH1p9P04Myn_8UyoLhk8TOrgX4T6bosRPj4SjY0P3Ypbn3PlEGWO4JRmoitqefPvLBj5DHrTXAV_mgsUhY_kZN1TaAzRHgxWYtfKR4qpL2SndI6Bgz0";
+      //   const token =
+      //     "AQCwQsBThaF00FfAXH1p9P04Myn_8UyoLhk8TOrgX4T6bosRPj4SjY0P3Ypbn3PlEGWO4JRmoitqefPvLBj5DHrTXAV_mgsUhY_kZN1TaAzRHgxWYtfKR4qpL2SndI6Bgz0";
 
       await axios({
         method: "get",
-        url: "http://localhost:5000/backend/getAllTracksFromLibrary",
-        headers: { refresh_token: token },
+        url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
+        withCredentials: true,
       }).then((value) => console.log(value.data));
 
       var songs_to_add_array = null;
@@ -63,12 +63,13 @@ export default {
         },
       }).then((value) => (songs_to_add_array = value.data));
 
+      console.log("SONGS TO ADD");
       console.log(songs_to_add_array);
 
       await axios({
         method: "post",
         url: "http://localhost:5000/backend/createPlaylist",
-        headers: { refresh_token: token },
+        withCredentials: true,
         data: {
           name: param.playlistInformation.name,
           description: param.playlistInformation.description,

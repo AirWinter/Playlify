@@ -1,4 +1,4 @@
-from flask import Flask, request, url_for, session, redirect, jsonify
+from flask import Flask, request, url_for, session, redirect, jsonify, abort, Response
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 from backend import secrets
@@ -11,8 +11,10 @@ app = Flask(__name__)
 app.secret_key = secrets.secret_key
 app.config['SESSION_COOKIE_NAME'] = 'spotify-login-session'
 
-CORS(app, resources={r"/*": {'origins': "*"}})
-# CORS(app, resources={r'/*':{'origins': 'http://localhost:8080',"allow_headers": "Access-Control-Allow-Origin"}})
+# CORS(app, resources={r"/*": {'origins': "*"}})
+CORS(app, resources={r'/*':{'origins': 'http://localhost:8080',"allow_headers": "Access-Control-Allow-Origin"}})
+CORS(app, supports_credentials=True)
+# app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 
 TOKEN_INFO = "token_info"
 my_genres = []
@@ -76,15 +78,55 @@ def get_playlist():
     return jsonify(my_playlists)
 
 
-@app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
-def get_all_tracks_from_library():
-    global songs
-    if 'refresh_token' not in request.headers:
-        print("Didn't pass refresh token in request header")
-        return redirect(url_for('home'), 400)
+# @app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
+# def get_all_tracks_from_library():
+#     global songs
+#     if 'refresh_token' not in request.headers:
+#         print("Didn't pass refresh token in request header")
+#         return redirect(url_for('home'), 400)
+#
+#     sp_oath = create_spotify_oath()
+#     token_info = sp_oath.refresh_access_token(request.headers['refresh_token'])
+#     sp = spotipy.Spotify(auth=token_info['access_token'])
+#     all_songs = []
+#     count = 0
+#     while True:
+#         items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market='DE')['items']
+#         artists_ids = []
+#         song_ids = []
+#         dates = []
+#         for i in range(0, len(items)):
+#             song_id = items[i]['track']['id']
+#             song_ids.append(song_id)
+#             artist_id = items[i]['track']['artists'][0]['id']
+#             date = items[i]['track']['album']['release_date']
+#             dates.append(date)
+#             artists_ids.append(artist_id)
+#         artists = sp.artists(artists_ids)
+#         for i in range(0, len(items)):
+#             all_songs.append({"id": song_ids[i], "genres": artists['artists'][i]['genres'], "date-created": dates[i]})
+#             for genre in artists['artists'][i]['genres']:
+#                 if genre not in my_genres:
+#                     my_genres.append(genre)
+#                 if genre not in all_my_genres.keys():
+#                     all_my_genres[genre] = stringify(genre)
+#         count += 1
+#         if len(items) < 50:
+#             break
+#     songs = all_songs
+#     return jsonify(all_songs)
 
-    sp_oath = create_spotify_oath()
-    token_info = sp_oath.refresh_access_token(request.headers['refresh_token'])
+# Don't actually return the songs, just store them
+@app.route('/backend/loadAllTracksFromLibrary', methods=['GET'])
+def load_all_tracks_from_library():
+    global songs
+
+    try:
+        token_info = get_token()
+    except NotLoggedInException:
+        print("User not logged in!")
+        return redirect(url_for('login', _external=False))
+
     sp = spotipy.Spotify(auth=token_info['access_token'])
     all_songs = []
     count = 0
@@ -112,7 +154,10 @@ def get_all_tracks_from_library():
         if len(items) < 50:
             break
     songs = all_songs
-    return jsonify(all_songs)
+    response = jsonify(all_songs)
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:8080')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 
 # In case they add genres to songs
@@ -148,13 +193,14 @@ def get_all_tracks_from_library():
 
 @app.route('/backend/createPlaylist', methods=['POST'])
 def create_playlist():
-    # Pass refresh token in header when calling the endpoint
-    if 'refresh_token' not in request.headers:
-        print("Didn't pass refresh token in request header")
-        return redirect(url_for('home'), 400)
+    print("HEADERS")
+    print(request.headers)
 
-    sp_oath = create_spotify_oath()
-    token_info = sp_oath.refresh_access_token(request.headers['refresh_token'])
+    try:
+        token_info = get_token()
+    except NotLoggedInException:
+        print("User not logged in!")
+        return redirect(url_for('login', _external=False))
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()
@@ -181,7 +227,19 @@ def create_playlist():
     songs_to_add = json.loads(request.data)['songs_to_add']
     print(f"Songs to add: {songs_to_add}")
 
-    return add_songs(sp, playlist_id, songs_to_add)
+    # Populate Playlist
+    for list_of_songs in chunks(songs_to_add, 100):
+        response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
+        print(f"Populated: {response_populate}")
+
+    headers = {}
+    headers['Access-Control-Allow-Credentials'] = 'true'
+    headers['Access-Control-Allow-Origin'] = 'http://localhost:8080'
+    print(headers)
+    response = Response(status=200, headers=headers)
+    print(response.headers)
+
+    return response
 
 
 @app.route('/backend/getSongsToAdd', methods=['GET'])
@@ -209,7 +267,6 @@ def get_songs_to_add():
     # Map resulting list of songs to just their Id's
     songs_to_add = list(map(lambda s: s['id'], songs_to_add))
     print(f"Songs to add: {songs_to_add}")
-
     return jsonify(songs_to_add)
 
 
@@ -217,15 +274,6 @@ def get_songs_to_add():
 def get_all_my_genres():
     global all_my_genres
     return all_my_genres
-
-
-def add_songs(sp, playlist_id, songs_to_add):
-    # Populate Playlist
-    for list_of_songs in chunks(songs_to_add, 100):
-        response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
-        print(f"Populated: {response_populate}")
-
-    return redirect(url_for('songs_added'), 200)
 
 
 class NotLoggedInException(Exception):
