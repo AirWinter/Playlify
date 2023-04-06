@@ -49,23 +49,12 @@ export default {
     };
   },
   methods: {
-    getPlaylists() {
-      const path = "http://localhost:5000/backend/getPlaylists";
-      const token =
-        "AQCwQsBThaF00FfAXH1p9P04Myn_8UyoLhk8TOrgX4T6bosRPj4SjY0P3Ypbn3PlEGWO4JRmoitqefPvLBj5DHrTXAV_mgsUhY_kZN1TaAzRHgxWYtfKR4qpL2SndI6Bgz0";
-      const config = {
-        headers: {
-          refresh_token: token,
-        },
-      };
-      axios
-        .get(path, config)
-        .then((res) => {
-          this.playlists = res.data;
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+    async getPlaylists() {
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getPlaylists",
+        withCredentials: true,
+      }).then((value) => (this.playlists = value.data));
     },
   },
   created() {
