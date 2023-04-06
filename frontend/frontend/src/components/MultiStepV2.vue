@@ -24,7 +24,7 @@ export default {
         { label: "Indie", value: "indie" },
         { label: "R&B", value: "r-n-b" },
       ],
-      loading: false,
+      loading: true,
     };
   },
   methods: {
@@ -38,19 +38,16 @@ export default {
         url: "http://localhost:5000/backend/getAllMyGenres",
       }).then((value) => console.log(value)((this.genre_options = value.data)));
     },
-    async handleSubmit(param) {
-      this.loading = true;
-      console.log(param.playlistInformation);
-      console.log(param.filters);
-      //   const token =
-      //     "AQCwQsBThaF00FfAXH1p9P04Myn_8UyoLhk8TOrgX4T6bosRPj4SjY0P3Ypbn3PlEGWO4JRmoitqefPvLBj5DHrTXAV_mgsUhY_kZN1TaAzRHgxWYtfKR4qpL2SndI6Bgz0";
-
+    async loadAllTracksFromLibrary() {
       await axios({
         method: "get",
         url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
         withCredentials: true,
       }).then((value) => console.log(value.data));
-
+      this.loading = false;
+    },
+    async handleSubmit(param) {
+      this.loading = true;
       var songs_to_add_array = null;
       await axios({
         method: "get",
@@ -80,6 +77,9 @@ export default {
       this.loading = false;
       this.$router.push("/my-playlists");
     },
+  },
+  created() {
+    this.loadAllTracksFromLibrary();
   },
 };
 </script>

@@ -196,9 +196,6 @@ def load_all_tracks_from_library():
 
 @app.route('/backend/createPlaylist', methods=['POST'])
 def create_playlist():
-    print("HEADERS")
-    print(request.headers)
-
     try:
         token_info = get_token()
     except NotLoggedInException:
@@ -235,12 +232,8 @@ def create_playlist():
         response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
         print(f"Populated: {response_populate}")
 
-    headers = {}
-    headers['Access-Control-Allow-Credentials'] = 'true'
-    headers['Access-Control-Allow-Origin'] = 'http://localhost:8080'
-    print(headers)
+    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
     response = Response(status=200, headers=headers)
-    print(response.headers)
 
     return response
 
