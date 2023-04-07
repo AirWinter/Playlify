@@ -117,7 +117,10 @@ def get_playlist():
 #         if len(items) < 50:
 #             break
 #     songs = all_songs
-#     return jsonify(all_songs)
+#     response = jsonify(all_songs)
+#     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:8080')
+#     response.headers.add('Access-Control-Allow-Credentials', 'true')
+#     return response
 
 # Don't actually return the songs, just store them
 @app.route('/backend/loadAllTracksFromLibrary', methods=['GET'])
@@ -157,9 +160,9 @@ def load_all_tracks_from_library():
         if len(items) < 50:
             break
     songs = all_songs
-    response = jsonify(all_songs)
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:8080')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    
+    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
+    response = Response(status=200, headers=headers)
     return response
 
 

@@ -6,14 +6,14 @@ export default {
     return {
       playlist: {
         playlistInformation: {
-          name: "Playlist Name",
+          name: "",
           description: "",
           public: false,
         },
         filters: {
           genre: "any",
-          created_after_month: "-------",
-          created_before_month: "-------",
+          created_after_month: "",
+          created_before_month: "",
         },
       },
       genre_options: [
@@ -29,9 +29,6 @@ export default {
   },
   methods: {
     async handleNextOne(value) {
-      //   console.log("HERE");
-      //   console.log(value);
-      //   console.log(value.playlistInformation.name);
       this.playlistInformation = value.playlistInformation;
       await axios({
         method: "get",
@@ -43,8 +40,7 @@ export default {
         method: "get",
         url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
         withCredentials: true,
-      }).then((value) => console.log(value.data));
-      this.loading = false;
+      }).then((this.loading = false));
     },
     async handleSubmit(param) {
       this.loading = true;
@@ -158,12 +154,22 @@ export default {
             help="Add songs created after this date"
             label="Songs Created After"
             name="created_after_month"
+            :validation="`$date_before:{{value.filters.created_before_month}}`"
+            validation-visibility="live"
+            :validation-messages="{
+              date_before: 'Date range invalid',
+            }"
           />
           <FormKit
             type="month"
             help="Add songs created before this date"
             label="Songs Created Before"
             name="created_before_month"
+            :validation="`$date_after:{{value.filters.created_after_month}}`"
+            validation-visibility="live"
+            :validation-messages="{
+              date_after: 'Date range invalid',
+            }"
           />
           <template #stepPrevious="{ handlers, node }">
             <!-- incrementStep returns a callable function -->
@@ -174,7 +180,17 @@ export default {
             />
           </template>
           <template #stepNext>
-            <FormKit type="submit" @click="handleSubmit(value)" />
+            <FormKit
+              v-if="
+                value.filters.created_before_month >
+                  value.filters.created_after_month ||
+                value.filters.created_before_month == '' ||
+                value.filters.created_after_month == ''
+              "
+              type="submit"
+              @click="handleSubmit(value)"
+            />
+            <a v-else>Invalid Date Range!!! </a>
           </template>
         </FormKit>
         <pre wrap>{{ value }}</pre>
