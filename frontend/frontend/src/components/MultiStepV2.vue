@@ -1,17 +1,19 @@
 <script>
 import axios from "axios";
+
 export default {
   name: "MultiStepV2",
+
   data() {
     return {
       playlist: {
         playlistInformation: {
-          name: "",
+          name: "Name",
           description: "",
           public: false,
         },
         filters: {
-          genre: "any",
+          genre: [],
           created_after_month: "",
           created_before_month: "",
         },
@@ -40,17 +42,19 @@ export default {
         method: "get",
         url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
         withCredentials: true,
-      }).then((this.loading = false));
+      });
+      this.loading = false;
     },
     async handleSubmit(param) {
       this.loading = true;
       var songs_to_add_array = null;
+      console.log(param.filters.genre);
       await axios({
         method: "get",
         url: "http://localhost:5000/backend/getSongsToAdd",
 
         params: {
-          genre: param.filters.genre,
+          genre: param.filters.genre.reduce((f, s) => `${f};${s}`),
           created_after_month: param.filters.created_after_month,
           created_before_month: param.filters.created_before_month,
         },
@@ -142,13 +146,18 @@ export default {
         </FormKit>
 
         <FormKit type="step" name="filters" label="Filters">
-          <FormKit
+          <!-- <FormKit
             type="select"
             label="Genre of your playlist"
             name="genre"
             :options="genre_options"
+          /> -->
+          <FormKit
+            type="taglist"
+            name="genre"
+            label="Genre of your playlist"
+            :options="genre_options"
           />
-
           <FormKit
             type="month"
             help="Add songs created after this date"

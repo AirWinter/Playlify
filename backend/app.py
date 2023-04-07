@@ -19,7 +19,7 @@ CORS(app, supports_credentials=True)
 TOKEN_INFO = "token_info"
 my_genres = []
 songs = []
-all_my_genres = {'any': "Any"}
+all_my_genres = {}
 
 
 @app.route('/home')
@@ -160,7 +160,7 @@ def load_all_tracks_from_library():
         if len(items) < 50:
             break
     songs = all_songs
-    
+
     headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
     response = Response(status=200, headers=headers)
     return response
@@ -247,21 +247,21 @@ def get_songs_to_add():
     filters = {"genre": request.args.get('genre'),
                "created_after_month": request.args.get('created_after_month'),
                "created_before_month": request.args.get('created_before_month')}
-    print(filters)
     songs_to_add = songs
-
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
         # Only filter if the genre filter is not 'Any'
-        if apply_filter == "genre" and filters[apply_filter] != "any":
-            songs_to_add = list(filter(lambda s: filters[apply_filter] in s['genres'], songs_to_add))
-        elif apply_filter == "created_after_month" and filters[apply_filter] != "-------":
+        if apply_filter == "genre" and filters[apply_filter] is not None:
+            all_genres = filters["genre"].split(";")
+            if len(all_genres) > 0 and "any" not in all_genres:
+                songs_to_add = list(filter(lambda s: any(filter_genre in s['genres'] for filter_genre in all_genres), songs_to_add))
+        elif apply_filter == "created_after_month" and filters[apply_filter] != "":
             songs_to_add = list(filter(lambda s: s['date-created'] >= filters[apply_filter], songs_to_add))
-        elif apply_filter == "created_before_month" and filters[apply_filter] != "-------":
+        elif apply_filter == "created_before_month" and filters[apply_filter] != "":
             songs_to_add = list(filter(lambda s: s['date-created'] <= filters[apply_filter], songs_to_add))
-        elif apply_filter == "language" and filters[apply_filter] != "any":
-            songs_to_add = list(
-                filter(lambda s: any(filters[apply_filter] in any_genre for any_genre in s['genres']), songs_to_add))
+        # elif apply_filter == "language" and filters[apply_filter] != "any":
+        #     songs_to_add = list(
+        #         filter(lambda s: any(filters[apply_filter] in any_genre for any_genre in s['genres']), songs_to_add))
 
     # Map resulting list of songs to just their Id's
     songs_to_add = list(map(lambda s: s['id'], songs_to_add))
