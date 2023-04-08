@@ -8,7 +8,7 @@ import MultiSelect from "../components/MultiSelect.vue";
 
 const routes = [
   {
-    path: "/get-started",
+    path: "/",
     name: "GetStarted",
     component: GetStarted,
   },
