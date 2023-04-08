@@ -17,9 +17,10 @@ CORS(app, supports_credentials=True)
 # app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 
 TOKEN_INFO = "token_info"
-my_genres = []
-songs = []
 all_my_genres = {}
+all_my_artists = {}
+all_my_songs = {}
+loaded = False
 
 
 @app.route('/home')
@@ -109,8 +110,6 @@ def get_playlist():
 #         for i in range(0, len(items)):
 #             all_songs.append({"id": song_ids[i], "genres": artists['artists'][i]['genres'], "date-created": dates[i]})
 #             for genre in artists['artists'][i]['genres']:
-#                 if genre not in my_genres:
-#                     my_genres.append(genre)
 #                 if genre not in all_my_genres.keys():
 #                     all_my_genres[genre] = stringify(genre)
 #         count += 1
@@ -125,42 +124,63 @@ def get_playlist():
 # Don't actually return the songs, just store them
 @app.route('/backend/loadAllTracksFromLibrary', methods=['GET'])
 def load_all_tracks_from_library():
-    global songs
-
+    global loaded
     try:
         token_info = get_token()
     except NotLoggedInException:
         print("User not logged in!")
         return redirect(url_for('login', _external=False))
 
+    if loaded:
+        headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
+        response = Response(status=200, headers=headers)
+        return response
+
     sp = spotipy.Spotify(auth=token_info['access_token'])
-    all_songs = []
+
     count = 0
+    # Don't hardcode the market, but rather get it from the user
+    user = sp.me()
+    market = user['country']
     while True:
-        items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market='DE')['items']
-        artists_ids = []
-        song_ids = []
-        dates = []
+        items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
         for i in range(0, len(items)):
+            number_of_artists = len(items[i]['track']['artists'])
+            artists = {}
+            for j in range(0, number_of_artists):
+                a_id = items[i]['track']['artists'][j]['id']
+                a_name = items[i]['track']['artists'][j]['name']
+                artists[a_id] = a_name
+                if a_id not in all_my_artists.keys():
+                    all_my_artists[a_id] = {'name': a_name}
             song_id = items[i]['track']['id']
-            song_ids.append(song_id)
-            artist_id = items[i]['track']['artists'][0]['id']
+            song_name = items[i]['track']['name']
             date = items[i]['track']['album']['release_date']
-            dates.append(date)
-            artists_ids.append(artist_id)
-        artists = sp.artists(artists_ids)
-        for i in range(0, len(items)):
-            all_songs.append({"id": song_ids[i], "genres": artists['artists'][i]['genres'], "date-created": dates[i]})
-            for genre in artists['artists'][i]['genres']:
-                if genre not in my_genres:
-                    my_genres.append(genre)
-                if genre not in all_my_genres.keys():
-                    all_my_genres[genre] = stringify(genre)
+            all_my_songs[song_id] = {'name': song_name, 'artists': artists, 'date-created': date}
+
         count += 1
         if len(items) < 50:
             break
-    songs = all_songs
 
+    for chunks_of_artist_ids in chunks(list(all_my_artists.keys()), 50):
+        artists_information = sp.artists(chunks_of_artist_ids)
+        for artist_information in artists_information['artists']:
+            artist_id = artist_information['id']
+            genres = artist_information['genres']
+            all_my_artists[artist_id]['genres'] = genres
+            for genre in genres:
+                if genre not in all_my_genres.keys():
+                    all_my_genres[genre] = stringify(genre)
+
+    for song_id in all_my_songs.keys():
+        song_artists_ids = all_my_songs[song_id]['artists']
+        song_genres = []
+        for artist_id in song_artists_ids:
+            song_genres.extend(all_my_artists[artist_id]['genres'])
+
+        all_my_songs[song_id]['genres'] = song_genres
+
+    loaded = True
     headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
     response = Response(status=200, headers=headers)
     return response
@@ -214,15 +234,16 @@ def create_playlist():
     if 'public' in json.loads(request.data).keys():
         is_public = json.loads(request.data)['public']
 
+    description = json.loads(request.data)['description']
+    print(f"Description: {description}")
     # Create empty playlist
-    response_create = sp.user_playlist_create(user=user['id'], name=name, public=is_public)
+    response_create = sp.user_playlist_create(user=user['id'], name=name, description=description, public=is_public)
 
     print(f"Created: {response_create}")
     playlist_id = response_create['id']
 
     if 'description' in json.loads(request.data).keys():
         description = json.loads(request.data)['description']
-        print(f"Description: {description}")
         if len(description) > 0:
             response_change = sp.playlist_change_details(playlist_id=playlist_id, description=description)
             print(f"Changed: {response_change}")
@@ -243,36 +264,49 @@ def create_playlist():
 
 @app.route('/backend/getSongsToAdd', methods=['GET'])
 def get_songs_to_add():
-    global songs
-    filters = {"genre": request.args.get('genre'),
+    filters = {"genre": request.args.get('genres'),
+               "artists": request.args.get('artists'),
                "created_after_month": request.args.get('created_after_month'),
                "created_before_month": request.args.get('created_before_month')}
-    songs_to_add = songs
+    songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
         # Only filter if the genre filter is not 'Any'
         if apply_filter == "genre" and filters[apply_filter] is not None:
             all_genres = filters["genre"].split(";")
             if len(all_genres) > 0 and "any" not in all_genres:
-                songs_to_add = list(filter(lambda s: any(filter_genre in s['genres'] for filter_genre in all_genres), songs_to_add))
+                songs_to_add = list(filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres), songs_to_add))
+        if apply_filter == "artists" and filters[apply_filter] is not None:
+            all_artists = filters[apply_filter].split(";")
+            if len(all_artists) > 0:
+                songs_to_add = list(
+                    filter(lambda s: any(filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists), songs_to_add))
         elif apply_filter == "created_after_month" and filters[apply_filter] != "":
-            songs_to_add = list(filter(lambda s: s['date-created'] >= filters[apply_filter], songs_to_add))
+            songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
-            songs_to_add = list(filter(lambda s: s['date-created'] <= filters[apply_filter], songs_to_add))
+            songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
         # elif apply_filter == "language" and filters[apply_filter] != "any":
         #     songs_to_add = list(
-        #         filter(lambda s: any(filters[apply_filter] in any_genre for any_genre in s['genres']), songs_to_add))
+        #         filter(lambda s: any(filters[apply_filter] in any_genre for any_genre in all_my_songs[s]['genres']), songs_to_add))
 
     # Map resulting list of songs to just their Id's
-    songs_to_add = list(map(lambda s: s['id'], songs_to_add))
+    # songs_to_add = list(map(lambda s: s['id'], songs_to_add))
     print(f"Songs to add: {songs_to_add}")
     return jsonify(songs_to_add)
 
 
 @app.route('/backend/getAllMyGenres', methods=['GET'])
 def get_all_my_genres():
-    global all_my_genres
     return all_my_genres
+
+
+@app.route('/backend/getAllMyArtists', methods=['GET'])
+def get_all_my_artists():
+    artists_to_return = {}
+    for artist_id in all_my_artists.keys():
+        artists_to_return[artist_id] = all_my_artists[artist_id]['name']
+
+    return artists_to_return
 
 
 class NotLoggedInException(Exception):

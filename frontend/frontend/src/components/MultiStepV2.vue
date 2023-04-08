@@ -13,12 +13,13 @@ export default {
           public: false,
         },
         filters: {
-          genre: [],
+          genres: [],
+          artists: [],
           created_after_month: "",
           created_before_month: "",
         },
       },
-      genre_options: [
+      genres_options: [
         { label: "Any", value: "any" },
         { label: "Pop", value: "pop" },
         { label: "Rock", value: "rock" },
@@ -26,6 +27,7 @@ export default {
         { label: "Indie", value: "indie" },
         { label: "R&B", value: "r-n-b" },
       ],
+      artist_options: [{ label: "Any", value: "any" }],
       loading: true,
     };
   },
@@ -35,7 +37,11 @@ export default {
       await axios({
         method: "get",
         url: "http://localhost:5000/backend/getAllMyGenres",
-      }).then((value) => console.log(value)((this.genre_options = value.data)));
+      }).then((value) => (this.genres_options = value.data));
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getAllMyArtists",
+      }).then((value) => (this.artist_options = value.data));
     },
     async loadAllTracksFromLibrary() {
       await axios({
@@ -46,15 +52,22 @@ export default {
       this.loading = false;
     },
     async handleSubmit(param) {
+      console.log(param);
       this.loading = true;
       var songs_to_add_array = null;
-      console.log(param.filters.genre);
       await axios({
         method: "get",
         url: "http://localhost:5000/backend/getSongsToAdd",
 
         params: {
-          genre: param.filters.genre.reduce((f, s) => `${f};${s}`),
+          genres:
+            param.filters.genres.length > 0
+              ? param.filters.genres.reduce((f, s) => `${f};${s}`)
+              : [],
+          artists:
+            param.filters.artists.length > 0
+              ? param.filters.artists.reduce((a, b) => `${a};${b}`)
+              : [],
           created_after_month: param.filters.created_after_month,
           created_before_month: param.filters.created_before_month,
         },
@@ -146,22 +159,24 @@ export default {
         </FormKit>
 
         <FormKit type="step" name="filters" label="Filters">
-          <!-- <FormKit
-            type="select"
-            label="Genre of your playlist"
-            name="genre"
-            :options="genre_options"
-          /> -->
           <FormKit
             type="taglist"
-            name="genre"
-            label="Genre of your playlist"
-            :options="genre_options"
+            name="genres"
+            label="Genre of your playlist (Optional)"
+            help="Add all the genres of songs you want to be added to your playlist"
+            :options="genres_options"
+          />
+          <FormKit
+            type="taglist"
+            name="artists"
+            label="Artists to add to your playlist (Optional)"
+            help="Add all songs from the artists specified"
+            :options="artist_options"
           />
           <FormKit
             type="month"
             help="Add songs created after this date"
-            label="Songs Created After"
+            label="Songs Created After (Optional)"
             name="created_after_month"
             :validation="`$date_before:{{value.filters.created_before_month}}`"
             validation-visibility="live"
@@ -172,7 +187,7 @@ export default {
           <FormKit
             type="month"
             help="Add songs created before this date"
-            label="Songs Created Before"
+            label="Songs Created Before (Optional)"
             name="created_before_month"
             :validation="`$date_after:{{value.filters.created_after_month}}`"
             validation-visibility="live"
@@ -202,9 +217,7 @@ export default {
             <a v-else>Invalid Date Range!!! </a>
           </template>
         </FormKit>
-        <pre wrap>{{ value }}</pre>
       </FormKit>
-      <pre wrap>{{ playlist }}</pre>
     </FormKit>
   </div>
 </template>
