@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
-import GetStarted from "../components/GetStarted.vue";
 import PlaylistItem from "../components/PlaylistItem.vue";
 import CreatePlaylist from "../components/CreatePlaylist.vue";
 import MultiStep from "../components/MultiStep.vue";
 import MultiStepV2 from "../components/MultiStepV2.vue";
 import MultiSelect from "../components/MultiSelect.vue";
+import GetStartedView from "../views/GetStartedView.vue";
 
 const routes = [
   {
     path: "/",
-    name: "GetStarted",
-    component: GetStarted,
+    name: "GetStartedView",
+    component: GetStartedView,
   },
   {
     path: "/my-playlists",

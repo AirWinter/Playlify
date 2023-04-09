@@ -2,8 +2,4 @@
   <router-view />
 </template>
 
-<style>
-#app {
-  margin-top: 30px;
-}
-</style>
+<style></style>

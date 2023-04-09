@@ -22,12 +22,6 @@ all_my_artists = {}
 all_my_songs = {}
 loaded = False
 
-
-@app.route('/home')
-def home():
-    return 'Welcome to Playlify'
-
-
 @app.route('/login')
 def login():
     sp_oath = create_spotify_oath()

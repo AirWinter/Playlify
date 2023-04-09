@@ -10,6 +10,7 @@ import "@formkit/themes/genesis";
 import "@formkit/addons/css/multistep";
 import "@formkit/pro/genesis";
 import { createProPlugin, inputs } from "@formkit/pro";
+import "./assets/tailwind.css";
 
 const pro = createProPlugin("fk-8a4f44be10", inputs);
 
