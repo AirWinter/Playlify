@@ -10,8 +10,8 @@
       <!-- Container-->
       <div class="w-full h-full relative bg-blue-400">
         <!-- Top Header with logo-->
-        <div class="w-full top-0 bg-darkest p-10">
-          <img src="SpotifyLogoWhite.png" class="h-10" />
+        <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
+          <img src="PoweredBySpotify.png" class="h-10" />
         </div>
         <!-- Welcome Header -->
         <div class="w-full top-0 bg-dark p-10">
@@ -20,29 +20,44 @@
           </p>
         </div>
         <!-- Link to Login -->
-        <div class="w-full top-0 bg-dark p-10">
-          <p class="text-center text-4xl font-semibold text-white">
-            <a href="http://localhost:5000/login">Get Started</a>
-          </p>
+        <div class="w-full bg-dark flex flex-col items-center">
+          <a href="http://localhost:5000/login">
+            <button
+              class="btn h-20 w-64 bg-green text-black text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
+            >
+              Get Started
+            </button>
+          </a>
         </div>
+        <!-- Gap between get started and text areas below-->
+        <div class="p-4 bg-dark"></div>
         <!-- Text Area-->
-        <div class="w-full h-96 bg-green grid grid-cols-2">
+        <div class="w-full bg-green grid grid-cols-2" style="height: 50vh">
           <!-- Left Text Area-->
-          <div class="bg-dark">
-            <!-- Section Title-->
-            <p class="text-center text-white font-semibold text-3xl p-4">
-              What is Playlify?
-            </p>
-            <!-- Section Text-->
-            <p>Lorem ipsum dolor</p>
+          <div class="bg-dark flex flex-col items-center">
+            <div class="rounded-3xl bg-darker h-80 w-96 p-4">
+              <!-- Section Title-->
+              <p class="text-center text-lightest font-bold text-4xl p-2">
+                What is Playlify?
+              </p>
+              <!-- Section Text-->
+              <p class="text-center text-white text-l font-semibold">
+                Lorem ipsum dolor
+              </p>
+            </div>
           </div>
           <!-- Right Text Area-->
-          <div class="bg-dark">
-            <!-- Section Title-->
-            <p class="text-center text-white font-semibold text-3xl p-4">
-              How does it work?
-            </p>
-            <!-- Section Text-->
+          <div class="bg-dark flex flex-col items-center">
+            <div class="rounded-3xl bg-darker h-80 w-96 p-4">
+              <!-- Section Title-->
+              <p class="text-center text-lightest font-bold text-4xl p-2">
+                How does it work?
+              </p>
+              <!-- Section Text-->
+              <p class="text-center text-white text-l font-semibold">
+                Lorem ipsum dolor
+              </p>
+            </div>
           </div>
         </div>
       </div>
