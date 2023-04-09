@@ -29,32 +29,16 @@ export default {
       ],
       artist_options: [{ label: "Any", value: "any" }],
       loading: true,
+      loading_songs: true,
+      songs: {
+        1: { song_name: "Name", artists: "Artist" },
+      },
     };
   },
   methods: {
-    async handleNextOne(value) {
-      this.playlistInformation = value.playlistInformation;
-      await axios({
-        method: "get",
-        url: "http://localhost:5000/backend/getAllMyGenres",
-      }).then((value) => (this.genres_options = value.data));
-      await axios({
-        method: "get",
-        url: "http://localhost:5000/backend/getAllMyArtists",
-      }).then((value) => (this.artist_options = value.data));
-    },
-    async loadAllTracksFromLibrary() {
-      await axios({
-        method: "get",
-        url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
-        withCredentials: true,
-      });
-      this.loading = false;
-    },
-    async handleSubmit(param) {
-      console.log(param);
-      this.loading = true;
+    async getSongsToAdd(param) {
       var songs_to_add_array = null;
+      // Get the songs to dd
       await axios({
         method: "get",
         url: "http://localhost:5000/backend/getSongsToAdd",
@@ -72,10 +56,37 @@ export default {
           created_before_month: param.filters.created_before_month,
         },
       }).then((value) => (songs_to_add_array = value.data));
-
-      console.log("SONGS TO ADD");
-      console.log(songs_to_add_array);
-
+      this.songs = songs_to_add_array;
+      this.loading_songs = false;
+    },
+    removeSong(index) {
+      delete this.songs[index];
+    },
+    async handleNextOne(value) {
+      this.playlistInformation = value.playlistInformation;
+      // Get all the genres from backend
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getAllMyGenres",
+      }).then((value) => (this.genres_options = value.data));
+      // Get all the artists from backend
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/getAllMyArtists",
+      }).then((value) => (this.artist_options = value.data));
+    },
+    async loadAllTracksFromLibrary() {
+      await axios({
+        method: "get",
+        url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
+        withCredentials: true,
+      });
+      this.loading = false;
+    },
+    async handleSubmit(param) {
+      this.loading = true;
+      var songs_to_add_array = Object.keys(this.songs);
+      // Create the playlist
       await axios({
         method: "post",
         url: "http://localhost:5000/backend/createPlaylist",
@@ -145,16 +156,25 @@ export default {
             help="Do you want your playlist to be public?"
             name="public"
           />
+          <!-- Invisible button so that the next is on the bottom right -->
+          <template #stepPrevious="">
+            <button type="button" class="btn btn-sm" :disabled="true"></button>
+          </template>
+          <!-- Next Button Page 1-->
           <template #stepNext="{ handlers, node }">
-            <!-- incrementStep returns a callable function -->
-            <FormKit
-              type="button"
-              @click="
-                handleNextOne(value), handlers.incrementStep(1, node.context)()
-              "
-              label="Next Step"
-              data-next="true"
-            />
+            <div class="relative bottom-0 right-0">
+              <button
+                type="button"
+                class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn btn-sm"
+                @click="
+                  handleNextOne(value),
+                    handlers.incrementStep(1, node.context)()
+                "
+                data-next="true"
+              >
+                Next
+              </button>
+            </div>
           </template>
         </FormKit>
 
@@ -195,16 +215,78 @@ export default {
               date_after: 'Date range invalid',
             }"
           />
+          <!-- Go back to basic Information -->
           <template #stepPrevious="{ handlers, node }">
-            <!-- incrementStep returns a callable function -->
-            <FormKit
+            <button
               type="button"
+              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
               @click="handlers.incrementStep(-1, node.context)()"
-              label="Custom Previous"
-            />
+            >
+              Previous
+            </button>
           </template>
+          <!-- Go to validation step-->
+          <template #stepNext="{ handlers, node }">
+            <button
+              type="button"
+              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+              @click="
+                getSongsToAdd(value), handlers.incrementStep(1, node.context)()
+              "
+              data-next="true"
+            >
+              Validate
+            </button>
+          </template>
+        </FormKit>
+        <FormKit type="step" name="validation" label="Validation">
+          <div class="overflow-y-auto h-96">
+            <!-- Create table containing existing playlists-->
+            <p class="text-center text-xl text-darkest font-bold">
+              Suggested Songs
+            </p>
+            <div class="py-2"></div>
+            <table class="table w-full" v-if="!this.loading_songs">
+              <!-- Table Header-->
+              <thead class="sticky top-0 bg-white">
+                <tr>
+                  <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
+                  <th scope="col">Song Name</th>
+                  <th scope="col">Artist(s)</th>
+                  <th scope="col">Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(song, index) in songs" :key="index">
+                  <td class="py-3">{{ song.song_name }}</td>
+                  <td class="py-3">{{ song.artists }}</td>
+                  <td>
+                    <button
+                      class="bg-white hover:bg-gray-400 px-3"
+                      type="button"
+                      @click="removeSong(index)"
+                    >
+                      <img src="trash-can.png" class="h-6 w-6" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="py-1"></div>
+          <!-- Go back to filters -->
+          <template #stepPrevious="{ handlers, node }">
+            <button
+              type="button"
+              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+              @click="handlers.incrementStep(-1, node.context)()"
+            >
+              Go Back
+            </button>
+          </template>
+          <!-- Submit Button -->
           <template #stepNext>
-            <FormKit
+            <button
               v-if="
                 value.filters.created_before_month >
                   value.filters.created_after_month ||
@@ -212,8 +294,12 @@ export default {
                 value.filters.created_after_month == ''
               "
               type="submit"
+              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
               @click="handleSubmit(value)"
-            />
+              data-next="true"
+            >
+              Submit
+            </button>
             <a v-else>Invalid Date Range!!! </a>
           </template>
         </FormKit>

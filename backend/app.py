@@ -177,6 +177,7 @@ def load_all_tracks_from_library():
     loaded = True
     headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
     response = Response(status=200, headers=headers)
+    # print(all_my_songs)
     return response
 
 
@@ -279,14 +280,17 @@ def get_songs_to_add():
             songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
             songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
-        # elif apply_filter == "language" and filters[apply_filter] != "any":
-        #     songs_to_add = list(
-        #         filter(lambda s: any(filters[apply_filter] in any_genre for any_genre in all_my_songs[s]['genres']), songs_to_add))
 
-    # Map resulting list of songs to just their Id's
-    # songs_to_add = list(map(lambda s: s['id'], songs_to_add))
-    print(f"Songs to add: {songs_to_add}")
-    return jsonify(songs_to_add)
+    # print(f"Songs to add: {songs_to_add}")
+    result = {}
+    for song_id in songs_to_add:
+        artists = []
+        for artist_id in all_my_songs[song_id]['artists'].keys():
+            artists.append(all_my_songs[song_id]['artists'][artist_id])
+        artists_string = ', '.join([str(elem) for elem in artists])
+        result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']), "artists": artists_string}
+    print(result)
+    return jsonify(result)
 
 
 @app.route('/backend/getAllMyGenres', methods=['GET'])
