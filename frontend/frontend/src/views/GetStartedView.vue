@@ -23,7 +23,7 @@
         <div class="w-full bg-dark flex flex-col items-center">
           <a href="http://localhost:5000/login">
             <button
-              class="btn h-20 w-64 bg-green text-black text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
+              class="btn h-20 w-64 bg-green border-0 text-black text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
             >
               Get Started
             </button>
@@ -41,8 +41,12 @@
                 What is Playlify?
               </p>
               <!-- Section Text-->
-              <p class="text-center text-white text-l font-semibold">
-                Lorem ipsum dolor
+              <p class="text-center text-white text-xl font-semibold p-1">
+                Playlify is a tool to help you automatically create playlists.
+                Playlify goes through you entire library and applies the filters
+                you defined. Filters include: song genre, artists and release
+                date. If you don't define any filters all your songs will be
+                added.
               </p>
             </div>
           </div>
@@ -54,8 +58,17 @@
                 How does it work?
               </p>
               <!-- Section Text-->
-              <p class="text-center text-white text-l font-semibold">
-                Lorem ipsum dolor
+              <p class="text-center text-white text-xl font-semibold p-2">
+                1. Enter basic information
+              </p>
+              <p class="text-center text-white text-xl font-semibold p-2">
+                2. Define filters to apply
+              </p>
+              <p class="text-center text-white text-xl font-semibold p-2">
+                3. Validate suggested songs
+              </p>
+              <p class="text-center text-white text-xl font-semibold p-2">
+                4. Submit to create the playlist
               </p>
             </div>
           </div>
