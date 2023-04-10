@@ -2,6 +2,17 @@
   <!-- Top Header with logo-->
   <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
     <img src="PoweredBySpotify.png" class="h-10" />
+    <!-- Log Out Button-->
+    <div class="absolute top-5 right-12">
+      <a href="http://localhost:5000/logout"
+        ><button
+          type="button"
+          class="btn bg-snow h-10 w-28 font-semibold rounded-full text-black hover:underline"
+        >
+          Log Out
+        </button>
+      </a>
+    </div>
   </div>
   <!-- Main Content-->
   <div class="bg-dark">

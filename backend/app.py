@@ -46,7 +46,7 @@ def logout():
     else:
         session.clear()
         print("User logged out!")
-    return redirect(url_for('home', _external=False), 200)
+    return redirect("http://localhost:8080/")
 
 
 @app.route('/songsAdded')
