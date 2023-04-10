@@ -60,7 +60,9 @@ def get_playlist():
         token_info = get_token()
     except NotLoggedInException:
         print("User not logged in!")
-        return redirect(url_for('login', _external=False))
+        headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:8080'}
+        response = Response(status=400, headers=headers)
+        return response
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()

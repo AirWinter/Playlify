@@ -5,6 +5,7 @@ import MultiStep from "../components/MultiStep.vue";
 import MultiStepV2 from "../components/MultiStepV2.vue";
 import MultiSelect from "../components/MultiSelect.vue";
 import GetStartedView from "../views/GetStartedView.vue";
+import PageNotFoundView from "../views/PageNotFoundView.vue";
 
 const routes = [
   {
@@ -37,13 +38,11 @@ const routes = [
     name: "MultiSelect",
     component: MultiSelect,
   },
-
-  //TODO: Create the PageNotFound component
-  // {
-  //   path: '/:catchAll(.*)*',
-  //   name: "PageNotFound",
-  //   component: PageNotFound,
-  //  },
+  {
+    path: "/:catchAll(.*)*",
+    name: "PageNotFoundView",
+    component: PageNotFoundView,
+  },
 ];
 
 const router = createRouter({
