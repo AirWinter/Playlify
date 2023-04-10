@@ -156,16 +156,23 @@ export default {
             help="Do you want your playlist to be public?"
             name="public"
           />
-          <!-- Invisible button so that the next is on the bottom right -->
+          <!-- Go Back To My Playlists -->
           <template #stepPrevious="">
-            <button type="button" class="btn btn-sm" :disabled="true"></button>
+            <a href="/my-playlists">
+              <button
+                type="button"
+                class="btn btn-sm py-2 px-3 rounded-full bg-white border-2 border-slate-700 hover:border-black text-black hover:text-black font-bold"
+              >
+                Cancel
+              </button>
+            </a>
           </template>
           <!-- Next Button Page 1-->
           <template #stepNext="{ handlers, node }">
             <div class="relative bottom-0 right-0">
               <button
                 type="button"
-                class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn btn-sm"
+                class="bg-lime hover:bg-green text-white font-bold py-2 px-3 rounded-full btn btn-sm"
                 @click="
                   handleNextOne(value),
                     handlers.incrementStep(1, node.context)()

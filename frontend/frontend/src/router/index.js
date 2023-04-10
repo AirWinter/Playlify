@@ -1,9 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import PlaylistItem from "../components/PlaylistItem.vue";
-import CreatePlaylist from "../components/CreatePlaylist.vue";
-import MultiStep from "../components/MultiStep.vue";
 import MultiStepV2 from "../components/MultiStepV2.vue";
-import MultiSelect from "../components/MultiSelect.vue";
 import GetStartedView from "../views/GetStartedView.vue";
 import PageNotFoundView from "../views/PageNotFoundView.vue";
 
@@ -19,24 +16,9 @@ const routes = [
     component: PlaylistItem,
   },
   {
-    path: "/create-playlist",
-    name: "CreatePlaylist",
-    component: CreatePlaylist,
-  },
-  {
-    path: "/multi-step",
-    name: "MultiStep",
-    component: MultiStep,
-  },
-  {
     path: "/multi-step-v2",
     name: "MultiStepV2",
     component: MultiStepV2,
-  },
-  {
-    path: "/multi-select",
-    name: "MultiSelect",
-    component: MultiSelect,
   },
   {
     path: "/:catchAll(.*)*",
