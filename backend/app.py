@@ -1,4 +1,4 @@
-from flask import Flask, request, url_for, session, redirect, jsonify, abort, Response
+from flask import Flask, request, url_for, session, redirect, jsonify, Response
 from flask_cors import CORS
 from spotipy.oauth2 import SpotifyOAuth
 from backend import secrets
@@ -41,11 +41,21 @@ def callback():
 
 @app.route('/logout')
 def logout():
+    global all_my_genres
+    global all_my_artists
+    global all_my_songs
+    global loaded
+
     if session.get(TOKEN_INFO, None) is None:
         print("Already logged out")
     else:
         session.clear()
         print("User logged out!")
+
+    all_my_genres = {}
+    all_my_artists = {}
+    all_my_songs = {}
+    loaded = False
     return redirect("http://localhost:8080/")
 
 
@@ -66,12 +76,15 @@ def get_playlist():
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user = sp.me()
+
+    # TODO: What if they have more than 50 playlists?
     playlists = sp.user_playlists(user=user['id'], limit=50, offset=0)
     my_playlists = []
     for playlist in playlists['items']:
         my_playlists.append(
             {"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
 
+    print(my_playlists)
     response = jsonify(my_playlists)
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:8080')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -233,17 +246,18 @@ def create_playlist():
 
     description = json.loads(request.data)['description']
     print(f"Description: {description}")
+
     # Create empty playlist
-    response_create = sp.user_playlist_create(user=user['id'], name=name, description=description, public=is_public)
+    response_create = sp.user_playlist_create(user=user['id'], name=name, public=is_public, description=description)
 
     print(f"Created: {response_create}")
     playlist_id = response_create['id']
 
-    if 'description' in json.loads(request.data).keys():
-        description = json.loads(request.data)['description']
-        if len(description) > 0:
-            response_change = sp.playlist_change_details(playlist_id=playlist_id, description=description)
-            print(f"Changed: {response_change}")
+    # if 'description' in json.loads(request.data).keys():
+    #     description = json.loads(request.data)['description']
+    #     if len(description) > 0:
+    # response_change = sp.playlist_change_details(playlist_id=playlist_id, public=False)
+    # print(f"Changed: {response_change}")
 
     songs_to_add = json.loads(request.data)['songs_to_add']
     print(f"Songs to add: {songs_to_add}")
@@ -333,7 +347,7 @@ def create_spotify_oath():
         client_id=secrets.client_id,
         client_secret=secrets.secret,
         redirect_uri=url_for('callback', _external=True),
-        scope="user-library-read playlist-modify-public playlist-modify-private user-read-private playlist-read-private"
+        scope="user-library-read playlist-modify-public playlist-modify-private user-read-private playlist-read-private playlist-read-collaborative"
     )
 
 

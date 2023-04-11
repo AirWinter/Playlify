@@ -30,13 +30,12 @@ export default {
       artist_options: [{ label: "Any", value: "any" }],
       loading: true,
       loading_songs: true,
-      songs: {
-        1: { song_name: "Name", artists: "Artist" },
-      },
+      songs: {},
     };
   },
   methods: {
     async getSongsToAdd(param) {
+      this.loading_songs = true;
       var songs_to_add_array = null;
       // Get the songs to dd
       await axios({
@@ -109,208 +108,227 @@ export default {
 </script>
 
 <template>
-  <h1>Create a Playlist</h1>
-  <div v-if="loading">Loading...</div>
-  <div v-else>
-    <!-- we'll get rid of the default form actions -->
-    <FormKit type="form" :actions="false">
-      <FormKit
-        type="multi-step"
-        tab-style="progress"
-        #default="{ value }"
-        :value="playlist"
-      >
-        <FormKit
-          type="step"
-          name="playlistInformation"
-          label="Basic Information"
-        >
-          <FormKit
-            type="text"
-            name="name"
-            id="name"
-            label="Playlist Name"
-            placeholder="Name"
-            validation="required|name"
-          />
-          <FormKit
-            type="textarea"
-            name="description"
-            id="description"
-            label="Description (optional)"
-            placeholder="Description"
-            :help="
-              value.playlistInformation?.description !== undefined
-                ? `${value.playlistInformation.description.length} / 300`
-                : `0 / 300`
-            "
-            validation="length:0,300"
-            validation-visibility="live"
-            :validation-messages="{
-              length: 'Description cannot be more than 300 characters.',
-            }"
-          />
-          <FormKit
-            type="checkbox"
-            label="Public"
-            help="Do you want your playlist to be public?"
-            name="public"
-          />
-          <!-- Go Back To My Playlists -->
-          <template #stepPrevious="">
-            <a href="/my-playlists">
-              <button
-                type="button"
-                class="btn btn-sm py-2 px-3 rounded-full bg-white border-2 border-slate-700 hover:border-black text-black hover:text-black font-bold"
-              >
-                Cancel
-              </button>
-            </a>
-          </template>
-          <!-- Next Button Page 1-->
-          <template #stepNext="{ handlers, node }">
-            <div class="relative bottom-0 right-0">
-              <button
-                type="button"
-                class="bg-lime hover:bg-green text-white font-bold py-2 px-3 rounded-full btn btn-sm"
-                @click="
-                  handleNextOne(value),
-                    handlers.incrementStep(1, node.context)()
-                "
-                data-next="true"
-              >
-                Next
-              </button>
-            </div>
-          </template>
-        </FormKit>
-
-        <FormKit type="step" name="filters" label="Filters">
-          <FormKit
-            type="taglist"
-            name="genres"
-            label="Genre of your playlist (Optional)"
-            help="Add all the genres of songs you want to be added to your playlist"
-            :options="genres_options"
-          />
-          <FormKit
-            type="taglist"
-            name="artists"
-            label="Artists to add to your playlist (Optional)"
-            help="Add all songs from the artists specified"
-            :options="artist_options"
-          />
-          <FormKit
-            type="month"
-            help="Add songs created after this date"
-            label="Songs Created After (Optional)"
-            name="created_after_month"
-            :validation="`$date_before:{{value.filters.created_before_month}}`"
-            validation-visibility="live"
-            :validation-messages="{
-              date_before: 'Date range invalid',
-            }"
-          />
-          <FormKit
-            type="month"
-            help="Add songs created before this date"
-            label="Songs Created Before (Optional)"
-            name="created_before_month"
-            :validation="`$date_after:{{value.filters.created_after_month}}`"
-            validation-visibility="live"
-            :validation-messages="{
-              date_after: 'Date range invalid',
-            }"
-          />
-          <!-- Go back to basic Information -->
-          <template #stepPrevious="{ handlers, node }">
-            <button
-              type="button"
-              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
-              @click="handlers.incrementStep(-1, node.context)()"
+  <!-- Top Header with logo-->
+  <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
+    <img src="PoweredBySpotify.png" class="h-10" />
+  </div>
+  <!-- Main Content-->
+  <div class="bg-dark w-full p-4" style="height: 91vh">
+    <p class="text-center text-7xl text-lightest font-bold">
+      Create a Playlist
+    </p>
+    <div v-if="loading" class="spinner-border spinner-border-sm"></div>
+    <!-- Form Container -->
+    <div v-else class="grid place-items-center bg-dark w-full p-4">
+      <div class="bg-white opacity-90 px-8 py-2 rounded-xl">
+        <!-- Form -->
+        <FormKit type="form" :actions="false">
+          <div class="text-black h-full" style="width: 60vh">
+            <FormKit
+              type="multi-step"
+              tab-style="progress"
+              #default="{ value }"
+              :value="playlist"
             >
-              Previous
-            </button>
-          </template>
-          <!-- Go to validation step-->
-          <template #stepNext="{ handlers, node }">
-            <button
-              type="button"
-              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
-              @click="
-                getSongsToAdd(value), handlers.incrementStep(1, node.context)()
-              "
-              data-next="true"
-            >
-              Validate
-            </button>
-          </template>
-        </FormKit>
-        <FormKit type="step" name="validation" label="Validation">
-          <div class="overflow-y-auto h-96">
-            <!-- Create table containing existing playlists-->
-            <p class="text-center text-xl text-darkest font-bold">
-              Suggested Songs
-            </p>
-            <div class="py-2"></div>
-            <table class="table w-full" v-if="!this.loading_songs">
-              <!-- Table Header-->
-              <thead class="sticky top-0 bg-white">
-                <tr>
-                  <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
-                  <th scope="col">Song Name</th>
-                  <th scope="col">Artist(s)</th>
-                  <th scope="col">Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(song, index) in songs" :key="index">
-                  <td class="py-3">{{ song.song_name }}</td>
-                  <td class="py-3">{{ song.artists }}</td>
-                  <td>
+              <FormKit
+                type="step"
+                name="playlistInformation"
+                label="Basic Information"
+              >
+                <FormKit
+                  type="text"
+                  name="name"
+                  id="name"
+                  label="Playlist Name"
+                  placeholder="Name"
+                  validation="required|name"
+                />
+                <FormKit
+                  type="textarea"
+                  name="description"
+                  id="description"
+                  label="Description (optional)"
+                  placeholder="Description"
+                  :help="
+                    value.playlistInformation?.description !== undefined
+                      ? `${value.playlistInformation.description.length} / 300`
+                      : `0 / 300`
+                  "
+                  validation="length:0,300"
+                  validation-visibility="live"
+                  :validation-messages="{
+                    length: 'Description cannot be more than 300 characters.',
+                  }"
+                />
+                <FormKit
+                  type="checkbox"
+                  label="Public"
+                  help="Do you want your playlist to be public?"
+                  name="public"
+                />
+                <!-- Go Back To My Playlists -->
+                <template #stepPrevious="">
+                  <a href="/my-playlists">
                     <button
-                      class="bg-white hover:bg-gray-400 px-3"
                       type="button"
-                      @click="removeSong(index)"
+                      class="btn btn-sm py-2 px-3 rounded-full bg-white border-2 border-slate-700 hover:border-black text-black hover:text-black font-bold"
                     >
-                      <img src="trash-can.png" class="h-6 w-6" />
+                      Cancel
                     </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </a>
+                </template>
+                <!-- Next Button Page 1-->
+                <template #stepNext="{ handlers, node }">
+                  <div class="relative bottom-0 right-0">
+                    <button
+                      type="button"
+                      class="bg-lime hover:bg-green text-white font-bold py-2 px-3 rounded-full btn btn-sm"
+                      @click="
+                        handleNextOne(value),
+                          handlers.incrementStep(1, node.context)()
+                      "
+                      data-next="true"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </template>
+              </FormKit>
+
+              <FormKit type="step" name="filters" label="Filters">
+                <FormKit
+                  type="taglist"
+                  name="genres"
+                  label="Genre of your playlist (Optional)"
+                  help="Add all the genres of songs you want to be added to your playlist"
+                  :options="genres_options"
+                />
+                <FormKit
+                  type="taglist"
+                  name="artists"
+                  label="Artists to add to your playlist (Optional)"
+                  help="Add all songs from the artists specified"
+                  :options="artist_options"
+                />
+                <FormKit
+                  type="month"
+                  help="Add songs created after this date"
+                  label="Songs Created After (Optional)"
+                  name="created_after_month"
+                  :validation="`$date_before:{{value.filters.created_before_month}}`"
+                  validation-visibility="live"
+                  :validation-messages="{
+                    date_before: 'Date range invalid',
+                  }"
+                />
+                <FormKit
+                  type="month"
+                  help="Add songs created before this date"
+                  label="Songs Created Before (Optional)"
+                  name="created_before_month"
+                  :validation="`$date_after:{{value.filters.created_after_month}}`"
+                  validation-visibility="live"
+                  :validation-messages="{
+                    date_after: 'Date range invalid',
+                  }"
+                />
+                <!-- Go back to basic Information -->
+                <template #stepPrevious="{ handlers, node }">
+                  <button
+                    type="button"
+                    class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    @click="handlers.incrementStep(-1, node.context)()"
+                  >
+                    Previous
+                  </button>
+                </template>
+                <!-- Go to validation step-->
+                <template #stepNext="{ handlers, node }">
+                  <button
+                    type="button"
+                    v-if="
+                      value.filters.created_before_month >
+                        value.filters.created_after_month ||
+                      value.filters.created_before_month == '' ||
+                      value.filters.created_after_month == ''
+                    "
+                    class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    @click="
+                      getSongsToAdd(value),
+                        handlers.incrementStep(1, node.context)()
+                    "
+                    data-next="true"
+                  >
+                    Validate
+                  </button>
+                </template>
+              </FormKit>
+              <FormKit type="step" name="validation" label="Validation">
+                <div class="overflow-y-auto h-96">
+                  <!-- Create table containing existing playlists-->
+                  <p class="text-center text-xl text-darkest font-bold">
+                    Suggested Songs ({{ Object.keys(this.songs).length }})
+                  </p>
+                  <div class="py-2"></div>
+                  <table class="table w-full" v-if="!this.loading_songs">
+                    <!-- Table Header-->
+                    <thead class="sticky top-0 bg-white">
+                      <tr>
+                        <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
+                        <th scope="col">Song Name</th>
+                        <th scope="col">Artist(s)</th>
+                        <th scope="col">Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(song, index) in songs" :key="index">
+                        <td class="py-3">{{ song.song_name }}</td>
+                        <td class="py-3">{{ song.artists }}</td>
+                        <td>
+                          <button
+                            class="bg-white hover:bg-gray-400 px-3"
+                            type="button"
+                            @click="removeSong(index)"
+                          >
+                            <img src="trash-can.png" class="h-6 w-6" />
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="py-1"></div>
+                <!-- Go back to filters -->
+                <template #stepPrevious="{ handlers, node }">
+                  <button
+                    type="button"
+                    class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    @click="handlers.incrementStep(-1, node.context)()"
+                  >
+                    Go Back
+                  </button>
+                </template>
+                <!-- Submit Button -->
+                <template #stepNext>
+                  <button
+                    type="submit"
+                    class="bg-lime h-9 w-24 text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    :class="
+                      this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
+                    "
+                    @click="handleSubmit(value)"
+                    data-next="true"
+                    :disabled="this.loading_songs"
+                  >
+                    <p v-if="!this.loading_songs">Submit</p>
+                    <p v-else class="spinner-border spinner-border-sm"></p>
+                  </button>
+                </template>
+              </FormKit>
+            </FormKit>
           </div>
-          <div class="py-1"></div>
-          <!-- Go back to filters -->
-          <template #stepPrevious="{ handlers, node }">
-            <button
-              type="button"
-              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
-              @click="handlers.incrementStep(-1, node.context)()"
-            >
-              Go Back
-            </button>
-          </template>
-          <!-- Submit Button -->
-          <template #stepNext>
-            <button
-              v-if="
-                value.filters.created_before_month >
-                  value.filters.created_after_month ||
-                value.filters.created_before_month == '' ||
-                value.filters.created_after_month == ''
-              "
-              type="submit"
-              class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
-              @click="handleSubmit(value)"
-              data-next="true"
-            >
-              Submit
-            </button>
-            <a v-else>Invalid Date Range!!! </a>
-          </template>
         </FormKit>
-      </FormKit>
-    </FormKit>
+      </div>
+    </div>
   </div>
 </template>
