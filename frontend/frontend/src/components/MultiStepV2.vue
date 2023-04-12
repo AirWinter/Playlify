@@ -130,6 +130,7 @@ export default {
               #default="{ value }"
               :value="playlist"
             >
+            //<template #tabs="">
               <FormKit
                 type="step"
                 name="playlistInformation"
