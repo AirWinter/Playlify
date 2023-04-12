@@ -117,20 +117,31 @@ export default {
     <p class="text-center text-7xl text-lightest font-bold">
       Create a Playlist
     </p>
-    <div v-if="loading" class="spinner-border spinner-border-sm"></div>
+
     <!-- Form Container -->
-    <div v-else class="grid place-items-center bg-dark w-full p-4">
+    <div class="grid place-items-center bg-dark w-full p-4">
       <div class="bg-white opacity-90 px-8 py-2 rounded-xl">
         <!-- Form -->
         <FormKit type="form" :actions="false">
-          <div class="text-black h-full" style="width: 60vh">
+          <div class="text-black h-full text-center" style="width: 60vh">
+            <div
+              role="status"
+              class="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2"
+              v-if="loading"
+            >
+              <div
+                :aria-hidden="loading"
+                class="w-20 h-20 spinner-border text-green"
+              ></div>
+            </div>
             <FormKit
               type="multi-step"
               tab-style="progress"
               #default="{ value }"
               :value="playlist"
+              :disabled="loading"
             >
-            //<template #tabs="">
+              <!-- <template #tabs=""> -->
               <FormKit
                 type="step"
                 name="playlistInformation"
