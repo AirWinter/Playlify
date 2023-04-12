@@ -123,7 +123,8 @@ export default {
       <div class="bg-white opacity-90 px-8 py-2 rounded-xl">
         <!-- Form -->
         <FormKit type="form" :actions="false">
-          <div class="text-black h-full text-center" style="width: 60vh">
+          <div class="text-black h-full" style="width: 60vh">
+            <!-- Loading Sign-->
             <div
               role="status"
               class="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2"
@@ -276,12 +277,23 @@ export default {
                 </template>
               </FormKit>
               <FormKit type="step" name="validation" label="Validation">
-                <div class="overflow-y-auto h-96">
+                <div class="overflow-y-auto h-96 text-center">
                   <!-- Create table containing existing playlists-->
                   <p class="text-center text-xl text-darkest font-bold">
                     Suggested Songs ({{ Object.keys(this.songs).length }})
                   </p>
                   <div class="py-2"></div>
+                  <!-- Loading Sign-->
+                  <div
+                    role="status"
+                    class="relative -translate-x-1/2 -translate-y-1/2 top-1/4 left-1/2"
+                    v-if="loading_songs"
+                  >
+                    <div
+                      :aria-hidden="loading_songs"
+                      class="w-20 h-20 spinner-border text-green"
+                    ></div>
+                  </div>
                   <table class="table w-full" v-if="!this.loading_songs">
                     <!-- Table Header-->
                     <thead class="sticky top-0 bg-white">
@@ -314,8 +326,12 @@ export default {
                 <template #stepPrevious="{ handlers, node }">
                   <button
                     type="button"
-                    class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    class="bg-lime text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    :class="
+                      this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
+                    "
                     @click="handlers.incrementStep(-1, node.context)()"
+                    :disabled="loading_songs"
                   >
                     Go Back
                   </button>
@@ -332,8 +348,7 @@ export default {
                     data-next="true"
                     :disabled="this.loading_songs"
                   >
-                    <p v-if="!this.loading_songs">Submit</p>
-                    <p v-else class="spinner-border spinner-border-sm"></p>
+                    Submit
                   </button>
                 </template>
               </FormKit>
