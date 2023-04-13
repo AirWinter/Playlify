@@ -19,14 +19,7 @@ export default {
           created_before_month: "",
         },
       },
-      genres_options: [
-        { label: "Any", value: "any" },
-        { label: "Pop", value: "pop" },
-        { label: "Rock", value: "rock" },
-        { label: "Rap", value: "rap" },
-        { label: "Indie", value: "indie" },
-        { label: "R&B", value: "r-n-b" },
-      ],
+      genres_options: [{ label: "Any", value: "any" }],
       artist_options: [{ label: "Any", value: "any" }],
       loading: true,
       loading_songs: true,
@@ -44,15 +37,15 @@ export default {
 
         params: {
           genres:
-            param.filters.genres.length > 0
+            param.genres.length > 0
               ? param.filters.genres.reduce((f, s) => `${f};${s}`)
               : [],
           artists:
-            param.filters.artists.length > 0
+            param.artists.length > 0
               ? param.filters.artists.reduce((a, b) => `${a};${b}`)
               : [],
-          created_after_month: param.filters.created_after_month,
-          created_before_month: param.filters.created_before_month,
+          created_after_month: param.created_after_month,
+          created_before_month: param.created_before_month,
         },
       }).then((value) => (songs_to_add_array = value.data));
       this.songs = songs_to_add_array;
@@ -61,8 +54,7 @@ export default {
     removeSong(index) {
       delete this.songs[index];
     },
-    async handleNextOne(value) {
-      this.playlistInformation = value.playlistInformation;
+    async handleNextOne() {
       // Get all the genres from backend
       await axios({
         method: "get",
@@ -141,6 +133,22 @@ export default {
               #default="{ value }"
               :value="playlist"
               :disabled="loading"
+              :before-step-change="
+                ({ currentStep, targetStep, delta }) => {
+                  // Prevent skipping steps
+                  if (Math.abs(delta) > 1) {
+                    return false;
+                  }
+                  if (targetStep.stepName == 'Filters') {
+                    handleNextOne();
+                  }
+                  if (targetStep.stepName == 'Validation') {
+                    const data = currentStep.value;
+                    getSongsToAdd(data);
+                  }
+                  return true;
+                }
+              "
             >
               <!-- <template #tabs=""> -->
               <FormKit
@@ -196,10 +204,7 @@ export default {
                     <button
                       type="button"
                       class="bg-lime hover:bg-green text-white font-bold py-2 px-3 rounded-full btn btn-sm"
-                      @click="
-                        handleNextOne(value),
-                          handlers.incrementStep(1, node.context)()
-                      "
+                      @click="handlers.incrementStep(1, node.context)()"
                       data-next="true"
                     >
                       Next
@@ -266,10 +271,7 @@ export default {
                       value.filters.created_after_month == ''
                     "
                     class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
-                    @click="
-                      getSongsToAdd(value),
-                        handlers.incrementStep(1, node.context)()
-                    "
+                    @click="handlers.incrementStep(1, node.context)()"
                     data-next="true"
                   >
                     Validate
