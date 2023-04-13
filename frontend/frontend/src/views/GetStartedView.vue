@@ -43,9 +43,9 @@
               <!-- Section Text-->
               <p class="text-center text-dark text-xl font-normal p-1">
                 Playlify is a tool to help you automatically create playlists.
-                Playlify goes through your entire library and applies the
-                filters you defined. Filters include: song genre, artists and
-                release date. If you don't define any filters all your songs
+                Playlify goes through your entire library and selects songs that
+                match all your filters. Filters include: song genre, artists and
+                release date. If you don't define any filters, all your songs
                 will be added.
               </p>
             </div>
