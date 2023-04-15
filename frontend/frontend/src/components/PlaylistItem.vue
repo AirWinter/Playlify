@@ -4,7 +4,7 @@
     <img src="PoweredBySpotify.png" class="h-10" />
     <!-- Log Out Button-->
     <div class="absolute top-5 right-12">
-      <a href="http://localhost:5000/logout"
+      <a :href="this.baseUrl + 'logout'"
         ><button
           type="button"
           class="btn bg-snow h-10 w-28 font-semibold rounded-full text-black hover:underline"
@@ -70,13 +70,15 @@ export default {
   data() {
     return {
       playlists: [],
+      urlBase: "https://airwinter.pythonanywhere.com/",
+      // urlBase: "http://localhost:5000/",
     };
   },
   methods: {
     async getPlaylists() {
       await axios({
         method: "get",
-        url: "http://localhost:5000/backend/getPlaylists",
+        url: `${this.urlBase}backend/getPlaylists`,
         withCredentials: true,
       })
         .then((value) => (this.playlists = value.data))

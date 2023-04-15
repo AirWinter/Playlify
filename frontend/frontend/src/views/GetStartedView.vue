@@ -21,7 +21,7 @@
         </div>
         <!-- Link to Login -->
         <div class="w-full bg-dark flex flex-col items-center">
-          <a href="http://localhost:5000/login">
+          <a :href="this.urlBase + 'login'">
             <button
               class="btn h-20 w-64 bg-green border-0 text-black text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
             >
@@ -95,7 +95,10 @@
 export default {
   name: "GetStartedView",
   data: function () {
-    return {};
+    return {
+      urlBase: "https://airwinter.pythonanywhere.com/",
+      //   urlBase: "http://localhost:5000/",
+    };
   },
   methods: {},
 };
