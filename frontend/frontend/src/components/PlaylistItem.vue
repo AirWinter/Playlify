@@ -1,9 +1,9 @@
 <template>
   <!-- Top Header with logo-->
-  <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
-    <img src="PoweredBySpotify.png" class="h-10" />
+  <div class="w-full top-0 bg-darkest h-16 py-3 px-10">
+    <img src="PoweredBySpotify.png" class="h-8" />
     <!-- Log Out Button-->
-    <div class="absolute top-5 right-12">
+    <div class="absolute top-3 right-12">
       <a :href="this.urlBase + 'logout'"
         ><button
           type="button"
@@ -30,7 +30,7 @@
               <p v-if="this.show">Hide My Playlists</p>
               <p v-else>Show My Playlists</p>
             </button>
-            <a href="/multi-step-v2"
+            <a href="/create-playlist"
               ><button
                 type="button"
                 class="btn bg-lime font-semibold rounded-full text-white hover:bg-green ml-2"

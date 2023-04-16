@@ -118,8 +118,8 @@ export default {
 
 <template>
   <!-- Top Header with logo-->
-  <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
-    <img src="PoweredBySpotify.png" class="h-10" />
+  <div class="w-full top-0 bg-darkest h-16 py-3 px-10">
+    <img src="PoweredBySpotify.png" class="h-8" />
   </div>
   <!-- Main Content-->
   <div class="bg-dark min-h-screen w-full p-4">
