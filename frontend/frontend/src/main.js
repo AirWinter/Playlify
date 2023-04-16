@@ -8,7 +8,6 @@ import { plugin as formKitPlugin, defaultConfig } from "@formkit/vue";
 import { createMultiStepPlugin } from "@formkit/addons";
 import "@formkit/themes/genesis";
 import "@formkit/addons/css/multistep";
-import "@formkit/pro/genesis";
 import "./assets/tailwind.css";
 
 createApp(App)
