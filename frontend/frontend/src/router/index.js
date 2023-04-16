@@ -44,7 +44,7 @@ const routes = [
     props: dynamicPropsFn,
   },
   {
-    path: "/multi-step-v2",
+    path: "/create-playlist",
     name: "MultiStepV2",
     component: lazyLoadComponent("MultiStepV2"),
   },

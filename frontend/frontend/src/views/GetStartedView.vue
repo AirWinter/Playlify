@@ -1,17 +1,12 @@
 <template>
-  <div
-    class="bg-darkest h-screen"
-    @scroll.prevent
-    @touchmove.prevent
-    @wheel.prevent
-  >
+  <div class="bg-dark min-h-screen">
     <!-- Main Content-->
-    <div class="flex" style="height: 95vh">
+    <div class="flex">
       <!-- Container-->
       <div class="w-full h-full relative bg-blue-400">
         <!-- Top Header with logo-->
-        <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
-          <img src="PoweredBySpotify.png" class="h-10" />
+        <div class="w-full top-0 bg-darkest h-16 py-3 px-10">
+          <img src="PoweredBySpotify.png" class="h-8" />
         </div>
         <!-- Welcome Header -->
         <div class="w-full top-0 bg-dark p-10">
@@ -32,12 +27,14 @@
         <!-- Gap between get started and text areas below-->
         <div class="p-4 bg-dark"></div>
         <!-- Text Area-->
-        <div class="w-full bg-green grid grid-cols-2" style="height: 52vh">
+        <div class="w-full bg-green grid grid-cols-2" style="height: 49vh">
           <!-- Left Text Area-->
-          <div class="bg-dark flex flex-col items-end p-4">
+          <div class="bg-dark flex flex-col items-end p-2">
             <div class="rounded-xl bg-white opacity-95 h-80 w-96 p-3">
               <!-- Section Title-->
-              <p class="text-center text-darker font-semibold text-4xl p-2">
+              <p
+                class="text-center text-darker font-semibold text-4xl py-2 px-4"
+              >
                 What is Playlify?
               </p>
               <!-- Section Text-->
@@ -51,7 +48,7 @@
             </div>
           </div>
           <!-- Right Text Area-->
-          <div class="bg-dark flex flex-col items-start p-4">
+          <div class="bg-dark flex flex-col items-start py-2 px-4">
             <div class="rounded-xl bg-white opacity-95 h-80 w-96 p-3">
               <!-- Section Title-->
               <p class="text-center text-darker font-semibold text-4xl p-2">
@@ -75,7 +72,7 @@
         </div>
       </div>
     </div>
-    <div class="w-full bg-darkest align-bottom" style="height: 5vh">
+    <div class="w-full bg-darkest bottom-0" style="height: 5vh">
       <span class="py-2 px-4" style="float: right">
         <b class="text-white text-l font-normal"
           >Created By:
