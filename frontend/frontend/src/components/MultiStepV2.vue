@@ -1,16 +1,22 @@
 <script>
 import axios from "axios";
+import { accessToken } from "../utils.js";
+import Multiselect from "@vueform/multiselect";
 
 export default {
   name: "MultiStepV2",
-
+  components: {
+    Multiselect,
+  },
   data() {
     return {
+      // urlBase: "http://localhost:5000",
+      urlBase: "https://airwinter.pythonanywhere.com",
       playlist: {
         playlistInformation: {
           name: "Name",
           description: "",
-          public: false,
+          public: true,
         },
         filters: {
           genres: [],
@@ -28,26 +34,29 @@ export default {
   },
   methods: {
     async getSongsToAdd(param) {
+      console.log(param);
       this.loading_songs = true;
       var songs_to_add_array = null;
       // Get the songs to dd
       await axios({
         method: "get",
-        url: "http://localhost:5000/backend/getSongsToAdd",
+        url: `${this.urlBase}/backend/getSongsToAdd`,
 
         params: {
           genres:
-            param.genres.length > 0
-              ? param.filters.genres.reduce((f, s) => `${f};${s}`)
-              : [],
+            param.genres.length > 1
+              ? param.genres.reduce((f, s) => `${f};${s}`)
+              : param.genres,
           artists:
-            param.artists.length > 0
-              ? param.filters.artists.reduce((a, b) => `${a};${b}`)
-              : [],
+            param.artists.length > 1
+              ? param.artists.reduce((a, b) => `${a};${b}`)
+              : param.artists,
           created_after_month: param.created_after_month,
           created_before_month: param.created_before_month,
         },
-      }).then((value) => (songs_to_add_array = value.data));
+      })
+        .then((value) => (songs_to_add_array = value.data))
+        .catch((error) => console.log(error));
       this.songs = songs_to_add_array;
       this.loading_songs = false;
     },
@@ -58,20 +67,26 @@ export default {
       // Get all the genres from backend
       await axios({
         method: "get",
-        url: "http://localhost:5000/backend/getAllMyGenres",
-      }).then((value) => (this.genres_options = value.data));
+        url: `${this.urlBase}/backend/getAllMyGenres`,
+      })
+        .then((value) => (this.genres_options = value.data))
+        .catch((error) => console.log(error));
       // Get all the artists from backend
       await axios({
         method: "get",
-        url: "http://localhost:5000/backend/getAllMyArtists",
-      }).then((value) => (this.artist_options = value.data));
+        url: `${this.urlBase}/backend/getAllMyArtists`,
+      })
+        .then((value) => (this.artist_options = value.data))
+        .catch((error) => console.log(error));
     },
     async loadAllTracksFromLibrary() {
       await axios({
         method: "get",
-        url: "http://localhost:5000/backend/loadAllTracksFromLibrary",
-        withCredentials: true,
-      });
+        url: `${this.urlBase}/backend/loadAllTracksFromLibrary`,
+        headers: {
+          Token: accessToken,
+        },
+      }).catch((error) => console.log(error));
       this.loading = false;
     },
     async handleSubmit(param) {
@@ -80,17 +95,19 @@ export default {
       // Create the playlist
       await axios({
         method: "post",
-        url: "http://localhost:5000/backend/createPlaylist",
-        withCredentials: true,
+        url: `${this.urlBase}/backend/createPlaylist`,
+        headers: {
+          Token: accessToken,
+        },
         data: {
           name: param.playlistInformation.name,
           description: param.playlistInformation.description,
           public: param.playlistInformation.public,
           songs_to_add: songs_to_add_array,
         },
-      });
-      this.loading = false;
+      }).catch((error) => console.log(error));
       this.$router.push("/my-playlists");
+      this.loading = false;
     },
   },
   created() {
@@ -105,7 +122,7 @@ export default {
     <img src="PoweredBySpotify.png" class="h-10" />
   </div>
   <!-- Main Content-->
-  <div class="bg-dark w-full p-4" style="height: 91vh">
+  <div class="bg-dark min-h-screen w-full p-4">
     <p class="text-center text-7xl text-lightest font-bold">
       Create a Playlist
     </p>
@@ -143,8 +160,11 @@ export default {
                     handleNextOne();
                   }
                   if (targetStep.stepName == 'Validation') {
-                    const data = currentStep.value;
-                    getSongsToAdd(data);
+                    this.playlist.filters.created_after_month =
+                      currentStep.value.created_after_month;
+                    this.playlist.filters.created_before_month =
+                      currentStep.value.created_before_month;
+                    getSongsToAdd(this.playlist.filters);
                   }
                   return true;
                 }
@@ -186,6 +206,7 @@ export default {
                   label="Public"
                   help="Do you want your playlist to be public?"
                   name="public"
+                  disabled="true"
                 />
                 <!-- Go Back To My Playlists -->
                 <template #stepPrevious="">
@@ -212,22 +233,68 @@ export default {
                   </div>
                 </template>
               </FormKit>
-
+              <!-- Step Two: Defining filters-->
               <FormKit type="step" name="filters" label="Filters">
-                <FormKit
+                <div>
+                  <p class="p-1 font-bold text-black text-sm">
+                    Genres to add to your playlist (Optional)
+                  </p>
+                  <Multiselect
+                    mode="tags"
+                    v-model="this.playlist.filters.genres"
+                    :options="genres_options"
+                    class="multiselect-green"
+                    :classes="{
+                      container:
+                        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-2 border-outer rounded bg-white text-base leading-snug',
+                      tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
+                    }"
+                    name="GenresMultiselect"
+                    placeholder="Genres"
+                    searchable="true"
+                  />
+                  <p class="p-0.5 font text-slate-700 text-xs">
+                    Add songs that match any of these genres
+                  </p>
+                </div>
+                <br />
+                <div>
+                  <p class="p-1 font-bold text-black text-sm">
+                    Artists for your playlist (Optional)
+                  </p>
+                  <Multiselect
+                    mode="tags"
+                    v-model="this.playlist.filters.artists"
+                    :options="artist_options"
+                    class="multiselect-green"
+                    :classes="{
+                      container:
+                        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-2 border-outer rounded bg-white text-base leading-snug',
+                      tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
+                    }"
+                    name="ArtistsMultiselect"
+                    placeholder="Artists"
+                    searchable="true"
+                  />
+                  <p class="p-0.5 font text-slate-700 text-xs">
+                    Add songs from any of these artists
+                  </p>
+                </div>
+                <!-- <FormKit
                   type="taglist"
                   name="genres"
                   label="Genre of your playlist (Optional)"
                   help="Add all the genres of songs you want to be added to your playlist"
                   :options="genres_options"
-                />
-                <FormKit
+                /> -->
+                <!-- <FormKit
                   type="taglist"
                   name="artists"
                   label="Artists to add to your playlist (Optional)"
                   help="Add all songs from the artists specified"
                   :options="artist_options"
-                />
+                /> -->
+                <br />
                 <FormKit
                   type="month"
                   help="Add songs created after this date"
@@ -341,7 +408,7 @@ export default {
                 <!-- Submit Button -->
                 <template #stepNext>
                   <button
-                    type="submit"
+                    type="button"
                     class="bg-lime h-9 w-24 text-white font-bold py-2 px-4 rounded-full btn-sm"
                     :class="
                       this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
@@ -361,3 +428,12 @@ export default {
     </div>
   </div>
 </template>
+
+<style>
+@import "@vueform/multiselect/themes/default.css";
+
+/* .multiselect-green {
+  --ms-tag-bg: #1ed760;
+  --ms-tag-color: white;
+} */
+</style>

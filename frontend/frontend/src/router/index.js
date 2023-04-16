@@ -1,29 +1,57 @@
 import { createRouter, createWebHistory } from "vue-router";
-import PlaylistItem from "../components/PlaylistItem.vue";
-import MultiStepV2 from "../components/MultiStepV2.vue";
-import GetStartedView from "../views/GetStartedView.vue";
-import PageNotFoundView from "../views/PageNotFoundView.vue";
+
+function lazyLoadComponent(component) {
+  return () => import(`../components/${component}.vue`);
+}
+
+function lazyLoadView(view) {
+  return () => import(`../views/${view}.vue`);
+}
+
+function dynamicPropsFn(route) {
+  const { access_token, refresh_token, expires_at } = route.query;
+  if (
+    access_token == null ||
+    refresh_token == null ||
+    expires_at == null ||
+    access_token === "undefined" ||
+    refresh_token === "undefined" ||
+    expires_at === "underfined"
+  ) {
+    return;
+  }
+  localStorage.setItem("access_token", access_token);
+  localStorage.setItem("refresh_token", refresh_token);
+  localStorage.setItem("expires_at", expires_at);
+
+  return {
+    access_token: access_token,
+    refresh_token: refresh_token,
+    expires_at: expires_at,
+  };
+}
 
 const routes = [
   {
     path: "/",
     name: "GetStartedView",
-    component: GetStartedView,
+    component: lazyLoadView("GetStartedView"),
   },
   {
     path: "/my-playlists",
     name: "PlaylistItem",
-    component: PlaylistItem,
+    component: lazyLoadComponent("PlaylistItem"),
+    props: dynamicPropsFn,
   },
   {
     path: "/multi-step-v2",
     name: "MultiStepV2",
-    component: MultiStepV2,
+    component: lazyLoadComponent("MultiStepV2"),
   },
   {
     path: "/:catchAll(.*)*",
     name: "PageNotFoundView",
-    component: PageNotFoundView,
+    component: lazyLoadView("PageNotFoundView"),
   },
 ];
 

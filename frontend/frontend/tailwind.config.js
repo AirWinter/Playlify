@@ -14,6 +14,7 @@ module.exports = {
         darkest: "#191414",
         lightest: "#B3B3B3",
         snow: "#FFFFFF",
+        outer: "#8A8993",
       },
     },
   },
