@@ -94,7 +94,7 @@ export default {
   data: function () {
     return {
       urlBase: "https://airwinter.pythonanywhere.com/",
-      //   urlBase: "http://localhost:5000/",
+      // urlBase: "http://localhost:5000/",
     };
   },
   methods: {},

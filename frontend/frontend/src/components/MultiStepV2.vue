@@ -123,16 +123,15 @@ export default {
   </div>
   <!-- Main Content-->
   <div class="bg-dark min-h-screen w-full p-4">
-    <p class="text-center text-7xl text-lightest font-bold">
+    <p class="text-center text-5xl text-lightest font-bold">
       Create a Playlist
     </p>
-
     <!-- Form Container -->
-    <div class="grid place-items-center bg-dark w-full p-4">
-      <div class="bg-white opacity-90 px-8 py-2 rounded-xl">
+    <div class="grid place-items-center bg-dark w-full py-4">
+      <div class="bg-white opacity-90 px-4 py-2 rounded-xl">
         <!-- Form -->
         <FormKit type="form" :actions="false">
-          <div class="text-black h-full" style="width: 60vh">
+          <div class="text-black h-full" style="width: 65vh">
             <!-- Loading Sign-->
             <div
               role="status"
@@ -246,7 +245,7 @@ export default {
                     class="multiselect-green"
                     :classes="{
                       container:
-                        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-2 border-outer rounded bg-white text-base leading-snug',
+                        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
                       tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
                     }"
                     name="GenresMultiselect"
@@ -257,7 +256,6 @@ export default {
                     Add songs that match any of these genres
                   </p>
                 </div>
-                <br />
                 <div>
                   <p class="p-1 font-bold text-black text-sm">
                     Artists for your playlist (Optional)
@@ -269,7 +267,7 @@ export default {
                     class="multiselect-green"
                     :classes="{
                       container:
-                        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-2 border-outer rounded bg-white text-base leading-snug',
+                        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
                       tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
                     }"
                     name="ArtistsMultiselect"
@@ -280,21 +278,7 @@ export default {
                     Add songs from any of these artists
                   </p>
                 </div>
-                <!-- <FormKit
-                  type="taglist"
-                  name="genres"
-                  label="Genre of your playlist (Optional)"
-                  help="Add all the genres of songs you want to be added to your playlist"
-                  :options="genres_options"
-                /> -->
-                <!-- <FormKit
-                  type="taglist"
-                  name="artists"
-                  label="Artists to add to your playlist (Optional)"
-                  help="Add all songs from the artists specified"
-                  :options="artist_options"
-                /> -->
-                <br />
+                <div class="p-1"></div>
                 <FormKit
                   type="month"
                   help="Add songs created after this date"
@@ -346,7 +330,9 @@ export default {
                 </template>
               </FormKit>
               <FormKit type="step" name="validation" label="Validation">
-                <div class="overflow-y-auto h-96 text-center">
+                <div
+                  class="overflow-y-auto overflow-x-contain h-96 text-center"
+                >
                   <!-- Create table containing existing playlists-->
                   <p class="text-center text-xl text-darkest font-bold">
                     Suggested Songs ({{ Object.keys(this.songs).length }})
@@ -363,32 +349,53 @@ export default {
                       class="w-20 h-20 spinner-border text-green"
                     ></div>
                   </div>
-                  <table class="table w-full" v-if="!this.loading_songs">
-                    <!-- Table Header-->
-                    <thead class="sticky top-0 bg-white">
-                      <tr>
-                        <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
-                        <th scope="col">Song Name</th>
-                        <th scope="col">Artist(s)</th>
-                        <th scope="col">Remove</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(song, index) in songs" :key="index">
-                        <td class="py-3">{{ song.song_name }}</td>
-                        <td class="py-3">{{ song.artists }}</td>
-                        <td>
-                          <button
-                            class="bg-white hover:bg-gray-400 px-3"
-                            type="button"
-                            @click="removeSong(index)"
-                          >
-                            <img src="trash-can.png" class="h-6 w-6" />
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div class="container text-center">
+                    <table class="table text-sm" v-if="!this.loading_songs">
+                      <!-- Table Header-->
+                      <thead class="sticky top-0 bg-white">
+                        <tr>
+                          <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
+                          <th scope="col">Song Name</th>
+                          <th scope="col">Artist(s)</th>
+                          <th scope="col">Remove</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(song, index) in songs" :key="index">
+                          <td class="py-3">
+                            <a :href="song.song_url" target="_blank">{{
+                              song.song_name
+                            }}</a>
+                          </td>
+                          <td class="py-3">
+                            <a
+                              v-for="(artist, index) in song.artists"
+                              :key="index"
+                              :href="artist.external_url"
+                              target="_blank"
+                              >{{
+                                artist.name +
+                                (index < Object.keys(song.artists).length - 1
+                                  ? ", "
+                                  : "")
+                              }}</a
+                            >
+                            <!-- song.artists.reduce((a, b) => `${a};${b}`) -->
+                            <!-- <a :href="artist.external_url">{{ artist.name }}</a> -->
+                          </td>
+                          <td>
+                            <button
+                              class="bg-white hover:bg-gray-400 px-3"
+                              type="button"
+                              @click="removeSong(index)"
+                            >
+                              <img src="trash-can.png" class="h-6 w-6" />
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
                 <div class="py-1"></div>
                 <!-- Go back to filters -->
