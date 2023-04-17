@@ -14,7 +14,7 @@ export default {
       urlBase: "https://airwinter.pythonanywhere.com",
       playlist: {
         playlistInformation: {
-          name: "Name",
+          name: "",
           description: "",
           public: true,
         },
