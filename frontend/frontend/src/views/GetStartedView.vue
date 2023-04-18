@@ -79,6 +79,7 @@
           <a
             class="text-white text-l font-normal"
             href="https://github.com/AirWinter"
+            target="_blank"
           >
             AirWinter
           </a>
