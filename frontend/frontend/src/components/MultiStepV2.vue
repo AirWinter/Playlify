@@ -43,20 +43,19 @@ export default {
       const all_my_artists = sessionStorage.getItem("all_artists");
       console.log(all_my_songs);
       console.log(all_my_artists);
-      // Get the songs to dd
+      // Use POST to avoid 414
       await axios({
-        method: "get",
+        method: "post",
         url: `${this.urlBase}/backend/getSongsToAdd`,
-
-        params: {
+        data: {
           genres:
             param.genres.length > 0
               ? param.genres.reduce((f, s) => `${f};${s}`)
-              : param.genres,
+              : "",
           artists:
             param.artists.length > 0
               ? param.artists.reduce((a, b) => `${a};${b}`)
-              : param.artists,
+              : "",
           created_after_month: param.created_after_month,
           created_before_month: param.created_before_month,
           all_my_songs: all_my_songs,
@@ -65,6 +64,28 @@ export default {
       })
         .then((value) => (songs_to_add_array = value.data))
         .catch((error) => console.log(error));
+      // Get the songs to dd
+      // await axios({
+      //   method: "get",
+      //   url: `${this.urlBase}/backend/getSongsToAdd`,
+
+      //   params: {
+      //     genres:
+      //       param.genres.length > 0
+      //         ? param.genres.reduce((f, s) => `${f};${s}`)
+      //         : param.genres,
+      //     artists:
+      //       param.artists.length > 0
+      //         ? param.artists.reduce((a, b) => `${a};${b}`)
+      //         : param.artists,
+      //     created_after_month: param.created_after_month,
+      //     created_before_month: param.created_before_month,
+      //     all_my_songs: all_my_songs,
+      //     all_my_artists: all_my_artists,
+      //   },
+      // })
+      //   .then((value) => (songs_to_add_array = value.data))
+      //   .catch((error) => console.log(error));
       this.songs = songs_to_add_array;
       this.loading_songs = false;
     },

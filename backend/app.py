@@ -188,33 +188,79 @@ def create_playlist():
     return response
 
 
-@app.route('/backend/getSongsToAdd', methods=['GET'])
+# @app.route('/backend/getSongsToAdd', methods=['GET'])
+# def get_songs_to_add():
+#     print("Get songs to Add")
+#     print(request.args.keys())
+#     filters = {"genre": request.args.get('genres'),
+#                "artists": request.args.get('artists'),
+#                "created_after_month": request.args.get('created_after_month'),
+#                "created_before_month": request.args.get('created_before_month')}
+#
+#     all_my_songs = json.loads(request.args.get('all_my_songs'))
+#     all_my_artists = json.loads(request.args.get('all_my_artists'))
+#     songs_to_add = list(all_my_songs)
+#     # Apply all the filters on the songs
+#     for apply_filter in filters.keys():
+#         # Only filter if the genre filter is not 'Any'
+#         if apply_filter == "genre" and filters[apply_filter] is not None:
+#             all_genres = filters["genre"].split(";")
+#             if len(all_genres) > 0 and "any" not in all_genres:
+#                 songs_to_add = list(filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres), songs_to_add))
+#         if apply_filter == "artists" and filters[apply_filter] is not None:
+#             all_artists = filters[apply_filter].split(";")
+#             if len(all_artists) > 0:
+#                 songs_to_add = list(
+#                     filter(lambda s: any(filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists), songs_to_add))
+#         elif apply_filter == "created_after_month" and filters[apply_filter] != "":
+#             songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
+#         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
+#             songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
+#
+#     result = {}
+#     for song_id in songs_to_add:
+#         artists = []
+#         for artist_id in all_my_songs[song_id]['artists'].keys():
+#             artists.append({'name': all_my_songs[song_id]['artists'][artist_id], 'external_url': all_my_artists[artist_id]['external_url']})
+#         # artists_string = ', '.join([str(elem) for elem in artists])
+#         result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']), 'song_url': all_my_songs[song_id]['external_url'], "artists": artists}
+#     return jsonify(result)
+
+
+@app.route('/backend/getSongsToAdd', methods=['POST'])
 def get_songs_to_add():
     print("Get songs to Add")
-    print(request.args.keys())
-    filters = {"genre": request.args.get('genres'),
-               "artists": request.args.get('artists'),
-               "created_after_month": request.args.get('created_after_month'),
-               "created_before_month": request.args.get('created_before_month')}
+    req = json.loads(request.data)
+    filters = {"genre": req['genres'],
+               "artists": req['artists'],
+               "created_after_month": req['created_after_month'],
+               "created_before_month": req['created_before_month']}
 
-    all_my_songs = json.loads(request.args.get('all_my_songs'))
-    all_my_artists = json.loads(request.args.get('all_my_artists'))
+    print(filters)
+    all_my_songs = json.loads(req['all_my_songs'])
+    all_my_artists = json.loads(req['all_my_artists'])
+    # print(all_my_songs)
     songs_to_add = list(all_my_songs)
+    # print(songs_to_add)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
         # Only filter if the genre filter is not 'Any'
-        if apply_filter == "genre" and filters[apply_filter] is not None:
+        if apply_filter == "genre" and filters[apply_filter] is not None and filters[apply_filter] != '':
             all_genres = filters["genre"].split(";")
             if len(all_genres) > 0 and "any" not in all_genres:
+                print("Filtered by genre")
                 songs_to_add = list(filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres), songs_to_add))
-        if apply_filter == "artists" and filters[apply_filter] is not None:
+        if apply_filter == "artists" and filters[apply_filter] is not None and filters[apply_filter] != '':
             all_artists = filters[apply_filter].split(";")
             if len(all_artists) > 0:
+                print("Filtered by artists")
                 songs_to_add = list(
                     filter(lambda s: any(filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists), songs_to_add))
         elif apply_filter == "created_after_month" and filters[apply_filter] != "":
+            print("Filtered by created_after_month")
             songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
+            print("Filtered by created_before_month")
             songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
 
     result = {}
