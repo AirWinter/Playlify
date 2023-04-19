@@ -72,7 +72,10 @@
         </div>
       </div>
     </div>
-    <div class="w-full bg-darkest bottom-0" style="height: 5vh">
+    <div
+      class="w-full bg-darkest h-10"
+      style="position: fixed; bottom: 0; width: 100%"
+    >
       <span class="py-2 px-4" style="float: right">
         <b class="text-white text-l font-normal"
           >Created By:
