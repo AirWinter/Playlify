@@ -12,26 +12,15 @@ app.secret_key = secrets.secret_key
 
 CORS(app)
 
-all_my_genres = {}
-all_my_artists = {}
-all_my_songs = {}
-
-url_base = "http://localhost:8080"
+# url_base = "http://localhost:8080"
 # url_base = "https://playlify-app.netlify.app"
-# url_base = "https://playlify.net"
+url_base = "https://playlify.net"
 
 @app.route('/login')
 def login():
-    global all_my_genres
-    global all_my_artists
-    global all_my_songs
-
     sp_oath = create_spotify_oath()
     auth_url = sp_oath.get_authorize_url()
 
-    all_my_genres = {}
-    all_my_artists = {}
-    all_my_songs = {}
     return redirect(auth_url)
 
 
@@ -46,13 +35,6 @@ def callback():
 
 @app.route('/logout')
 def logout():
-    global all_my_genres
-    global all_my_artists
-    global all_my_songs
-
-    all_my_genres = {}
-    all_my_artists = {}
-    all_my_songs = {}
     return redirect(f"{url_base}/")
 
 
@@ -61,7 +43,7 @@ def refresh():
     # If refresh token isn't passed -> 400
     if "refresh_token" not in request.headers:
         print("No refresh token passed")
-        return Response(status=400)
+        return Response(status=401)
 
     refresh_token = request.headers["refresh_token"]
     print(refresh_token)
@@ -80,7 +62,7 @@ def get_playlist():
     print("Get Playlist")
     if 'Token' not in request.headers:
         print("No Token Passed")
-        return Response(status=400)
+        return Response(status=401)
 
     access_token = request.headers['Token']
     sp = spotipy.Spotify(auth=access_token)
@@ -95,32 +77,29 @@ def get_playlist():
     response = jsonify(my_playlists)
     response.headers.add('Access-Control-Allow-Origin', f'{url_base}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
-    print(response.headers)
     return response
 
 
 # Don't actually return the songs, just store them
-@app.route('/backend/loadAllTracksFromLibrary', methods=['GET'])
-def load_all_tracks_from_library():
-    global all_my_genres
-    global all_my_artists
-    global all_my_songs
-    all_my_genres = {}
-    all_my_artists = {}
-    all_my_songs = {}
-    print("Load All Tracks")
+@app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
+def get_all_tracks_from_library():
+    print("Get All Tracks")
     if 'Token' not in request.headers:
         print("No Token Passed")
-        return Response(status=400)
+        return Response(status=401)
 
     access_token = request.headers['Token']
 
     sp = spotipy.Spotify(auth=access_token)
 
-    count = 0
     # Don't hardcode the market, but rather get it from the user
     user = sp.me()
     market = user['country']
+
+    count = 0
+    all_my_genres = {}
+    all_my_artists = {}
+    all_my_songs = {}
     while True:
         items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
         for i in range(0, len(items)):
@@ -161,8 +140,10 @@ def load_all_tracks_from_library():
 
         all_my_songs[song_id]['genres'] = song_genres
 
-    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{url_base}'}
-    response = Response(status=200, headers=headers)
+    res = {'all_songs': all_my_songs, 'all_artists': all_my_artists, 'all_genres': all_my_genres}
+    response = jsonify(res)
+    response.headers.add('Access-Control-Allow-Origin', f'{url_base}')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
 
@@ -171,7 +152,7 @@ def create_playlist():
     print("Creating Playlist")
     if 'Token' not in request.headers:
         print("No Token Passed")
-        return Response(status=400)
+        return Response(status=401)
 
     access_token = request.headers['Token']
 
@@ -210,10 +191,14 @@ def create_playlist():
 @app.route('/backend/getSongsToAdd', methods=['GET'])
 def get_songs_to_add():
     print("Get songs to Add")
+    print(request.args.keys())
     filters = {"genre": request.args.get('genres'),
                "artists": request.args.get('artists'),
                "created_after_month": request.args.get('created_after_month'),
                "created_before_month": request.args.get('created_before_month')}
+
+    all_my_songs = json.loads(request.args.get('all_my_songs'))
+    all_my_artists = json.loads(request.args.get('all_my_artists'))
     songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
@@ -240,20 +225,6 @@ def get_songs_to_add():
         # artists_string = ', '.join([str(elem) for elem in artists])
         result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']), 'song_url': all_my_songs[song_id]['external_url'], "artists": artists}
     return jsonify(result)
-
-
-@app.route('/backend/getAllMyGenres', methods=['GET'])
-def get_all_my_genres():
-    return all_my_genres
-
-
-@app.route('/backend/getAllMyArtists', methods=['GET'])
-def get_all_my_artists():
-    artists_to_return = {}
-    for artist_id in all_my_artists.keys():
-        artists_to_return[artist_id] = all_my_artists[artist_id]['name']
-
-    return artists_to_return
 
 
 def create_spotify_oath():

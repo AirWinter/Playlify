@@ -86,7 +86,6 @@ export default {
     return {
       show: false,
       playlists: [],
-      // urlBase: process.env.URL_BASE,
       urlBase: "https://airwinter.pythonanywhere.com/",
       // urlBase: "http://localhost:5000/",
     };
@@ -105,6 +104,7 @@ export default {
     },
     handleLogout() {
       localStorage.clear();
+      sessionStorage.clear();
     },
     handleShow() {
       this.getPlaylists();

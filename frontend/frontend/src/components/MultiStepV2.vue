@@ -34,9 +34,15 @@ export default {
   },
   methods: {
     async getSongsToAdd(param) {
+      console.log("GET SONGS TO ADD");
       console.log(param);
+
       this.loading_songs = true;
       var songs_to_add_array = null;
+      const all_my_songs = sessionStorage.getItem("all_songs");
+      const all_my_artists = sessionStorage.getItem("all_artists");
+      console.log(all_my_songs);
+      console.log(all_my_artists);
       // Get the songs to dd
       await axios({
         method: "get",
@@ -44,15 +50,17 @@ export default {
 
         params: {
           genres:
-            param.genres.length > 1
+            param.genres.length > 0
               ? param.genres.reduce((f, s) => `${f};${s}`)
               : param.genres,
           artists:
-            param.artists.length > 1
+            param.artists.length > 0
               ? param.artists.reduce((a, b) => `${a};${b}`)
               : param.artists,
           created_after_month: param.created_after_month,
           created_before_month: param.created_before_month,
+          all_my_songs: all_my_songs,
+          all_my_artists: all_my_artists,
         },
       })
         .then((value) => (songs_to_add_array = value.data))
@@ -64,30 +72,65 @@ export default {
       delete this.songs[index];
     },
     async handleNextOne() {
-      // Get all the genres from backend
-      await axios({
-        method: "get",
-        url: `${this.urlBase}/backend/getAllMyGenres`,
-      })
-        .then((value) => (this.genres_options = value.data))
-        .catch((error) => console.log(error));
-      // Get all the artists from backend
-      await axios({
-        method: "get",
-        url: `${this.urlBase}/backend/getAllMyArtists`,
-      })
-        .then((value) => (this.artist_options = value.data))
-        .catch((error) => console.log(error));
+      // Get all genres from session storage
+      if (
+        sessionStorage.getItem("all_genres") != null &&
+        sessionStorage.getItem("all_genres") != "undefined"
+      ) {
+        this.genres_options = JSON.parse(sessionStorage.getItem("all_genres"));
+      }
+      // Get all artists from session storage
+      if (
+        sessionStorage.getItem("all_artists") != null &&
+        sessionStorage.getItem("all_artists") != "undefined"
+      ) {
+        console.log("ALL ARTISTS");
+        var all_artists = JSON.parse(sessionStorage.getItem("all_artists"));
+        console.log(all_artists);
+        Object.keys(all_artists).forEach((key) => {
+          all_artists[key] = all_artists[key]["name"];
+        });
+        console.log(all_artists);
+        this.artist_options = all_artists;
+      }
     },
-    async loadAllTracksFromLibrary() {
-      await axios({
-        method: "get",
-        url: `${this.urlBase}/backend/loadAllTracksFromLibrary`,
-        headers: {
-          Token: accessToken,
-        },
-      }).catch((error) => console.log(error));
-      this.loading = false;
+    async getAllTracksFromLibrary() {
+      if (
+        sessionStorage.getItem("all_songs") != null &&
+        sessionStorage.getItem("all_artists") != null &&
+        sessionStorage.getItem("all_genres") != null &&
+        sessionStorage.getItem("all_songs") != "undefined" &&
+        sessionStorage.getItem("all_artists") != "undefined" &&
+        sessionStorage.getItem("all_genres") != "undefined"
+      ) {
+        this.loading = false;
+      } else {
+        await axios({
+          method: "get",
+          url: `${this.urlBase}/backend/getAllTracksFromLibrary`,
+          headers: {
+            Token: accessToken,
+          },
+        })
+          .then((response) => {
+            console.log("Get All Tracks From Library");
+            console.log(response.data);
+            sessionStorage.setItem(
+              "all_songs",
+              JSON.stringify(response.data.all_songs)
+            );
+            sessionStorage.setItem(
+              "all_artists",
+              JSON.stringify(response.data.all_artists)
+            );
+            sessionStorage.setItem(
+              "all_genres",
+              JSON.stringify(response.data.all_genres)
+            );
+          })
+          .catch((error) => console.log(error));
+        this.loading = false;
+      }
     },
     async handleSubmit(param) {
       this.loading = true;
@@ -111,7 +154,7 @@ export default {
     },
   },
   created() {
-    this.loadAllTracksFromLibrary();
+    this.getAllTracksFromLibrary();
   },
 };
 </script>
@@ -250,7 +293,7 @@ export default {
                     }"
                     name="GenresMultiselect"
                     placeholder="Genres"
-                    searchable="true"
+                    :searchable="true"
                   />
                   <p class="p-0.5 font text-slate-700 text-xs">
                     Add songs that match any of these genres
@@ -272,7 +315,7 @@ export default {
                     }"
                     name="ArtistsMultiselect"
                     placeholder="Artists"
-                    searchable="true"
+                    :searchable="true"
                   />
                   <p class="p-0.5 font text-slate-700 text-xs">
                     Add songs from any of these artists
@@ -385,11 +428,14 @@ export default {
                           </td>
                           <td>
                             <button
-                              class="bg-white hover:bg-gray-400 px-3"
+                              class="bg-white px-3"
                               type="button"
                               @click="removeSong(index)"
                             >
-                              <img src="trash-can.png" class="h-6 w-6" />
+                              <img
+                                src="trash-can.png"
+                                class="h-6 w-6 opacity-80 hover:opacity-100"
+                              />
                             </button>
                           </td>
                         </tr>
