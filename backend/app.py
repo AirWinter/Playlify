@@ -67,12 +67,18 @@ def get_playlist():
     access_token = request.headers['Token']
     sp = spotipy.Spotify(auth=access_token)
     user = sp.me()
-    # TODO: What if they have more than 50 playlists?
-    playlists = sp.user_playlists(user=user['id'], limit=50, offset=0)
+
     my_playlists = []
-    for playlist in playlists['items']:
-        my_playlists.append(
-            {"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
+    count = 0
+    while True:
+        offset = count * 50
+        playlists = sp.user_playlists(user=user['id'], limit=(offset + 50), offset=offset)
+        for playlist in playlists['items']:
+            my_playlists.append(
+                {"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
+        count += 1
+        if len(playlists) < 50:
+            break
 
     response = jsonify(my_playlists)
     response.headers.add('Access-Control-Allow-Origin', f'{url_base}')
