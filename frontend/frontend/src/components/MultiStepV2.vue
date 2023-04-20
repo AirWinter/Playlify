@@ -64,28 +64,6 @@ export default {
       })
         .then((value) => (songs_to_add_array = value.data))
         .catch((error) => console.log(error));
-      // Get the songs to dd
-      // await axios({
-      //   method: "get",
-      //   url: `${this.urlBase}/backend/getSongsToAdd`,
-
-      //   params: {
-      //     genres:
-      //       param.genres.length > 0
-      //         ? param.genres.reduce((f, s) => `${f};${s}`)
-      //         : param.genres,
-      //     artists:
-      //       param.artists.length > 0
-      //         ? param.artists.reduce((a, b) => `${a};${b}`)
-      //         : param.artists,
-      //     created_after_month: param.created_after_month,
-      //     created_before_month: param.created_before_month,
-      //     all_my_songs: all_my_songs,
-      //     all_my_artists: all_my_artists,
-      //   },
-      // })
-      //   .then((value) => (songs_to_add_array = value.data))
-      //   .catch((error) => console.log(error));
       this.songs = songs_to_add_array;
       this.loading_songs = false;
     },
@@ -306,6 +284,7 @@ export default {
                     mode="tags"
                     v-model="this.playlist.filters.genres"
                     :options="genres_options"
+                    :close-on-select="false"
                     class="multiselect-green"
                     :classes="{
                       container:
