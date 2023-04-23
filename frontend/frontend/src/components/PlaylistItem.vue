@@ -51,9 +51,9 @@
             <thead>
               <tr>
                 <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
-                <th class="max-sm:w-28" scope="col">Playlist Name</th>
+                <th class="max-sm:w-28 w-44" scope="col">Playlist Name</th>
                 <th scope="col">Description</th>
-                <th scope="col">Public?</th>
+                <th class="w-10" scope="col">Public?</th>
               </tr>
             </thead>
             <tbody>
