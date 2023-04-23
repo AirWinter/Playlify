@@ -1,21 +1,17 @@
 <template>
-  <!-- Top Header with logo-->
-  <div
-    class="w-full top-0 bg-darkest max-sm:h-12 md:h-16 py-3 px-10 max-sm:px-4"
-  >
-    <img src="PoweredBySpotify.png" class="h-8 max-sm:h-6" />
-    <!-- Log Out Button-->
-    <div class="absolute top-3 right-12 max-sm:top-2 max-sm:right-4">
-      <a :href="this.urlBase + 'logout'"
-        ><button
-          type="button"
-          class="btn bg-snow h-10 w-28 max-sm:h-8 max-sm:w-20 max-sm:text-sm font-semibold rounded-full text-black hover:underline"
-          @click="handleLogout()"
-        >
-          Log Out
-        </button>
-      </a>
-    </div>
+  <!-- Top Header with logo -->
+  <TopHeader />
+  <!-- Log Out Button -->
+  <div class="absolute top-3 right-12 max-sm:top-2 max-sm:right-4">
+    <a :href="this.urlBase + 'logout'"
+      ><button
+        type="button"
+        class="btn bg-snow h-10 w-28 max-sm:h-8 max-sm:w-20 max-sm:text-sm font-semibold rounded-full text-black hover:underline"
+        @click="handleLogout()"
+      >
+        Log Out
+      </button>
+    </a>
   </div>
   <!-- Main Content-->
   <div class="bg-dark min-h-screen w-full">
@@ -79,10 +75,12 @@
 
 <script>
 import axios from "axios";
+import TopHeader from "../components/TopHeader.vue";
 const getUtils = () => import("../utils.js");
 
 export default {
   name: "PlaylistItem",
+  components: { TopHeader },
   data() {
     return {
       show: false,
