@@ -1,16 +1,18 @@
 <template>
   <div class="bg-dark min-h-screen">
+    <!-- Top Header with logo-->
+    <div
+      class="w-full top-0 bg-darkest max-sm:h-12 md:h-16 py-3 px-10 max-sm:px-4"
+    >
+      <img src="PoweredBySpotify.png" class="h-8 max-sm:h-6" />
+    </div>
     <!-- Main Content-->
-    <div class="flex">
+    <div class="md:flex">
       <!-- Container-->
-      <div class="w-full h-full relative bg-blue-400">
-        <!-- Top Header with logo-->
-        <div class="w-full top-0 bg-darkest h-16 py-3 px-10">
-          <img src="PoweredBySpotify.png" class="h-8" />
-        </div>
+      <div class="w-full h-full relative bg-darkgr">
         <!-- Welcome Header -->
-        <div class="w-full top-0 bg-dark p-10">
-          <p class="text-center text-7xl text-white font-bold">
+        <div class="w-full top-0 bg-dark py-8 md:p-10">
+          <p class="text-center text-4xl md:text-7xl text-white font-bold">
             Welcome to Playlify
           </p>
         </div>
@@ -18,27 +20,34 @@
         <div class="w-full bg-dark flex flex-col items-center">
           <a :href="this.urlBase + 'login'">
             <button
-              class="btn h-20 w-64 bg-green border-0 text-black text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
+              class="btn h-12 w-40 md:h-20 md:w-64 bg-green border-0 text-black text-xl md:text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
             >
               Get Started
             </button>
           </a>
         </div>
         <!-- Gap between get started and text areas below-->
-        <div class="p-4 bg-dark"></div>
+        <div class="py-2 md:p-4 bg-dark"></div>
         <!-- Text Area-->
-        <div class="w-full bg-green grid grid-cols-2" style="height: 49vh">
+        <div
+          class="w-full bg-dark grid grid-cols-1 md:grid-cols-2"
+          style="height: 49vh"
+        >
           <!-- Left Text Area-->
-          <div class="bg-dark flex flex-col items-end p-2">
-            <div class="rounded-xl bg-white opacity-95 h-80 w-96 p-3">
+          <div class="bg-dark flex flex-col items-center md:items-end p-2">
+            <div
+              class="rounded-xl bg-white opacity-95 h-40 w-80 md:h-80 md:w-96 md:p-4"
+            >
               <!-- Section Title-->
               <p
-                class="text-center text-darker font-semibold text-4xl py-2 px-4"
+                class="text-center text-darker font-semibold text-xl md:text-4xl"
               >
                 What is Playlify?
               </p>
               <!-- Section Text-->
-              <p class="text-center text-dark text-xl font-normal p-1">
+              <p
+                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+              >
                 Playlify is a tool to help you automatically create playlists in
                 Spotify. Playlify goes through your entire library and selects
                 songs that match all your filters. Filters include: song genre,
@@ -48,23 +57,35 @@
             </div>
           </div>
           <!-- Right Text Area-->
-          <div class="bg-dark flex flex-col items-start py-2 px-4">
-            <div class="rounded-xl bg-white opacity-95 h-80 w-96 p-3">
+          <div class="bg-dark flex flex-col items-center md:items-start p-2">
+            <div
+              class="rounded-xl bg-white opacity-95 h-40 w-80 md:h-80 md:w-96 md:p-4"
+            >
               <!-- Section Title-->
-              <p class="text-center text-darker font-semibold text-4xl p-2">
+              <p
+                class="text-center text-darker font-semibold text-xl md:text-4xl py-1 md:py-2 md:px-4"
+              >
                 How does it work?
               </p>
               <!-- Section Text-->
-              <p class="text-center text-dark text-xl font-normal p-2">
+              <p
+                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+              >
                 1. Enter basic information
               </p>
-              <p class="text-center text-dark text-xl font-normal p-2">
+              <p
+                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+              >
                 2. Define filters to apply
               </p>
-              <p class="text-center text-dark text-xl font-normal p-2">
+              <p
+                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+              >
                 3. Validate suggested songs
               </p>
-              <p class="text-center text-dark text-xl font-normal p-2">
+              <p
+                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+              >
                 4. Submit to create the playlist
               </p>
             </div>
@@ -73,10 +94,10 @@
       </div>
     </div>
     <div
-      class="w-full bg-darkest h-10"
+      class="w-full bg-darkest h-8"
       style="position: fixed; bottom: 0; width: 100%"
     >
-      <span class="py-2 px-4" style="float: right">
+      <span class="py-1 px-2" style="float: right">
         <b class="text-white text-l font-normal"
           >Created By:
           <a
