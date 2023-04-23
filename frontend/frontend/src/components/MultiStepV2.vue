@@ -959,7 +959,7 @@ export default {
   }
 }
 #myelement {
-  width: 46vh;
+  width: 44vh;
 }
 @media only screen and (min-width: 800px) {
   #myelement {
