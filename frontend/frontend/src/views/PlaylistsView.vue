@@ -95,29 +95,7 @@ export default {
     return {
       urlBase: "https://airwinter.pythonanywhere.com",
       //   urlBase: "http://localhost:5000",
-      playlists: [
-        {
-          image:
-            "https://mosaic.scdn.co/640/ab67616d0000b2730ae4f4d42e4a09f3a29f64adab67616d0000b2735c8cfe4b2c4aa89c9c92108eab67616d0000b2736abad6915a2216dc18e7e3a7ab67616d0000b273f48a2a4e66094853072c3b79",
-          name: "EDM",
-          description: "",
-          link: "https://open.spotify.com/playlist/0JRzdWJ6LeZwcwuGa9luxC",
-        },
-        {
-          image:
-            "https://mosaic.scdn.co/640/ab67616d0000b2736b62c541105dbc157b9ab7bfab67616d0000b273726d48d93d02e1271774f023ab67616d0000b2739b19c107109de740bad72df5ab67616d0000b273dbb3dd82da45b7d7f31b1b42",
-          name: "Eminem Songs",
-          description: "All my Eminem Songs",
-          link: "https://open.spotify.com/playlist/2XmySKuyO52KAwoJrvz7Ox",
-        },
-        {
-          image:
-            "https://mosaic.scdn.co/640/ab67616d0000b273029c7ad2659fcc983ba27b51ab67616d0000b2738dc0d801766a5aa6a33cbe37ab67616d0000b273935d8d5369bc55e74a39303eab67616d0000b273cd945b4e3de57edd28481a3f",
-          name: "Drake Songs",
-          description: "All my drake songs",
-          link: "https://open.spotify.com/playlist/0KPKReEpzxRorFmQ6WHnXP",
-        },
-      ],
+      playlists: [],
     };
   },
   methods: {
