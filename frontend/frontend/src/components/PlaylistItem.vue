@@ -1,13 +1,15 @@
 <template>
   <!-- Top Header with logo-->
-  <div class="w-full top-0 bg-darkest h-16 py-3 px-10">
-    <img src="PoweredBySpotify.png" class="h-8" />
+  <div
+    class="w-full top-0 bg-darkest max-sm:h-12 md:h-16 py-3 px-10 max-sm:px-4"
+  >
+    <img src="PoweredBySpotify.png" class="h-8 max-sm:h-6" />
     <!-- Log Out Button-->
-    <div class="absolute top-3 right-12">
+    <div class="absolute top-3 right-12 max-sm:top-2 max-sm:right-4">
       <a :href="this.urlBase + 'logout'"
         ><button
           type="button"
-          class="btn bg-snow h-10 w-28 font-semibold rounded-full text-black hover:underline"
+          class="btn bg-snow h-10 w-28 max-sm:h-8 max-sm:w-20 max-sm:text-sm font-semibold rounded-full text-black hover:underline"
           @click="handleLogout()"
         >
           Log Out
@@ -22,9 +24,9 @@
       <div class="row">
         <div class="col-sm-12">
           <br />
-          <div class="w-1/2 flex justify-start">
+          <div class="max-sm:w-full w-1/2 flex justify-start">
             <button
-              class="btn bg-lime font-semibold text-white rounded-full hover:bg-green w-44"
+              class="btn bg-lime font-semibold text-white rounded-full hover:bg-green w-44 max-sm:w-40 max-sm:text-sm"
               @click="handleShow()"
             >
               <p v-if="this.show">Hide My Playlists</p>
@@ -33,7 +35,7 @@
             <a href="/create-playlist"
               ><button
                 type="button"
-                class="btn bg-lime font-semibold rounded-full text-white hover:bg-green ml-2"
+                class="btn bg-lime font-semibold rounded-full text-white hover:bg-green ml-2 max-sm:text-sm"
               >
                 Create Playlist
               </button></a
@@ -41,12 +43,15 @@
           </div>
           <br />
           <!-- Create table containing existing playlists-->
-          <table v-if="this.show" class="table text-white">
+          <table
+            v-if="this.show"
+            class="table text-white text-center max-sm:text-xs"
+          >
             <!-- Table Header-->
             <thead>
               <tr>
                 <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
-                <th scope="col">Playlist Name</th>
+                <th class="max-sm:w-28" scope="col">Playlist Name</th>
                 <th scope="col">Description</th>
                 <th scope="col">Public?</th>
               </tr>
@@ -74,10 +79,6 @@
 
 <script>
 import axios from "axios";
-// {
-//   accessToken;
-// }
-// () => import("../utils");
 const getUtils = () => import("../utils.js");
 
 export default {
