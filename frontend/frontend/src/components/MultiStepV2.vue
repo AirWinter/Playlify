@@ -2,11 +2,13 @@
 import axios from "axios";
 import { accessToken } from "../utils.js";
 import Multiselect from "@vueform/multiselect";
+import TopHeader from "./TopHeader.vue";
 
 export default {
   name: "MultiStepV2",
   components: {
     Multiselect,
+    TopHeader,
   },
   data() {
     return {
@@ -14,7 +16,7 @@ export default {
       urlBase: "https://airwinter.pythonanywhere.com",
       playlist: {
         playlistInformation: {
-          name: "",
+          name: "Name",
           description: "",
           public: true,
         },
@@ -161,20 +163,19 @@ export default {
 
 <template>
   <!-- Top Header with logo-->
-  <div class="w-full top-0 bg-darkest h-16 py-3 px-10">
-    <img src="PoweredBySpotify.png" class="h-8" />
-  </div>
+  <TopHeader />
   <!-- Main Content-->
-  <div class="bg-dark min-h-screen w-full p-4">
-    <p class="text-center text-5xl text-lightest font-bold">
+  <div class="bg-dark min-h-screen w-full py-4">
+    <p class="text-center text-5xl text-lightest font-bold max-sm:text-3xl">
       Create a Playlist
     </p>
     <!-- Form Container -->
-    <div class="grid place-items-center bg-dark w-full py-4">
+    <div class="grid place-items-center bg-dark w-full py-4 max-sm:text-xs">
       <div class="bg-white opacity-90 px-4 py-2 rounded-xl">
         <!-- Form -->
         <FormKit type="form" :actions="false">
-          <div class="text-black h-full" style="width: 65vh">
+          <!-- Conditional CSS for the width of the form -->
+          <div id="myelement" class="text-black h-full">
             <!-- Loading Sign-->
             <div
               role="status"
@@ -255,7 +256,7 @@ export default {
                   <a href="/my-playlists">
                     <button
                       type="button"
-                      class="btn btn-sm py-2 px-3 rounded-full bg-white border-2 border-slate-700 hover:border-black text-black hover:text-black font-bold"
+                      class="btn btn-sm text-base h-10 w-20 max-sm:h-8 max-sm:w-16 max-sm:text-xs rounded-full bg-white border-2 border-slate-700 hover:border-black text-black hover:text-black font-bold"
                     >
                       Cancel
                     </button>
@@ -266,7 +267,7 @@ export default {
                   <div class="relative bottom-0 right-0">
                     <button
                       type="button"
-                      class="bg-lime hover:bg-green text-white font-bold py-2 px-3 rounded-full btn btn-sm"
+                      class="btn btn-sm text-base bg-lime hover:bg-green text-white font-bold h-10 w-20 max-sm:h-8 max-sm:w-16 max-sm:text-xs rounded-full"
                       @click="handlers.incrementStep(1, node.context)()"
                       data-next="true"
                     >
@@ -278,7 +279,7 @@ export default {
               <!-- Step Two: Defining filters-->
               <FormKit type="step" name="filters" label="Filters">
                 <div>
-                  <p class="p-1 font-bold text-black text-sm">
+                  <p class="p-1 font-bold text-black text-sm max-sm:text-xs">
                     Genres to add to your playlist (Optional)
                   </p>
                   <Multiselect
@@ -291,7 +292,7 @@ export default {
                     :classes="{
                       container:
                         'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
-                      tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
+                      tag: 'bg-lime text-white text-xs font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-0 rtl:mr-0 rtl:ml-0',
                       groupLabel:
                         'flex text-m box-border items-center justify-start text-white text-left py-1 px-3 font-bold bg-lime cursor-default leading-normal',
                     }"
@@ -299,12 +300,12 @@ export default {
                     placeholder="Genres"
                     :searchable="true"
                   />
-                  <p class="p-0.5 font text-slate-700 text-xs">
+                  <p class="p-0.5 font text-slate-700 text-xs max-sm:text-2xs">
                     Add songs that match any of these genres
                   </p>
                 </div>
                 <div>
-                  <p class="p-1 font-bold text-black text-sm">
+                  <p class="p-1 font-bold text-black text-sm max-sm:text-xs">
                     Artists for your playlist (Optional)
                   </p>
                   <Multiselect
@@ -315,13 +316,13 @@ export default {
                     :classes="{
                       container:
                         'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
-                      tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
+                      tag: 'bg-lime text-white text-xs font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
                     }"
                     name="ArtistsMultiselect"
                     placeholder="Artists"
                     :searchable="true"
                   />
-                  <p class="p-0.5 font text-slate-700 text-xs">
+                  <p class="p-0.5 font text-slate-700 text-xs max-sm:text-2xs">
                     Add songs from any of these artists
                   </p>
                 </div>
@@ -352,7 +353,7 @@ export default {
                 <template #stepPrevious="{ handlers, node }">
                   <button
                     type="button"
-                    class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs hover:bg-green text-white font-bold rounded-full"
                     @click="handlers.incrementStep(-1, node.context)()"
                   >
                     Previous
@@ -368,7 +369,7 @@ export default {
                       value.filters.created_before_month == '' ||
                       value.filters.created_after_month == ''
                     "
-                    class="bg-lime hover:bg-green text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs hover:bg-green text-white font-bold rounded-full"
                     @click="handlers.incrementStep(1, node.context)()"
                     data-next="true"
                   >
@@ -381,7 +382,9 @@ export default {
                   class="overflow-y-auto overflow-x-contain h-96 text-center"
                 >
                   <!-- Create table containing existing playlists-->
-                  <p class="text-center text-xl text-darkest font-bold">
+                  <p
+                    class="text-center text-xl text-darkest font-bold max-sm:text-sm"
+                  >
                     Suggested Songs ({{ Object.keys(this.songs).length }})
                   </p>
                   <div class="py-2"></div>
@@ -397,14 +400,17 @@ export default {
                     ></div>
                   </div>
                   <div class="container text-center">
-                    <table class="table text-sm" v-if="!this.loading_songs">
+                    <table
+                      class="table table-fixed text-sm max-sm:text-xs"
+                      v-if="!this.loading_songs"
+                    >
                       <!-- Table Header-->
                       <thead class="sticky top-0 bg-white">
                         <tr>
                           <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
-                          <th scope="col">Song Name</th>
-                          <th scope="col">Artist(s)</th>
-                          <th scope="col">Remove</th>
+                          <th class="w-16 max-sm:w-8" scope="col">Name</th>
+                          <th class="w-20 max-sm:w-8" scope="col">Artist(s)</th>
+                          <th class="w-8 max-sm:w-4" scope="col">Remove</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -430,7 +436,7 @@ export default {
                           </td>
                           <td>
                             <button
-                              class="bg-white px-3"
+                              class="bg-white px-1"
                               type="button"
                               @click="removeSong(index)"
                             >
@@ -450,7 +456,7 @@ export default {
                 <template #stepPrevious="{ handlers, node }">
                   <button
                     type="button"
-                    class="bg-lime text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs text-white font-bold rounded-full"
                     :class="
                       this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
                     "
@@ -464,7 +470,7 @@ export default {
                 <template #stepNext>
                   <button
                     type="button"
-                    class="bg-lime h-9 w-24 text-white font-bold py-2 px-4 rounded-full btn-sm"
+                    class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs text-white font-bold rounded-full"
                     :class="
                       this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
                     "
@@ -952,9 +958,19 @@ export default {
     transform: rotate(1turn);
   }
 }
-
-/* .multiselect-green {
-  --ms-tag-bg: #1ed760;
-  --ms-tag-color: white;
+#myelement {
+  width: 46vh;
+}
+@media only screen and (min-width: 800px) {
+  #myelement {
+    width: 65vh;
+  }
+}
+/* @media only screen and (min-width: 800px) {
+  .multiselect-placeholder {
+    font-size: medium;
+    text-align: left;
+    padding-right: 80%;
+  }
 } */
 </style>
