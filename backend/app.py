@@ -12,9 +12,9 @@ app.secret_key = secrets.secret_key
 
 CORS(app)
 
-url_base = "http://localhost:8080"
+# url_base = "http://localhost:8080"
 # url_base = "https://playlify-app.netlify.app"
-# url_base = "https://playlify.net"
+url_base = "https://playlify.net"
 
 @app.route('/login')
 def login():
@@ -59,7 +59,7 @@ def songs_added():
 
 @app.route('/backend/getPlaylists')
 def get_playlist():
-    print("Get Playlist")
+    print("Get Playlists")
     if 'Token' not in request.headers:
         print("No Token Passed")
         return Response(status=401)
@@ -75,11 +75,12 @@ def get_playlist():
         playlists = sp.user_playlists(user=user['id'], limit=(offset + 50), offset=offset)
         for playlist in playlists['items']:
             my_playlists.append(
-                {"name": playlist['name'], "description": playlist['description'], "public": playlist['public']})
+                {"name": playlist['name'], "description": playlist['description'], "public": playlist['public'],
+                 "image": playlist['images'][0]['url'], 'link': playlist['external_urls']['spotify'],
+                 'creator': playlist['owner']['display_name']})
         count += 1
         if len(playlists) < 50:
             break
-
     response = jsonify(my_playlists)
     response.headers.add('Access-Control-Allow-Origin', f'{url_base}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
@@ -152,7 +153,8 @@ def get_all_tracks_from_library():
                     if genre_group['label'].upper() in genre_string.upper() \
                             or genre_group['label'].upper() in genre.upper() \
                             or genre_group['label'].upper() == "OTHERS":
-                        if not any(genre in genre_group_values['value'] for genre_group_values in genre_group['options']):
+                        if not any(
+                                genre in genre_group_values['value'] for genre_group_values in genre_group['options']):
                             genre_group['options'].append({'value': genre, 'label': genre_string})
 
                         break

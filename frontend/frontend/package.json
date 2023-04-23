@@ -11,6 +11,7 @@
     "@formkit/addons": "^0.16.4",
     "@formkit/themes": "^0.16.4",
     "@formkit/vue": "^0.16.4",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@vueform/multiselect": "^2.6.1",
     "autoprefixer": "^10",
     "axios": "^1.3.4",
