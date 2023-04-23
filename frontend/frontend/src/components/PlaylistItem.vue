@@ -110,5 +110,8 @@ export default {
       this.show = !this.show;
     },
   },
+  created() {
+    this.handleShow();
+  },
 };
 </script>
