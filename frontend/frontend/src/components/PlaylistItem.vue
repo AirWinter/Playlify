@@ -1,18 +1,8 @@
 <template>
-  <!-- Top Header with logo -->
+  <!-- Top Header with Logo -->
   <TopHeader />
-  <!-- Log Out Button -->
-  <div class="absolute top-3 right-12 max-sm:top-2 max-sm:right-4">
-    <a :href="this.urlBase + 'logout'"
-      ><button
-        type="button"
-        class="btn bg-snow h-10 w-28 max-sm:h-8 max-sm:w-20 max-sm:text-sm font-semibold rounded-full text-black hover:underline"
-        @click="handleLogout()"
-      >
-        Log Out
-      </button>
-    </a>
-  </div>
+  <!-- Log Out Button Top Right-->
+  <LogOutButton />
   <!-- Main Content-->
   <div class="bg-dark min-h-screen w-full">
     <!-- Table Container -->
@@ -76,11 +66,12 @@
 <script>
 import axios from "axios";
 import TopHeader from "../components/TopHeader.vue";
+import LogOutButton from "./LogOutButton.vue";
 const getUtils = () => import("../utils.js");
 
 export default {
   name: "PlaylistItem",
-  components: { TopHeader },
+  components: { TopHeader, LogOutButton },
   data() {
     return {
       show: false,
@@ -100,10 +91,6 @@ export default {
       })
         .then((value) => (this.playlists = value.data))
         .catch(() => this.$router.push("/")); // If user is not logged in then redirect to home page
-    },
-    handleLogout() {
-      localStorage.clear();
-      sessionStorage.clear();
     },
     handleShow() {
       this.getPlaylists();
