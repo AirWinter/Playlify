@@ -74,9 +74,12 @@ def get_playlist():
         offset = count * 50
         playlists = sp.user_playlists(user=user['id'], limit=(offset + 50), offset=offset)
         for playlist in playlists['items']:
+            image = ''
+            if len(playlist['images']) > 0:
+                image = playlist['images'][0]['url']
             my_playlists.append(
                 {"name": playlist['name'], "description": playlist['description'], "public": playlist['public'],
-                 "image": playlist['images'][0]['url'], 'link': playlist['external_urls']['spotify'],
+                 "image": image, 'link': playlist['external_urls']['spotify'],
                  'creator': playlist['owner']['display_name']})
         count += 1
         if len(playlists) < 50:

@@ -48,7 +48,13 @@
               >
                 <!-- Playlist Cover Photo -->
                 <img
+                  v-if="playlist.image != ''"
                   :src="playlist.image"
+                  class="h-36 w-36 object-cover shadow mb-2 rounded"
+                />
+                <img
+                  v-else
+                  src="PlaceholderIcon.png"
                   class="h-36 w-36 object-cover shadow mb-2 rounded"
                 />
                 <!-- Playlist Title -->
