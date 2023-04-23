@@ -151,7 +151,7 @@ export default {
           songs_to_add: songs_to_add_array,
         },
       }).catch((error) => console.log(error));
-      this.$router.push("/my-playlists");
+      this.$router.push("/playlists-view");
       this.loading = false;
     },
   },
