@@ -25,7 +25,7 @@ export default {
           created_before_month: "",
         },
       },
-      genres_options: [{ label: "Any", value: "any" }],
+      genres_options: [{ label: "Any", options: [] }],
       artist_options: [{ label: "Any", value: "any" }],
       loading: true,
       loading_songs: true,
@@ -77,6 +77,7 @@ export default {
         sessionStorage.getItem("all_genres") != "undefined"
       ) {
         this.genres_options = JSON.parse(sessionStorage.getItem("all_genres"));
+        console.log(this.genres_options);
       }
       // Get all artists from session storage
       if (
@@ -283,13 +284,16 @@ export default {
                   <Multiselect
                     mode="tags"
                     v-model="this.playlist.filters.genres"
+                    :groups="true"
                     :options="genres_options"
-                    :close-on-select="false"
+                    :close-on-select="true"
                     class="multiselect-green"
                     :classes="{
                       container:
                         'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
                       tag: 'bg-lime text-white text-sm font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
+                      groupLabel:
+                        'flex text-m box-border items-center justify-start text-white text-left py-1 px-3 font-bold bg-lime cursor-default leading-normal',
                     }"
                     name="GenresMultiselect"
                     placeholder="Genres"
@@ -423,8 +427,6 @@ export default {
                                   : "")
                               }}</a
                             >
-                            <!-- song.artists.reduce((a, b) => `${a};${b}`) -->
-                            <!-- <a :href="artist.external_url">{{ artist.name }}</a> -->
                           </td>
                           <td>
                             <button
@@ -434,7 +436,7 @@ export default {
                             >
                               <img
                                 src="trash-can.png"
-                                class="h-6 w-6 opacity-80 hover:opacity-100"
+                                class="h-6 w-6 opacity-80 hover:opacity-100 bg-transparent"
                               />
                             </button>
                           </td>

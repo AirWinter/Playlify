@@ -12,9 +12,9 @@ app.secret_key = secrets.secret_key
 
 CORS(app)
 
-# url_base = "http://localhost:8080"
+url_base = "http://localhost:8080"
 # url_base = "https://playlify-app.netlify.app"
-url_base = "https://playlify.net"
+# url_base = "https://playlify.net"
 
 @app.route('/login')
 def login():
@@ -103,7 +103,18 @@ def get_all_tracks_from_library():
     market = user['country']
 
     count = 0
-    all_my_genres = {}
+    all_my_genres = [{'label': 'Classical', 'options': []}, {'label': 'Country', 'options': []},
+                     {'label': 'EDM', 'options': []}, {'label': 'Folk', 'options': []},
+                     {'label': 'Hip Hop', 'options': []}, {'label': 'Indie', 'options': []},
+                     {'label': 'Jazz', 'options': []}, {'label': 'Metal', 'options': []},
+                     {'label': 'K-Pop', 'options': []}, {'label': 'Pop', 'options': []},
+                     {'label': 'R&B', 'options': []}, {'label': 'Trap', 'options': []},
+                     {'label': 'Rap', 'options': []},
+                     {'label': 'Reggaeton', 'options': []}, {'label': 'Reggae', 'options': []},
+                     {'label': 'Rock', 'options': []}, {'label': 'Soul', 'options': []},
+                     {'label': 'Swing', 'options': []}, {'label': 'Techno', 'options': []},
+                     {'label': 'Others', 'options': []}]
+    # Genres: Classical,Country,EDM,Folk,Hip Hop,House,Indie,Jazz,Metal,Pop,R&B,Rap,Reggae,Reggaeton,Rock,Soul,Swing,Techno,Trap, Others
     all_my_artists = {}
     all_my_songs = {}
     while True:
@@ -117,12 +128,13 @@ def get_all_tracks_from_library():
                 a_url = items[i]['track']['artists'][j]['external_urls']['spotify']
                 artists[a_id] = a_name
                 if a_id not in all_my_artists.keys():
-                    all_my_artists[a_id] = {'name': a_name, 'external_url' : a_url}
+                    all_my_artists[a_id] = {'name': a_name, 'external_url': a_url}
             song_id = items[i]['track']['id']
             song_name = items[i]['track']['name']
             date = items[i]['track']['album']['release_date']
             song_url = items[i]['track']['external_urls']['spotify']
-            all_my_songs[song_id] = {'name': song_name, 'artists': artists, 'date-created': date, 'external_url': song_url}
+            all_my_songs[song_id] = {'name': song_name, 'artists': artists, 'date-created': date,
+                                     'external_url': song_url}
 
         count += 1
         if len(items) < 50:
@@ -135,8 +147,15 @@ def get_all_tracks_from_library():
             genres = artist_information['genres']
             all_my_artists[artist_id]['genres'] = genres
             for genre in genres:
-                if genre not in all_my_genres.keys():
-                    all_my_genres[genre] = stringify(genre)
+                genre_string = stringify(genre)
+                for genre_group in all_my_genres:
+                    if genre_group['label'].upper() in genre_string.upper() \
+                            or genre_group['label'].upper() in genre.upper() \
+                            or genre_group['label'].upper() == "OTHERS":
+                        if not any(genre in genre_group_values['value'] for genre_group_values in genre_group['options']):
+                            genre_group['options'].append({'value': genre, 'label': genre_string})
+
+                        break
 
     for song_id in all_my_songs.keys():
         song_artists_ids = all_my_songs[song_id]['artists']
@@ -145,6 +164,13 @@ def get_all_tracks_from_library():
             song_genres.extend(all_my_artists[artist_id]['genres'])
 
         all_my_songs[song_id]['genres'] = song_genres
+
+    for genre_group in all_my_genres:
+        if len(genre_group['options']) == 0:
+            all_my_genres.remove(genre_group)
+        else:
+            label = genre_group['label']
+            genre_group['label'] = "All " + label + " Genres"
 
     res = {'all_songs': all_my_songs, 'all_artists': all_my_artists, 'all_genres': all_my_genres}
     response = jsonify(res)
@@ -165,13 +191,15 @@ def create_playlist():
     sp = spotipy.Spotify(auth=access_token)
     user = sp.me()
 
-    name = json.loads(request.data)['name']
+    req = json.loads(request.data)
+
+    name = req['name']
     is_public = False  # False by default
     # If public is specified then overwrite
-    if 'public' in json.loads(request.data).keys():
-        is_public = json.loads(request.data)['public']
+    if 'public' in req.keys():
+        is_public = req['public']
 
-    description = json.loads(request.data)['description']
+    description = req['description']
     print(f"Description: {description}")
 
     # If the user provided a description
@@ -194,7 +222,7 @@ def create_playlist():
     playlist_id = response_create['id']
 
     songs_to_add = json.loads(request.data)['songs_to_add']
-    print(f"Songs to add: {songs_to_add}")
+    # print(f"Songs to add: {songs_to_add}")
 
     # Populate Playlist
     for list_of_songs in chunks(songs_to_add, 100):
@@ -227,27 +255,35 @@ def get_songs_to_add():
             all_genres = filters["genre"].split(";")
             if len(all_genres) > 0 and "any" not in all_genres:
                 print("Filtered by genre")
-                songs_to_add = list(filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres), songs_to_add))
+                songs_to_add = list(
+                    filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres),
+                           songs_to_add))
         if apply_filter == "artists" and filters[apply_filter] is not None and filters[apply_filter] != '':
             all_artists = filters[apply_filter].split(";")
             if len(all_artists) > 0:
                 print("Filtered by artists")
                 songs_to_add = list(
-                    filter(lambda s: any(filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists), songs_to_add))
+                    filter(lambda s: any(
+                        filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists),
+                           songs_to_add))
         elif apply_filter == "created_after_month" and filters[apply_filter] != "":
             print("Filtered by created_after_month")
-            songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
+            songs_to_add = list(
+                filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
             print("Filtered by created_before_month")
-            songs_to_add = list(filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
+            songs_to_add = list(
+                filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
 
     result = {}
     for song_id in songs_to_add:
         artists = []
         for artist_id in all_my_songs[song_id]['artists'].keys():
-            artists.append({'name': all_my_songs[song_id]['artists'][artist_id], 'external_url': all_my_artists[artist_id]['external_url']})
+            artists.append({'name': all_my_songs[song_id]['artists'][artist_id],
+                            'external_url': all_my_artists[artist_id]['external_url']})
         # artists_string = ', '.join([str(elem) for elem in artists])
-        result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']), 'song_url': all_my_songs[song_id]['external_url'], "artists": artists}
+        result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']),
+                           'song_url': all_my_songs[song_id]['external_url'], "artists": artists}
     return jsonify(result)
 
 
