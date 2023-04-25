@@ -1,6 +1,6 @@
 <script>
 import axios from "axios";
-import { accessToken } from "../utils.js";
+const getUtils = () => import("../utils.js");
 import Multiselect from "@vueform/multiselect";
 import TopHeader from "./TopHeader.vue";
 
@@ -107,11 +107,12 @@ export default {
       ) {
         this.loading = false;
       } else {
+        const token_string = await (await getUtils()).accessToken;
         await axios({
           method: "get",
           url: `${this.urlBase}/backend/getAllTracksFromLibrary`,
           headers: {
-            Token: accessToken,
+            Token: token_string,
           },
         })
           .then((response) => {
@@ -136,13 +137,14 @@ export default {
     },
     async handleSubmit(param) {
       this.loading = true;
+      const token_string = await (await getUtils()).accessToken;
       var songs_to_add_array = Object.keys(this.songs);
       // Create the playlist
       await axios({
         method: "post",
         url: `${this.urlBase}/backend/createPlaylist`,
         headers: {
-          Token: accessToken,
+          Token: token_string,
         },
         data: {
           name: param.playlistInformation.name,
@@ -253,7 +255,7 @@ export default {
                 />
                 <!-- Go Back To My Playlists -->
                 <template #stepPrevious="">
-                  <a href="/my-playlists">
+                  <a href="/playlists-view">
                     <button
                       type="button"
                       class="btn btn-sm text-base h-10 w-20 max-sm:h-8 max-sm:w-16 max-sm:text-xs rounded-full bg-white border-2 border-slate-700 hover:border-black text-black hover:text-black font-bold"

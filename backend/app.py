@@ -40,13 +40,13 @@ def logout():
 
 @app.route("/refresh")
 def refresh():
+    print("refresh")
     # If refresh token isn't passed -> 401
     if "refresh_token" not in request.headers:
         print("No refresh token passed")
         return Response(status=401)
 
     refresh_token = request.headers["refresh_token"]
-    print(refresh_token)
     sp_oath = create_spotify_oath()
     response = sp_oath.refresh_access_token(refresh_token)
     return jsonify(response)

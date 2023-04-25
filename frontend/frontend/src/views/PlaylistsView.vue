@@ -106,11 +106,12 @@ export default {
   },
   methods: {
     async getPlaylists() {
+      const token_string = await (await getUtils()).accessToken;
       await axios({
         method: "get",
         url: `${this.urlBase}/backend/getPlaylists`,
         headers: {
-          Token: (await getUtils()).accessToken,
+          Token: token_string,
         },
       })
         .then((value) => (this.playlists = value.data))
