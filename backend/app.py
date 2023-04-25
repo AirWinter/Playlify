@@ -38,11 +38,13 @@ def logout():
     return redirect(f"{url_base}/")
 
 
-@app.route("/refresh")
+@app.route("/refresh", methods=['GET'])
 def refresh():
     print("refresh")
+    print("HEADERS")
+    print(request.headers)
     # If refresh token isn't passed -> 401
-    if "refresh_token" not in request.headers:
+    if "RefreshToken" not in request.headers:
         print("No refresh token passed")
         return Response(status=401)
 

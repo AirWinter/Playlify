@@ -19,7 +19,7 @@ async function getAccessToken() {
       method: "get",
       url: `${urlBase}/refresh`,
       headers: {
-        refresh_token: refresh_token,
+        RefreshToken: refresh_token,
       },
     }).then((res) => {
       localStorage.setItem("access_token", res.data.access_token);
