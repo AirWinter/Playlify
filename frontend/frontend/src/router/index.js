@@ -38,12 +38,6 @@ const routes = [
     component: lazyLoadView("GetStartedView"),
   },
   {
-    path: "/my-playlists",
-    name: "PlaylistItem",
-    component: lazyLoadComponent("PlaylistItem"),
-    props: dynamicPropsFn,
-  },
-  {
     path: "/playlists-view",
     name: "PlaylistsView",
     component: lazyLoadView("PlaylistsView"),

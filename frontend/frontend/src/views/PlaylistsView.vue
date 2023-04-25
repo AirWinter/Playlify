@@ -117,7 +117,9 @@ export default {
         .then((value) => (this.playlists = value.data))
         .catch((error) => {
           console.log(error);
-          this.$router.push("/"); // If user is not logged in then redirect to home page
+          localStorage.clear();
+          sessionStorage.clear();
+          this.$router.push("/"); // If there's an error go to home page
         });
     },
   },

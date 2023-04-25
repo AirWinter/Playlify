@@ -65,7 +65,12 @@ export default {
         },
       })
         .then((value) => (songs_to_add_array = value.data))
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          localStorage.clear();
+          sessionStorage.clear();
+          this.$router.push("/"); // If there's an error go to home page
+        });
       this.songs = songs_to_add_array;
       this.loading_songs = false;
     },
@@ -131,7 +136,12 @@ export default {
               JSON.stringify(response.data.all_genres)
             );
           })
-          .catch((error) => console.log(error));
+          .catch((error) => {
+            console.log(error);
+            localStorage.clear();
+            sessionStorage.clear();
+            this.$router.push("/"); // If there's an error go to home page
+          });
         this.loading = false;
       }
     },
@@ -152,7 +162,12 @@ export default {
           public: param.playlistInformation.public,
           songs_to_add: songs_to_add_array,
         },
-      }).catch((error) => console.log(error));
+      }).catch((error) => {
+        console.log(error);
+        localStorage.clear();
+        sessionStorage.clear();
+        this.$router.push("/"); // If there's an error go to home page
+      });
       this.$router.push("/playlists-view");
       this.loading = false;
     },
