@@ -12,8 +12,6 @@ export default {
   },
   data() {
     return {
-      // urlBase: "http://localhost:5000",
-      // urlBase: "https://airwinter.pythonanywhere.com",
       urlBase: process.env.VUE_APP_URL_BASE,
       playlist: {
         playlistInformation: {
@@ -37,15 +35,11 @@ export default {
   },
   methods: {
     async getSongsToAdd(param) {
-      console.log("GET SONGS TO ADD");
-      console.log(param);
-
       this.loading_songs = true;
       var songs_to_add_array = null;
       const all_my_songs = sessionStorage.getItem("all_songs");
       const all_my_artists = sessionStorage.getItem("all_artists");
-      console.log(all_my_songs);
-      console.log(all_my_artists);
+
       // Use POST to avoid 414
       await axios({
         method: "post",
@@ -85,20 +79,16 @@ export default {
         sessionStorage.getItem("all_genres") != "undefined"
       ) {
         this.genres_options = JSON.parse(sessionStorage.getItem("all_genres"));
-        console.log(this.genres_options);
       }
       // Get all artists from session storage
       if (
         sessionStorage.getItem("all_artists") != null &&
         sessionStorage.getItem("all_artists") != "undefined"
       ) {
-        console.log("ALL ARTISTS");
         var all_artists = JSON.parse(sessionStorage.getItem("all_artists"));
-        console.log(all_artists);
         Object.keys(all_artists).forEach((key) => {
           all_artists[key] = all_artists[key]["name"];
         });
-        console.log(all_artists);
         this.artist_options = all_artists;
       }
     },
@@ -122,8 +112,6 @@ export default {
           },
         })
           .then((response) => {
-            console.log("Get All Tracks From Library");
-            console.log(response.data);
             sessionStorage.setItem(
               "all_songs",
               JSON.stringify(response.data.all_songs)

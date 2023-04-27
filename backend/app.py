@@ -12,10 +12,6 @@ app.secret_key = secrets.secret_key
 
 CORS(app)
 
-# url_base = "http://localhost:8080"
-# url_base = "https://playlify-app.netlify.app"
-url_base = "https://playlify.net"
-
 @app.route('/login')
 def login():
     sp_oath = create_spotify_oath()
@@ -29,13 +25,13 @@ def callback():
     sp_oath = create_spotify_oath()
     code = request.args.get('code')
     token_info = sp_oath.get_access_token(code, check_cache=False)
-    response = redirect(f"{url_base}/playlists-view?{urlencode(token_info)}")
+    response = redirect(f"{secrets.url_base}/playlists-view?{urlencode(token_info)}")
     return response
 
 
 @app.route('/logout')
 def logout():
-    return redirect(f"{url_base}/")
+    return redirect(f"{secrets.url_base}/")
 
 
 @app.route("/refresh", methods=['GET'])
@@ -85,7 +81,7 @@ def get_playlist():
         if len(playlists) < 50:
             break
     response = jsonify(my_playlists)
-    response.headers.add('Access-Control-Allow-Origin', f'{url_base}')
+    response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
@@ -179,7 +175,7 @@ def get_all_tracks_from_library():
 
     res = {'all_songs': all_my_songs, 'all_artists': all_my_artists, 'all_genres': all_my_genres}
     response = jsonify(res)
-    response.headers.add('Access-Control-Allow-Origin', f'{url_base}')
+    response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
@@ -230,10 +226,10 @@ def create_playlist():
 
     # Populate Playlist
     for list_of_songs in chunks(songs_to_add, 100):
-        response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
+        sp.playlist_add_items(playlist_id, list_of_songs)
         # print(f"Populated: {response_populate}")
 
-    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{url_base}'}
+    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{secrets.url_base}'}
     response = Response(status=200, headers=headers)
 
     return response
@@ -258,24 +254,24 @@ def get_songs_to_add():
         if apply_filter == "genre" and filters[apply_filter] is not None and filters[apply_filter] != '':
             all_genres = filters["genre"].split(";")
             if len(all_genres) > 0 and "any" not in all_genres:
-                print("Filtered by genre")
+                # print("Filtered by genre")
                 songs_to_add = list(
                     filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres),
                            songs_to_add))
         if apply_filter == "artists" and filters[apply_filter] is not None and filters[apply_filter] != '':
             all_artists = filters[apply_filter].split(";")
             if len(all_artists) > 0:
-                print("Filtered by artists")
+                # print("Filtered by artists")
                 songs_to_add = list(
                     filter(lambda s: any(
                         filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists),
                            songs_to_add))
         elif apply_filter == "created_after_month" and filters[apply_filter] != "":
-            print("Filtered by created_after_month")
+            # print("Filtered by created_after_month")
             songs_to_add = list(
                 filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
-            print("Filtered by created_before_month")
+            # print("Filtered by created_before_month")
             songs_to_add = list(
                 filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
 

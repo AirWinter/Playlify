@@ -19,8 +19,6 @@ export default {
   data() {
     return {
       urlBase: process.env.VUE_APP_URL_BASE,
-      // urlBase: "https://airwinter.pythonanywhere.com",
-      //   urlBase: "http://localhost:5000",
     };
   },
   methods: {
