@@ -40,7 +40,7 @@ def logout():
 
 @app.route("/refresh", methods=['GET'])
 def refresh():
-    print("refresh")
+    # print("refresh")
     # If refresh token isn't passed -> 401
     if "RefreshToken" not in request.headers:
         print("No refresh token passed")
@@ -59,7 +59,7 @@ def songs_added():
 
 @app.route('/backend/getPlaylists')
 def get_playlist():
-    print("Get Playlists")
+    # print("Get Playlists")
     if 'Token' not in request.headers:
         print("No Token Passed")
         return Response(status=401)
@@ -93,7 +93,7 @@ def get_playlist():
 # Don't actually return the songs, just store them
 @app.route('/backend/getAllTracksFromLibrary', methods=['GET'])
 def get_all_tracks_from_library():
-    print("Get All Tracks")
+    # print("Get All Tracks")
     if 'Token' not in request.headers:
         print("No Token Passed")
         return Response(status=401)
@@ -186,7 +186,7 @@ def get_all_tracks_from_library():
 
 @app.route('/backend/createPlaylist', methods=['POST'])
 def create_playlist():
-    print("Creating Playlist")
+    # print("Creating Playlist")
     if 'Token' not in request.headers:
         print("No Token Passed")
         return Response(status=401)
@@ -199,17 +199,16 @@ def create_playlist():
     req = json.loads(request.data)
 
     name = req['name']
-    is_public = False  # False by default
+    display_on_profile = False  # False by default
     # If public is specified then overwrite
-    if 'public' in req.keys():
-        is_public = req['public']
+    if 'display' in req.keys():
+        display_on_profile = req['display']
 
     description = req['description']
-    print(f"Description: {description}")
 
     # If the user provided a description
     if description is not None and description != "":
-        response_create = sp.user_playlist_create(user=user['id'], name=name, public=is_public, description=description)
+        response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile, description=description)
         if response_create['description'] is None or response_create['description'] == "":
             count = 0
             playlist_id = response_create['id']
@@ -221,9 +220,9 @@ def create_playlist():
                     break
     else:
         # Create empty playlist without a description
-        response_create = sp.user_playlist_create(user=user['id'], name=name, public=is_public)
+        response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile)
 
-    print(f"Created: {response_create}")
+    # print(f"Created: {response_create}")
     playlist_id = response_create['id']
 
     songs_to_add = json.loads(request.data)['songs_to_add']
@@ -232,7 +231,7 @@ def create_playlist():
     # Populate Playlist
     for list_of_songs in chunks(songs_to_add, 100):
         response_populate = sp.playlist_add_items(playlist_id, list_of_songs)
-        print(f"Populated: {response_populate}")
+        # print(f"Populated: {response_populate}")
 
     headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{url_base}'}
     response = Response(status=200, headers=headers)
@@ -242,7 +241,7 @@ def create_playlist():
 
 @app.route('/backend/getSongsToAdd', methods=['POST'])
 def get_songs_to_add():
-    print("Get songs to Add")
+    # print("Get songs to Add")
     req = json.loads(request.data)
     filters = {"genre": req['genres'],
                "artists": req['artists'],

@@ -18,7 +18,7 @@ export default {
         playlistInformation: {
           name: "",
           description: "",
-          public: true,
+          display: false,
         },
         filters: {
           genres: [],
@@ -159,7 +159,7 @@ export default {
         data: {
           name: param.playlistInformation.name,
           description: param.playlistInformation.description,
-          public: param.playlistInformation.public,
+          display: param.playlistInformation.display,
           songs_to_add: songs_to_add_array,
         },
       }).catch((error) => {
@@ -263,10 +263,9 @@ export default {
                 />
                 <FormKit
                   type="checkbox"
-                  label="Public"
-                  help="Do you want your playlist to be public?"
-                  name="public"
-                  disabled="true"
+                  label="Display on profile"
+                  help="Do you want your playlist to be shown on your spotify profile?"
+                  name="display"
                 />
                 <!-- Go Back To My Playlists -->
                 <template #stepPrevious="">
@@ -424,7 +423,6 @@ export default {
                       <!-- Table Header-->
                       <thead class="sticky top-0 bg-white">
                         <tr>
-                          <!-- Table Header Cells: Playlist Name, Date-Created, Public (true/false)-->
                           <th class="w-16 max-sm:w-8" scope="col">Name</th>
                           <th class="w-20 max-sm:w-8" scope="col">Artist(s)</th>
                           <th class="w-8 max-sm:w-4" scope="col">Remove</th>
