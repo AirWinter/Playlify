@@ -48,7 +48,8 @@
                 Spotify. Playlify goes through your entire library and selects
                 songs that match all your filters. Filters include: song genre,
                 artists and release date. If you don't define any filters, all
-                your songs will be added.
+                your songs will be added. We recommend accessing playlify from a
+                computer.
               </p>
             </div>
           </div>

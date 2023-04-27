@@ -43,7 +43,6 @@
               }
             "
           >
-            <!-- <template #tabs=""> -->
             <FormKit
               type="step"
               name="playlistInformation"

@@ -31,6 +31,22 @@
               </div>
             </a>
           </div>
+          <!-- Hardcoded Edit Playlist -->
+          <!-- <div class="p-2 w-48 h-64 max-sm:w-44">
+            <a href="/edit-playlist" style="text-decoration: none">
+              <div
+                class="bg-card_bg opacity-90 hover:opacity-100 w-full h-full p-3 rounded-lg shadow-md"
+              >
+                <img src="PlusSign.png" class="h-36 w-36 shadow rounded" />
+
+                <h1
+                  class="text-xl mt-3 font-semibold text-white text-center tracking-wide"
+                >
+                  Edit Playlist
+                </h1>
+              </div>
+            </a>
+          </div> -->
           <!-- All of their playlists -->
           <div
             v-for="playlist in this.playlists"
