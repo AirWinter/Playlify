@@ -7,7 +7,7 @@
       <!-- Container-->
       <div class="w-full h-full relative bg-darkgr">
         <!-- Welcome Header -->
-        <div class="w-full top-0 bg-dark py-8 md:p-10">
+        <div class="w-full top-0 bg-dark max-sm:py-4 py-10">
           <p class="text-center text-4xl md:text-7xl text-white font-bold">
             Welcome to Playlify
           </p>
@@ -32,7 +32,7 @@
           <!-- Left Text Area-->
           <div class="bg-dark flex flex-col items-center md:items-end p-2">
             <div
-              class="rounded-xl bg-white opacity-95 h-40 w-80 md:h-80 md:w-96 md:p-4"
+              class="rounded-xl bg-white opacity-95 h-44 w-80 md:h-80 md:w-96 md:p-4"
             >
               <!-- Section Title-->
               <p
@@ -48,8 +48,7 @@
                 Spotify. Playlify goes through your entire library and selects
                 songs that match all your filters. Filters include: song genre,
                 artists and release date. If you don't define any filters, all
-                your songs will be added. We recommend accessing playlify from a
-                computer.
+                your songs will be added.
               </p>
             </div>
           </div>
@@ -84,6 +83,15 @@
                 class="text-center text-dark text-sm md:text-xl font-normal p-1"
               >
                 4. Submit to create the playlist
+              </p>
+            </div>
+            <!-- Note only for phones -->
+            <div class="p-2"></div>
+            <div
+              class="rounded-xl bg-white opacity-95 h-16 w-80 p-2 md:invisible"
+            >
+              <p class="text-center text-darker font-semibold">
+                NOTE: We recommend accessing playlify through a computer.
               </p>
             </div>
           </div>
