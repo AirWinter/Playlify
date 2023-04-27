@@ -14,7 +14,7 @@
         </div>
         <!-- Link to Login -->
         <div class="w-full bg-dark flex flex-col items-center">
-          <a :href="this.urlBase + 'login'">
+          <a :href="this.urlBase + '/login'">
             <button
               class="btn h-12 w-40 md:h-20 md:w-64 bg-green border-0 text-black text-xl md:text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
             >
@@ -119,7 +119,8 @@ export default {
   },
   data: function () {
     return {
-      urlBase: "https://airwinter.pythonanywhere.com/",
+      urlBase: process.env.VUE_APP_URL_BASE,
+      // urlBase: "https://airwinter.pythonanywhere.com/",
       // urlBase: "http://localhost:5000/",
     };
   },

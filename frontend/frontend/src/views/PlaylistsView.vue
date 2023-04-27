@@ -99,8 +99,9 @@ export default {
   },
   data() {
     return {
-      urlBase: "https://airwinter.pythonanywhere.com",
+      // urlBase: "https://airwinter.pythonanywhere.com",
       //   urlBase: "http://localhost:5000",
+      urlBase: process.env.VUE_APP_URL_BASE,
       playlists: [],
     };
   },

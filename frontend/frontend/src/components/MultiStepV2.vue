@@ -13,7 +13,8 @@ export default {
   data() {
     return {
       // urlBase: "http://localhost:5000",
-      urlBase: "https://airwinter.pythonanywhere.com",
+      // urlBase: "https://airwinter.pythonanywhere.com",
+      urlBase: process.env.VUE_APP_URL_BASE,
       playlist: {
         playlistInformation: {
           name: "",
