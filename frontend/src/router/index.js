@@ -1,9 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-function lazyLoadComponent(component) {
-  return () => import(`../components/${component}.vue`);
-}
-
 function lazyLoadView(view) {
   return () => import(`../views/${view}.vue`);
 }
@@ -38,15 +34,15 @@ const routes = [
     component: lazyLoadView("GetStartedView"),
   },
   {
-    path: "/playlists-view",
+    path: "/my-playlists",
     name: "PlaylistsView",
     component: lazyLoadView("PlaylistsView"),
     props: dynamicPropsFn,
   },
   {
     path: "/create-playlist",
-    name: "MultiStepV2",
-    component: lazyLoadComponent("MultiStepV2"),
+    name: "CreatePlaylistView",
+    component: lazyLoadView("CreatePlaylistView"),
   },
   {
     path: "/:catchAll(.*)*",

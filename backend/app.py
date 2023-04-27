@@ -25,7 +25,7 @@ def callback():
     sp_oath = create_spotify_oath()
     code = request.args.get('code')
     token_info = sp_oath.get_access_token(code, check_cache=False)
-    response = redirect(f"{secrets.url_base}/playlists-view?{urlencode(token_info)}")
+    response = redirect(f"{secrets.url_base}/my-playlists?{urlencode(token_info)}")
     return response
 
 
