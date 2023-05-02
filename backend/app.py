@@ -23,6 +23,9 @@ def login():
 @app.route('/callback')
 def callback():
     sp_oath = create_spotify_oath()
+    # If access denied -> Return to landing page
+    if 'error' in request.args.keys():
+        return redirect(f"{secrets.url_base}/")
     code = request.args.get('code')
     token_info = sp_oath.get_access_token(code, check_cache=False)
     response = redirect(f"{secrets.url_base}/my-playlists?{urlencode(token_info)}")
@@ -281,7 +284,6 @@ def get_songs_to_add():
         for artist_id in all_my_songs[song_id]['artists'].keys():
             artists.append({'name': all_my_songs[song_id]['artists'][artist_id],
                             'external_url': all_my_artists[artist_id]['external_url']})
-        # artists_string = ', '.join([str(elem) for elem in artists])
         result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']),
                            'song_url': all_my_songs[song_id]['external_url'], "artists": artists}
     return jsonify(result)
@@ -292,6 +294,7 @@ def create_spotify_oath():
         client_id=secrets.client_id,
         client_secret=secrets.secret,
         redirect_uri=url_for('callback', _external=True),
+        show_dialog=True, # Show permission screen every time
         scope="user-library-read playlist-modify-public playlist-modify-private user-read-private playlist-read-private playlist-read-collaborative"
     )
 
