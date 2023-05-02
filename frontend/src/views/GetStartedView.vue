@@ -23,16 +23,18 @@
           </a>
         </div>
         <!-- Gap between get started and text areas below-->
-        <div class="py-2 md:p-4 bg-dark"></div>
+        <div class="p-1 bg-dark"></div>
         <!-- Text Area-->
         <div
           class="w-full bg-dark grid grid-cols-1 md:grid-cols-2"
           style="height: 49vh"
         >
           <!-- Left Text Area-->
-          <div class="bg-dark flex flex-col items-center md:items-end p-2">
+          <div
+            class="bg-dark flex flex-col items-center md:items-end max-sm:py-2 py-6 px-2"
+          >
             <div
-              class="rounded-xl bg-white opacity-95 h-44 w-80 md:h-80 md:w-96 md:p-4"
+              class="flex flex-col items-center rounded-xl bg-white opacity-95 max-sm:h-auto max-sm:w-4/5 h-80 w-96 max-sm:p-1 p-6"
             >
               <!-- Section Title-->
               <p
@@ -42,7 +44,7 @@
               </p>
               <!-- Section Text-->
               <p
-                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+                class="text-center text-dark text-sm md:text-xl font-normal p-1 mb-1"
               >
                 Playlify is a tool to help you automatically create playlists in
                 Spotify. Playlify goes through your entire library and selects
@@ -53,13 +55,15 @@
             </div>
           </div>
           <!-- Right Text Area-->
-          <div class="bg-dark flex flex-col items-center md:items-start p-2">
+          <div
+            class="bg-dark flex flex-col items-center md:items-start max-sm:py-2 py-6 px-2"
+          >
             <div
-              class="rounded-xl bg-white opacity-95 h-40 w-80 md:h-80 md:w-96 md:p-4"
+              class="flex flex-col items-center rounded-xl bg-white opacity-95 max-sm:h-auto max-sm:w-4/5 h-80 w-96 max-sm:p-1 p-6"
             >
               <!-- Section Title-->
               <p
-                class="text-center text-darker font-semibold text-xl md:text-4xl py-1 md:py-2 md:px-4"
+                class="text-center text-darker font-semibold text-xl md:text-4xl mb-1"
               >
                 How does it work?
               </p>
@@ -80,7 +84,7 @@
                 3. Validate suggested songs
               </p>
               <p
-                class="text-center text-dark text-sm md:text-xl font-normal p-1"
+                class="text-center text-dark text-sm md:text-xl font-normal p-1 mb-1"
               >
                 4. Submit to create the playlist
               </p>
@@ -88,9 +92,9 @@
             <!-- Note only for phones -->
             <div class="p-2"></div>
             <div
-              class="rounded-xl bg-white opacity-95 h-16 w-80 p-2 md:invisible"
+              class="rounded-xl bg-white opacity-95 h-auto w-4/5 p-1 md:invisible"
             >
-              <p class="text-center text-darker font-semibold">
+              <p class="text-center text-darker text-sm font-semibold">
                 NOTE: We recommend accessing playlify through a computer.
               </p>
             </div>
