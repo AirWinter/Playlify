@@ -2,7 +2,7 @@
   <TopHeader />
   <!-- Main Content-->
   <div class="bg-dark min-h-screen w-full py-4">
-    <p class="text-center text-5xl text-lightest font-bold max-sm:text-3xl">
+    <p class="text-center text-5xl text-white font-bold max-sm:text-3xl">
       Create a Playlist
     </p>
     <MultiStepComponent />
