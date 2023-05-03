@@ -2,6 +2,7 @@
   <div class="bg-dark min-h-screen">
     <!-- Top Header with logo-->
     <TopHeader />
+    <PageLinks />
     <!-- Main Content-->
     <div class="md:flex">
       <!-- Container-->
@@ -124,11 +125,13 @@
 
 <script>
 import TopHeader from "@/components/TopHeader.vue";
+import PageLinks from "@/components/PageLinks.vue";
 
 export default {
   name: "GetStartedView",
   components: {
     TopHeader,
+    PageLinks,
   },
   data: function () {
     return {
