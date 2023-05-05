@@ -950,11 +950,11 @@ export default {
   }
 }
 #myelement {
-  width: 44vh;
+  width: 300px;
 }
 @media only screen and (min-width: 800px) {
   #myelement {
-    width: 65vh;
+    width: 490px;
   }
 }
 /* @media only screen and (min-width: 800px) {
