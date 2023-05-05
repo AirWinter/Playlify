@@ -5,16 +5,16 @@
       <!-- Form -->
       <FormKit type="form" :actions="false">
         <!-- Conditional CSS for the width of the form -->
-        <div id="myelement" class="text-black h-full">
-          <!-- Loading Sign-->
+        <div id="myelement" class="text-black h-full relative">
+          <!-- Loading Sign, Positioning within relative div-->
           <div
             role="status"
-            class="absolute -translate-x-1/2 -translate-y-1/2 top-2/4 left-1/2"
+            class="absolute -translate-x-1/2 -translate-y-1/3 top-1/3 left-1/2"
             v-if="loading"
           >
             <div
               :aria-hidden="loading"
-              class="w-20 h-20 spinner-border text-green"
+              class="w-24 h-24 max-sm:w-20 max-sm:h-20 spinner-border text-green"
             ></div>
           </div>
           <FormKit
@@ -957,11 +957,4 @@ export default {
     width: 490px;
   }
 }
-/* @media only screen and (min-width: 800px) {
-  .multiselect-placeholder {
-    font-size: medium;
-    text-align: left;
-    padding-right: 80%;
-  }
-} */
 </style>
