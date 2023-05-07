@@ -207,13 +207,6 @@
             </FormKit>
             <FormKit type="step" name="validation" label="Validation">
               <div class="overflow-y-auto overflow-x-contain h-96 text-center">
-                <!-- Create table containing existing playlists-->
-                <p
-                  class="text-center text-xl text-darkest font-bold max-sm:text-sm"
-                >
-                  Suggested Songs ({{ Object.keys(this.songs).length }})
-                </p>
-                <div class="py-2"></div>
                 <!-- Loading Sign-->
                 <div
                   role="status"
@@ -225,55 +218,194 @@
                     class="w-20 h-20 spinner-border text-green"
                   ></div>
                 </div>
-                <div class="container text-center">
-                  <table
-                    class="table table-fixed text-sm max-sm:text-xs"
-                    v-if="!this.loading_songs"
+                <div v-else>
+                  <!-- Sum of total songs that will be added -->
+                  <div class="">
+                    <p
+                      class="text-center text-2xl text-darkest font-bold max-sm:text-sm"
+                    >
+                      Total Suggested Songs:
+                      {{
+                        Object.keys(this.songs).length +
+                        Object.keys(this.recommended_songs).length
+                      }}
+                    </p>
+                  </div>
+                  <!-- Create table containing songs from user's library -->
+                  <div
+                    class="bg-white drop-shadow-lg rounded bg-white m-2 max-sm:m-1"
                   >
-                    <!-- Table Header-->
-                    <thead class="sticky top-0 bg-white">
-                      <tr>
-                        <th class="w-16 max-sm:w-8" scope="col">Name</th>
-                        <th class="w-20 max-sm:w-8" scope="col">Artist(s)</th>
-                        <th class="w-8 max-sm:w-4" scope="col">Remove</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(song, index) in songs" :key="index">
-                        <td class="py-3">
-                          <a :href="song.song_url" target="_blank">{{
-                            song.song_name
-                          }}</a>
-                        </td>
-                        <td class="py-3">
-                          <a
-                            v-for="(artist, index) in song.artists"
+                    <div class="flex items-center justify-start">
+                      <!-- Button for opening/closing suggested songs table -->
+                      <button
+                        class="bg-transparent inline-flex opacity-80 hover:opacity-100"
+                        type="button"
+                        @click="handleShowSongs()"
+                      >
+                        <img
+                          v-if="!this.show_songs"
+                          src="arrow_right.png"
+                          class="h-12 w-12 max-sm:h-8 max-sm:w-8 bg-transparent"
+                        />
+                        <img
+                          v-else
+                          src="arrow_down.png"
+                          class="h-12 w-12 max-sm:h-8 max-sm:w-8 bg-transparent"
+                        />
+                        <span
+                          class="text-center text-lg text-darkest font-semibold max-sm:text-xs py-2.5 max-sm:py-2"
+                          >Songs From Your Library ({{
+                            Object.keys(this.songs).length
+                          }})</span
+                        >
+                      </button>
+                    </div>
+                    <div class="container text-center" v-if="this.show_songs">
+                      <table
+                        class="table table-fixed text-sm max-sm:text-xs"
+                        v-if="!this.loading_songs"
+                      >
+                        <!-- Table Header-->
+                        <thead class="sticky top-0 bg-white">
+                          <tr>
+                            <th class="w-16 max-sm:w-6" scope="col">Name</th>
+                            <th class="w-16 max-sm:w-6" scope="col">
+                              Artist(s)
+                            </th>
+                            <th class="w-10 max-sm:w-4" scope="col">Remove</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(song, index) in songs" :key="index">
+                            <td class="py-3">
+                              <a :href="song.song_url" target="_blank">{{
+                                song.song_name
+                              }}</a>
+                            </td>
+                            <td class="py-3">
+                              <a
+                                v-for="(artist, index) in song.artists"
+                                :key="index"
+                                :href="artist.external_url"
+                                target="_blank"
+                                >{{
+                                  artist.name +
+                                  (index < Object.keys(song.artists).length - 1
+                                    ? ", "
+                                    : "")
+                                }}</a
+                              >
+                            </td>
+                            <td>
+                              <button
+                                class="bg-transparent px-1"
+                                type="button"
+                                @click="removeSong(index)"
+                              >
+                                <img
+                                  src="trash-can.png"
+                                  class="h-6 w-6 opacity-80 hover:opacity-100"
+                                />
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <!-- Create table containing recommended songs -->
+                  <div class="bg-white rounded drop-shadow-lg m-2">
+                    <div class="flex items-center justify-start">
+                      <!-- Button for opening/closing recommended songs table -->
+                      <button
+                        class="bg-transparent inline-flex opacity-80 hover:opacity-100"
+                        type="button"
+                        @click="handleShowRecommended()"
+                      >
+                        <img
+                          v-if="!this.show_recommended"
+                          src="arrow_right.png"
+                          class="h-12 w-12 max-sm:h-8 max-sm:w-8 bg-transparent"
+                        />
+                        <img
+                          v-else
+                          src="arrow_down.png"
+                          class="h-12 w-12 max-sm:h-8 max-sm:w-8 bg-transparent"
+                        />
+                        <span
+                          class="text-center text-lg text-darkest font-semibold max-sm:text-xs py-2.5 max-sm:py-2"
+                          >Recommended Songs ({{
+                            Object.keys(this.recommended_songs).length
+                          }})</span
+                        >
+                      </button>
+                    </div>
+                    <div
+                      class="container text-center"
+                      v-if="this.show_recommended"
+                    >
+                      <table
+                        class="table table-fixed text-sm max-sm:text-xs"
+                        v-if="!this.loading_songs"
+                      >
+                        <!-- Table Header-->
+                        <thead class="sticky top-0 bg-white">
+                          <tr>
+                            <th class="w-16 max-sm:w-6" scope="col">Name</th>
+                            <th class="w-16 max-sm:w-6" scope="col">
+                              Artist(s)
+                            </th>
+                            <th class="w-10 max-sm:w-4" scope="col">Remove</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="(song, index) in recommended_songs"
                             :key="index"
-                            :href="artist.external_url"
-                            target="_blank"
-                            >{{
-                              artist.name +
-                              (index < Object.keys(song.artists).length - 1
-                                ? ", "
-                                : "")
-                            }}</a
                           >
-                        </td>
-                        <td>
-                          <button
-                            class="bg-white px-1"
-                            type="button"
-                            @click="removeSong(index)"
-                          >
-                            <img
-                              src="trash-can.png"
-                              class="h-6 w-6 opacity-80 hover:opacity-100 bg-transparent"
-                            />
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                            <td class="py-3">
+                              <a :href="song.song_url" target="_blank">{{
+                                song.song_name
+                              }}</a>
+                            </td>
+                            <td class="py-3">
+                              <a
+                                v-for="(artist, index) in song.artists"
+                                :key="index"
+                                :href="artist.external_url"
+                                target="_blank"
+                                >{{
+                                  artist.name +
+                                  (index < Object.keys(song.artists).length - 1
+                                    ? ", "
+                                    : "")
+                                }}</a
+                              >
+                            </td>
+                            <td>
+                              <button
+                                class="bg-transparent px-1"
+                                type="button"
+                                @click="removeRecommendedSong(index)"
+                              >
+                                <img
+                                  src="trash-can.png"
+                                  class="h-6 w-6 opacity-80 hover:opacity-100"
+                                />
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <button
+                        type="button"
+                        class="bg-white border-2 border-black text-sm h-8 w-20 max-sm:h-8 max-sm:w-20 max-sm:text-xs rounded-full text-black opacity-90 hover:opacity-100 font-bold mb-1"
+                        @click="getRecommendations(this.playlist.filters)"
+                      >
+                        Get More
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="py-1"></div>
@@ -345,9 +477,18 @@ export default {
       loading: true,
       loading_songs: true,
       songs: {},
+      recommended_songs: {},
+      show_songs: false,
+      show_recommended: false,
     };
   },
   methods: {
+    handleShowSongs() {
+      this.show_songs = !this.show_songs;
+    },
+    handleShowRecommended() {
+      this.show_recommended = !this.show_recommended;
+    },
     async getSongsToAdd(param) {
       this.loading_songs = true;
       var songs_to_add_array = null;
@@ -381,10 +522,59 @@ export default {
           this.$router.push("/"); // If there's an error go to home page
         });
       this.songs = songs_to_add_array;
+      this.recommended_songs = {};
+      await this.getRecommendations(param);
       this.loading_songs = false;
+    },
+    async getRecommendations(param) {
+      var songs_to_add_array = this.songs;
+      // Get recommended songs: order of seeds genres > tracks > artists
+      const token_string = await (await getUtils()).accessToken;
+      const genre_seed_string =
+        param.genres.length > 0
+          ? param.genres
+              .slice(0, Math.min(param.genres.length, 5))
+              .reduce((f, s) => `${f};${s}`)
+          : "";
+      const artist_seed_string =
+        param.artists.length > 0
+          ? param.artists
+              .slice(0, Math.min(param.artists.length, 5))
+              .reduce((a, b) => `${a};${b}`)
+          : "";
+      var track_seed_string = "";
+      Object.keys(songs_to_add_array).forEach(function (key, index) {
+        if (index < 5) {
+          track_seed_string += key;
+        }
+        if (index < 4) {
+          track_seed_string += ";";
+        }
+      });
+      // const track_seed_string = JSON.stringify(this.songs);
+      await axios({
+        method: "get",
+        url: `${this.urlBase}/backend/getRecommendations`,
+        headers: {
+          Token: token_string,
+        },
+        params: {
+          genre_seeds: genre_seed_string,
+          artist_seeds: artist_seed_string,
+          track_seeds: track_seed_string,
+        },
+      }).then((res) => {
+        this.recommended_songs = Object.assign(
+          this.recommended_songs,
+          res.data
+        );
+      });
     },
     removeSong(index) {
       delete this.songs[index];
+    },
+    removeRecommendedSong(index) {
+      delete this.recommended_songs[index];
     },
     async handleNextOne() {
       // Get all genres from session storage
@@ -451,7 +641,8 @@ export default {
     async handleSubmit(param) {
       this.loading = true;
       const token_string = await (await getUtils()).accessToken;
-      var songs_to_add_array = Object.keys(this.songs);
+      var songs_to_add_array =
+        Object.keys(this.songs) + "," + Object.keys(this.recommended_songs);
       // Create the playlist
       await axios({
         method: "post",
