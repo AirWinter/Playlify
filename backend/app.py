@@ -12,6 +12,7 @@ app.secret_key = secrets.secret_key
 
 CORS(app)
 
+
 @app.route('/login')
 def login():
     sp_oath = create_spotify_oath()
@@ -207,7 +208,8 @@ def create_playlist():
 
     # If the user provided a description
     if description is not None and description != "":
-        response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile, description=description)
+        response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile,
+                                                  description=description)
         if response_create['description'] is None or response_create['description'] == "":
             count = 0
             playlist_id = response_create['id']
@@ -221,10 +223,10 @@ def create_playlist():
         # Create empty playlist without a description
         response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile)
 
-    # print(f"Created: {response_create}")
     playlist_id = response_create['id']
 
-    songs_to_add = json.loads(request.data)['songs_to_add']
+    songs_to_add_string = json.loads(request.data)['songs_to_add']
+    songs_to_add = songs_to_add_string.split(",")
     # print(f"Songs to add: {songs_to_add}")
 
     # Populate Playlist
@@ -289,12 +291,70 @@ def get_songs_to_add():
     return jsonify(result)
 
 
+@app.route('/backend/getRecommendations', methods=['GET'])
+def get_recommendations():
+    # print("Get Recommendations")
+    if 'Token' not in request.headers:
+        print("No Token Passed")
+        return Response(status=401)
+
+    access_token = request.headers['Token']
+
+    sp = spotipy.Spotify(auth=access_token)
+
+    N = 10
+    number_of_seeds = 0
+
+    genre_seeds_string = request.args.get('genre_seeds')
+    if genre_seeds_string is not None and len(genre_seeds_string) > 0:
+        genre_seeds = genre_seeds_string.split(";")
+        number_of_seeds += len(genre_seeds)
+    else:
+        genre_seeds = None
+
+    artist_seeds_string = request.args.get('artist_seeds')
+    if number_of_seeds < 5 and artist_seeds_string is not None and len(artist_seeds_string) > 0:
+        artist_seeds = artist_seeds_string.split(";")
+        number_of_seeds += len(artist_seeds)
+    else:
+        artist_seeds = None
+
+    track_seeds_string = request.args.get('track_seeds')
+    if number_of_seeds < 5 and track_seeds_string is not None and len(track_seeds_string) > 0:
+        track_seeds = track_seeds_string.split(";")
+    else:
+        track_seeds = None
+
+    songs = {}
+    recommendations = sp.recommendations(seed_genres=genre_seeds, seed_artists=artist_seeds, seed_tracks=track_seeds,
+                                         limit=N)
+    for track in recommendations['tracks']:
+        track_name = track['name']
+        track_id = track['id']
+        track_url = track['external_urls']['spotify']
+        track_date = track['album']['release_date']
+        artists = track['artists']
+        track_artists = []
+        for artist in artists:
+            artist_name = artist['name']
+            artist_url = artist['external_urls']['spotify']
+            track_artists.append({'external_url': artist_url, 'name': artist_name})
+
+        songs[track_id] = {'artists': track_artists, 'date-created': track_date, 'song_url': track_url,
+                           'song_name': track_name}
+
+    response = jsonify(songs)
+    response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
+
 def create_spotify_oath():
     return SpotifyOAuth(
         client_id=secrets.client_id,
         client_secret=secrets.secret,
         redirect_uri=url_for('callback', _external=True),
-        show_dialog=True, # Show permission screen every time
+        show_dialog=True,  # Show permission screen every time
         scope="user-library-read playlist-modify-public playlist-modify-private user-read-private playlist-read-private playlist-read-collaborative"
     )
 
