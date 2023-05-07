@@ -305,9 +305,20 @@ def get_recommendations():
     N = 10
     number_of_seeds = 0
 
+    track_seeds_string = request.args.get('track_seeds')
+    if track_seeds_string is not None and len(track_seeds_string) > 0:
+        track_seeds_array = track_seeds_string.split(";")
+        num = min(5, len(track_seeds_array))
+        track_seeds = track_seeds_array[0:num]
+        number_of_seeds += len(track_seeds)
+    else:
+        track_seeds = None
+
     genre_seeds_string = request.args.get('genre_seeds')
-    if genre_seeds_string is not None and len(genre_seeds_string) > 0:
-        genre_seeds = genre_seeds_string.split(";")
+    if number_of_seeds < 5 and genre_seeds_string is not None and len(genre_seeds_string) > 0:
+        genre_seeds_array = genre_seeds_string.split(";")
+        num = min(5 - number_of_seeds, len(genre_seeds_array))
+        genre_seeds = genre_seeds_array[0:num]
         number_of_seeds += len(genre_seeds)
     else:
         genre_seeds = None
@@ -322,14 +333,6 @@ def get_recommendations():
         number_of_seeds += len(artist_seeds)
     else:
         artist_seeds = None
-
-    track_seeds_string = request.args.get('track_seeds')
-    if number_of_seeds < 5 and track_seeds_string is not None and len(track_seeds_string) > 0:
-        track_seeds_array = track_seeds_string.split(";")
-        num = min(5 - number_of_seeds, len(track_seeds_array))
-        track_seeds = track_seeds_array[0:num]
-    else:
-        track_seeds = None
 
     songs = {}
     recommendations = sp.recommendations(seed_genres=genre_seeds, seed_artists=artist_seeds, seed_tracks=track_seeds,

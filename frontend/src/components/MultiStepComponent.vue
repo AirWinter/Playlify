@@ -545,10 +545,10 @@ export default {
       var track_seed_string = "";
       Object.keys(songs_to_add_array).forEach(function (key, index) {
         if (index < 5) {
+          if (index > 0) {
+            track_seed_string += ";";
+          }
           track_seed_string += key;
-        }
-        if (index < 4) {
-          track_seed_string += ";";
         }
       });
       // const track_seed_string = JSON.stringify(this.songs);
