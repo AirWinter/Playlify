@@ -1,7 +1,6 @@
 import axios from "axios";
 
-// const urlBase = "http://localhost:5000";
-const urlBase = "https://airwinter.pythonanywhere.com";
+const urlBase = process.env.VUE_APP_URL_BASE;
 
 async function getAccessToken() {
   // If token is expired hit "/refresh endpoint"
