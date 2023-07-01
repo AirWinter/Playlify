@@ -105,7 +105,7 @@
 import TopHeader from "../components/TopHeader.vue";
 import LogOutButton from "../components/LogOutButton.vue";
 import axios from "axios";
-const getUtils = () => import("../utils.js");
+const getUtils = () => import("../utils.ts");
 
 export default {
   name: "PlaylistsView",

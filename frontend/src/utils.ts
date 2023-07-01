@@ -40,7 +40,7 @@ const isExpired = () => {
   }
   // console.log(Date.now() / 1000);
   // console.log(localStorage.getItem("expires_at"));
-  return Date.now() / 1000 > localStorage.getItem("expires_at") - 60;
+  return Date.now() / 1000 > Number(localStorage.getItem("expires_at")) - 60;
 };
 
 export const accessToken = getAccessToken().then((value) => value);

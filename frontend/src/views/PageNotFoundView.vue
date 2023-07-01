@@ -26,6 +26,6 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import TopHeader from "@/components/TopHeader.vue";
 </script>

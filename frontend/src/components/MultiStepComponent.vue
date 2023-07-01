@@ -448,7 +448,7 @@
 
 <script>
 import axios from "axios";
-const getUtils = () => import("../utils.js");
+const getUtils = () => import("../utils.ts");
 import Multiselect from "@vueform/multiselect";
 
 export default {

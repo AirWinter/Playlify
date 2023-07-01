@@ -1,24 +1,25 @@
+import { Component } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
+import type { Route } from "./types";
 
-function lazyLoadView(view) {
+function lazyLoadView(view: string): Component {
   return () => import(`../views/${view}.vue`);
 }
 
-function dynamicPropsFn(route) {
+function dynamicPropsFn(route: Route) {
   const { access_token, refresh_token, expires_at } = route.query;
   if (
     access_token == null ||
     refresh_token == null ||
     expires_at == null ||
     access_token === "undefined" ||
-    refresh_token === "undefined" ||
-    expires_at === "underfined"
+    refresh_token === "undefined"
   ) {
     return;
   }
   localStorage.setItem("access_token", access_token);
   localStorage.setItem("refresh_token", refresh_token);
-  localStorage.setItem("expires_at", expires_at);
+  localStorage.setItem("expires_at", expires_at.toString());
 
   return {
     access_token: access_token,
