@@ -1,12 +1,9 @@
 <template>
   <!-- Prevent scrolling on the entire page-->
   <div @scroll.prevent @touchmove.prevent @wheel.prevent>
-    <!-- Top Header with logo-->
-    <div class="w-full top-0 bg-darkest h-20 py-4 px-10">
-      <img src="PoweredBySpotify.png" class="h-10" />
-    </div>
-    <div class="flex" style="height: 93vh">
-      <div class="w-full h-full relative bg-dark">
+    <TopHeader />
+    <div class="flex min-h-screen w-full relative bg-dark">
+      <div class="w-full h-full relative">
         <div class="h-40"></div>
         <!-- Page Not Found Message -->
         <div class="w-full top-0 bg-dark p-16">
@@ -29,12 +26,6 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "PageNotFoundView",
-  data: function () {
-    return {};
-  },
-  methods: {},
-};
+<script setup>
+import TopHeader from "@/components/TopHeader.vue";
 </script>
