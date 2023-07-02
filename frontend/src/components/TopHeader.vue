@@ -6,8 +6,4 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "TopHeader",
-};
-</script>
+<script setup lang="ts"></script>
