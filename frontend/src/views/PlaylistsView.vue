@@ -99,22 +99,26 @@ var playlists: Ref<Playlist[]> = ref([]);
 
 const getPlaylists = async () => {
   const token_string: string = await (await getUtils()).accessToken; // lazy import and then await async function
-  await axios({
-    method: "get",
-    url: `${urlBase}/backend/getPlaylists`,
-    headers: {
-      Token: token_string,
-    },
-  })
-    .then((value) => {
-      playlists.value = value.data;
+  if (token_string === "") {
+    router.push("/");
+  } else {
+    await axios({
+      method: "get",
+      url: `${urlBase}/backend/getPlaylists`,
+      headers: {
+        Token: token_string,
+      },
     })
-    .catch((error) => {
-      console.log(error);
-      localStorage.clear();
-      sessionStorage.clear();
-      router.push("/"); // If there's an error go to home page
-    });
+      .then((value) => {
+        playlists.value = value.data;
+      })
+      .catch((error) => {
+        console.log(error);
+        localStorage.clear();
+        sessionStorage.clear();
+        router.push("/"); // If there's an error go to home page
+      });
+  }
 };
 
 onBeforeMount(() => {
