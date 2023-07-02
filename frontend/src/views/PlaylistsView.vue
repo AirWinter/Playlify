@@ -19,7 +19,7 @@
           <div class="p-2 w-48 h-64 max-sm:w-44">
             <a href="/create-playlist" style="text-decoration: none">
               <div
-                class="bg-card_bg opacity-90 hover:opacity-100 w-full h-full p-3 rounded-lg shadow-md"
+                class="bg-card_bg opacity-80 hover:opacity-95 w-full h-full p-3 rounded-lg shadow-md"
               >
                 <img src="PlusSign.png" class="h-36 w-36 shadow rounded" />
 
@@ -31,26 +31,10 @@
               </div>
             </a>
           </div>
-          <!-- Hardcoded Edit Playlist -->
-          <!-- <div class="p-2 w-48 h-64 max-sm:w-44">
-            <a href="/edit-playlist" style="text-decoration: none">
-              <div
-                class="bg-card_bg opacity-90 hover:opacity-100 w-full h-full p-3 rounded-lg shadow-md"
-              >
-                <img src="PlusSign.png" class="h-36 w-36 shadow rounded" />
-
-                <h1
-                  class="text-xl mt-3 font-semibold text-white text-center tracking-wide"
-                >
-                  Edit Playlist
-                </h1>
-              </div>
-            </a>
-          </div> -->
           <!-- All of their playlists -->
           <div
-            v-for="playlist in this.playlists"
-            :key="playlist.key"
+            v-for="playlist in playlists"
+            :key="playlist.name"
             class="p-2 w-48 h-64 max-sm:w-44"
           >
             <!-- Card -->
@@ -60,12 +44,12 @@
               style="text-decoration: none"
             >
               <div
-                class="bg-card_bg opacity-90 hover:opacity-100 w-full h-full p-3 rounded-lg shadow-md"
+                class="bg-card_bg opacity-80 hover:opacity-100 w-full h-full p-3 rounded-lg shadow-md"
               >
                 <!-- Playlist Cover Photo -->
                 <img
-                  v-if="playlist.image != ''"
-                  :src="playlist.image"
+                  v-if="playlist.imageUrl != ''"
+                  :src="playlist.imageUrl"
                   class="h-36 w-36 object-cover shadow mb-2 rounded"
                 />
                 <img
@@ -100,46 +84,40 @@
     </div>
   </div>
 </template>
-
-<script>
+<script setup lang="ts">
 import TopHeader from "../components/TopHeader.vue";
 import LogOutButton from "../components/LogOutButton.vue";
 import axios from "axios";
-const getUtils = () => import("../utils.ts");
+import { Ref, ref, onBeforeMount } from "vue";
+import { useRouter } from "vue-router";
+import type { Playlist } from "./types";
+const getUtils = () => import("../utils");
 
-export default {
-  name: "PlaylistsView",
-  components: {
-    TopHeader,
-    LogOutButton,
-  },
-  data() {
-    return {
-      urlBase: process.env.VUE_APP_URL_BASE,
-      playlists: [],
-    };
-  },
-  methods: {
-    async getPlaylists() {
-      const token_string = await (await getUtils()).accessToken;
-      await axios({
-        method: "get",
-        url: `${this.urlBase}/backend/getPlaylists`,
-        headers: {
-          Token: token_string,
-        },
-      })
-        .then((value) => (this.playlists = value.data))
-        .catch((error) => {
-          console.log(error);
-          localStorage.clear();
-          sessionStorage.clear();
-          this.$router.push("/"); // If there's an error go to home page
-        });
+const router = useRouter();
+const urlBase: string = process.env.VUE_APP_URL_BASE;
+var playlists: Ref<Playlist[]> = ref([]);
+
+const getPlaylists = async () => {
+  const token_string = await (await getUtils()).accessToken;
+  await axios({
+    method: "get",
+    url: `${urlBase}/backend/getPlaylists`,
+    headers: {
+      Token: token_string,
     },
-  },
-  created() {
-    this.getPlaylists();
-  },
+  })
+    .then((value) => {
+      playlists.value = value.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/"); // If there's an error go to home page
+    });
 };
+
+onBeforeMount(() => {
+  getPlaylists();
+});
 </script>

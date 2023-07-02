@@ -79,7 +79,7 @@ def get_playlist():
                 image = playlist['images'][0]['url']
             my_playlists.append(
                 {"name": playlist['name'], "description": playlist['description'], "public": playlist['public'],
-                 "image": image, 'link': playlist['external_urls']['spotify'],
+                 "imageUrl": image, 'link': playlist['external_urls']['spotify'],
                  'creator': playlist['owner']['display_name']})
         count += 1
         if len(playlists) < 50:
