@@ -3,27 +3,15 @@
   <LogOutButton />
   <!-- Main Content-->
   <div class="bg-dark min-h-screen w-full py-4">
-    <p class="text-center text-5xl text-white font-bold max-sm:text-3xl">
+    <p class="text-center text-4xl md:text-6xl text-white font-bold">
       Create a Playlist
     </p>
     <MultiStepComponent />
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import TopHeader from "../components/TopHeader.vue";
 import MultiStepComponent from "../components/MultiStepComponent.vue";
 import LogOutButton from "../components/LogOutButton.vue";
-
-export default {
-  name: "CreatePlaylistView",
-  components: {
-    TopHeader,
-    MultiStepComponent,
-    LogOutButton,
-  },
-  data() {
-    return {};
-  },
-};
 </script>
