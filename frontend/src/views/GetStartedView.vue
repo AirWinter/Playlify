@@ -15,7 +15,7 @@
         </div>
         <!-- Link to Login -->
         <div class="w-full bg-dark flex flex-col items-center">
-          <a :href="this.urlBase + '/login'">
+          <a :href="urlBase + '/login'">
             <button
               class="btn h-12 w-40 md:h-20 md:w-64 bg-green border-0 text-black text-xl md:text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
             >
@@ -123,21 +123,9 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import TopHeader from "@/components/TopHeader.vue";
 import PageLinks from "@/components/PageLinks.vue";
 
-export default {
-  name: "GetStartedView",
-  components: {
-    TopHeader,
-    PageLinks,
-  },
-  data: function () {
-    return {
-      urlBase: process.env.VUE_APP_URL_BASE,
-    };
-  },
-  methods: {},
-};
+const urlBase: string = process.env.VUE_APP_URL_BASE;
 </script>

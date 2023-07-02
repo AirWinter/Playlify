@@ -16,8 +16,4 @@
   </a> -->
 </template>
 
-<script>
-export default {
-  name: "PageLinks",
-};
-</script>
+<script setup lang="ts"></script>
