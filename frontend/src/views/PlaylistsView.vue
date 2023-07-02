@@ -34,7 +34,7 @@
           <!-- All of their playlists -->
           <div
             v-for="playlist in playlists"
-            :key="playlist.name"
+            :key="playlists.indexOf(playlist)"
             class="p-2 w-48 h-64 max-sm:w-44"
           >
             <!-- Card -->
@@ -98,7 +98,7 @@ const urlBase: string = process.env.VUE_APP_URL_BASE;
 var playlists: Ref<Playlist[]> = ref([]);
 
 const getPlaylists = async () => {
-  const token_string = await (await getUtils()).accessToken;
+  const token_string: string = await (await getUtils()).accessToken; // lazy import and then await async function
   await axios({
     method: "get",
     url: `${urlBase}/backend/getPlaylists`,

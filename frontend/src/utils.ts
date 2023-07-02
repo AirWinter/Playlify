@@ -2,7 +2,7 @@ import axios from "axios";
 
 const urlBase = process.env.VUE_APP_URL_BASE;
 
-async function getAccessToken() {
+async function getAccessToken(): Promise<string> {
   // If token is expired hit "/refresh endpoint"
   if (isExpired() || localStorage.getItem("access_token") === "undefined") {
     // If there is no refresh token available
@@ -11,7 +11,7 @@ async function getAccessToken() {
       localStorage.getItem("refresh_token") === "undefined"
     ) {
       localStorage.clear();
-      return;
+      return "";
     }
     const refresh_token = localStorage.getItem("refresh_token");
     await axios({
@@ -25,9 +25,9 @@ async function getAccessToken() {
       localStorage.setItem("refresh_token", res.data.refresh_token);
       localStorage.setItem("expires_at", res.data.expires_at);
     });
-    return localStorage.getItem("access_token");
+    return localStorage.getItem("access_token") ?? "";
   } else {
-    return localStorage.getItem("access_token");
+    return localStorage.getItem("access_token") ?? "";
   }
 }
 
