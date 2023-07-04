@@ -33,11 +33,11 @@
                   handleNextOne();
                 }
                 if (targetStep.stepName == 'Validation') {
-                  this.playlist.filters.created_after_month =
+                  playlist.filters.created_after_month =
                     currentStep.value.created_after_month;
-                  this.playlist.filters.created_before_month =
+                  playlist.filters.created_before_month =
                     currentStep.value.created_before_month;
-                  getSongsToAdd(this.playlist.filters);
+                  getSongsToAdd(playlist.filters);
                 }
                 return true;
               }
@@ -112,7 +112,7 @@
                 </p>
                 <Multiselect
                   mode="tags"
-                  v-model="this.playlist.filters.genres"
+                  v-model="playlist.filters.genres"
                   :groups="true"
                   :options="genres_options"
                   :close-on-select="true"
@@ -138,7 +138,7 @@
                 </p>
                 <Multiselect
                   mode="tags"
-                  v-model="this.playlist.filters.artists"
+                  v-model="playlist.filters.artists"
                   :options="artist_options"
                   class="multiselect-green"
                   :classes="{
@@ -226,8 +226,8 @@
                     >
                       Total Suggested Songs:
                       {{
-                        Object.keys(this.songs).length +
-                        Object.keys(this.recommended_songs).length
+                        Object.keys(songs).length +
+                        Object.keys(recommended_songs).length
                       }}
                     </p>
                   </div>
@@ -243,7 +243,7 @@
                         @click="handleShowSongs()"
                       >
                         <img
-                          v-if="!this.show_songs"
+                          v-if="!show_songs"
                           src="arrow_right.png"
                           class="h-12 w-12 max-sm:h-8 max-sm:w-8 bg-transparent"
                         />
@@ -255,15 +255,15 @@
                         <span
                           class="text-center text-lg text-darkest font-semibold max-sm:text-xs py-2.5 max-sm:py-2"
                           >Songs From Your Library ({{
-                            Object.keys(this.songs).length
+                            Object.keys(songs).length
                           }})</span
                         >
                       </button>
                     </div>
-                    <div class="container text-center" v-if="this.show_songs">
+                    <div class="container text-center" v-if="show_songs">
                       <table
                         class="table table-fixed text-sm max-sm:text-xs"
-                        v-if="!this.loading_songs"
+                        v-if="!loading_songs"
                       >
                         <!-- Table Header-->
                         <thead class="sticky top-0 bg-white">
@@ -323,7 +323,7 @@
                         @click="handleShowRecommended()"
                       >
                         <img
-                          v-if="!this.show_recommended"
+                          v-if="!show_recommended"
                           src="arrow_right.png"
                           class="h-12 w-12 max-sm:h-8 max-sm:w-8 bg-transparent"
                         />
@@ -335,18 +335,15 @@
                         <span
                           class="text-center text-lg text-darkest font-semibold max-sm:text-xs py-2.5 max-sm:py-2"
                           >Recommended Songs ({{
-                            Object.keys(this.recommended_songs).length
+                            Object.keys(recommended_songs).length
                           }})</span
                         >
                       </button>
                     </div>
-                    <div
-                      class="container text-center"
-                      v-if="this.show_recommended"
-                    >
+                    <div class="container text-center" v-if="show_recommended">
                       <table
                         class="table table-fixed text-sm max-sm:text-xs"
-                        v-if="!this.loading_songs"
+                        v-if="!loading_songs"
                       >
                         <!-- Table Header-->
                         <thead class="sticky top-0 bg-white">
@@ -400,7 +397,7 @@
                       <button
                         type="button"
                         class="bg-white border-2 border-black text-sm h-8 w-20 max-sm:h-8 max-sm:w-20 max-sm:text-xs rounded-full text-black opacity-90 hover:opacity-100 font-bold mb-1"
-                        @click="getRecommendations(this.playlist.filters)"
+                        @click="getRecommendations(playlist.filters)"
                       >
                         Get More
                       </button>
@@ -414,9 +411,7 @@
                 <button
                   type="button"
                   class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs text-white font-bold rounded-full"
-                  :class="
-                    this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
-                  "
+                  :class="loading_songs ? 'hover:bg-lime' : 'hover:bg-green'"
                   @click="handlers.incrementStep(-1, node.context)()"
                   :disabled="loading_songs"
                 >
@@ -428,12 +423,10 @@
                 <button
                   type="button"
                   class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs text-white font-bold rounded-full"
-                  :class="
-                    this.loading_songs ? 'hover:bg-lime' : 'hover:bg-green'
-                  "
+                  :class="loading_songs ? 'hover:bg-lime' : 'hover:bg-green'"
                   @click="handleSubmit(value)"
                   data-next="true"
-                  :disabled="this.loading_songs"
+                  :disabled="loading_songs"
                 >
                   Submit
                 </button>
@@ -446,230 +439,230 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import axios from "axios";
+import { ref, onBeforeMount } from "vue";
+import { useRouter } from "vue-router";
 const getUtils = () => import("../utils.ts");
 import Multiselect from "@vueform/multiselect";
 
-export default {
-  name: "MultiStepComponent",
-  components: {
-    Multiselect,
-  },
-  data() {
-    return {
-      urlBase: process.env.VUE_APP_URL_BASE,
-      playlist: {
-        playlistInformation: {
-          name: "",
-          description: "",
-          display: false,
-        },
-        filters: {
-          genres: [],
-          artists: [],
-          created_after_month: "",
-          created_before_month: "",
-        },
-      },
-      genres_options: [{ label: "Any", options: [] }],
-      artist_options: [{ label: "Any", value: "any" }],
-      loading: true,
-      loading_songs: true,
-      songs: {},
-      recommended_songs: {},
-      show_songs: false,
-      show_recommended: false,
-    };
-  },
-  methods: {
-    handleShowSongs() {
-      this.show_songs = !this.show_songs;
-    },
-    handleShowRecommended() {
-      this.show_recommended = !this.show_recommended;
-    },
-    async getSongsToAdd(param) {
-      this.loading_songs = true;
-      var songs_to_add_array = null;
-      const all_my_songs = sessionStorage.getItem("all_songs");
-      const all_my_artists = sessionStorage.getItem("all_artists");
+const router = useRouter();
 
-      // Use POST to avoid 414
-      await axios({
-        method: "post",
-        url: `${this.urlBase}/backend/getSongsToAdd`,
-        data: {
-          genres:
-            param.genres.length > 0
-              ? param.genres.reduce((f, s) => `${f};${s}`)
-              : "",
-          artists:
-            param.artists.length > 0
-              ? param.artists.reduce((a, b) => `${a};${b}`)
-              : "",
-          created_after_month: param.created_after_month,
-          created_before_month: param.created_before_month,
-          all_my_songs: all_my_songs,
-          all_my_artists: all_my_artists,
-        },
-      })
-        .then((value) => (songs_to_add_array = value.data))
-        .catch((error) => {
-          console.log(error);
-          localStorage.clear();
-          sessionStorage.clear();
-          this.$router.push("/"); // If there's an error go to home page
-        });
-      this.songs = songs_to_add_array;
-      this.recommended_songs = {};
-      await this.getRecommendations(param);
-      this.loading_songs = false;
-    },
-    async getRecommendations(param) {
-      var songs_to_add_array = this.songs;
-      // Get recommended songs: order of seeds genres > tracks > artists
-      const token_string = await (await getUtils()).accessToken;
-      const genre_seed_string =
+const urlBase = process.env.VUE_APP_URL_BASE;
+let playlist = {
+  playlistInformation: {
+    name: "",
+    description: "",
+    display: false,
+  },
+  filters: {
+    genres: [],
+    artists: [],
+    created_after_month: "",
+    created_before_month: "",
+  },
+};
+
+let genres_options = [{ label: "Any", options: [] }];
+let artist_options = [{ label: "Any", value: "any" }];
+let loading = ref(true);
+let loading_songs = ref(true);
+let songs = ref({});
+let recommended_songs = ref({});
+let show_songs = ref(false);
+let show_recommended = ref(false);
+
+const handleShowSongs = () => {
+  show_songs.value = !show_songs.value;
+};
+
+const handleShowRecommended = () => {
+  show_recommended.value = !show_recommended.value;
+};
+
+const getSongsToAdd = async (param) => {
+  loading_songs.value = true;
+  var songs_to_add_array = null;
+  const all_my_songs = sessionStorage.getItem("all_songs");
+  const all_my_artists = sessionStorage.getItem("all_artists");
+
+  // Use POST to avoid 414
+  await axios({
+    method: "post",
+    url: `${urlBase}/backend/getSongsToAdd`,
+    data: {
+      genres:
         param.genres.length > 0
-          ? param.genres
-              .slice(0, Math.min(param.genres.length, 5))
-              .reduce((f, s) => `${f};${s}`)
-          : "";
-      const artist_seed_string =
+          ? param.genres.reduce((f, s) => `${f};${s}`)
+          : "",
+      artists:
         param.artists.length > 0
-          ? param.artists
-              .slice(0, Math.min(param.artists.length, 5))
-              .reduce((a, b) => `${a};${b}`)
-          : "";
-      var track_seed_string = "";
-      Object.keys(songs_to_add_array).forEach(function (key, index) {
-        if (index < 5) {
-          if (index > 0) {
-            track_seed_string += ";";
-          }
-          track_seed_string += key;
-        }
-      });
-      // const track_seed_string = JSON.stringify(this.songs);
-      await axios({
-        method: "get",
-        url: `${this.urlBase}/backend/getRecommendations`,
-        headers: {
-          Token: token_string,
-        },
-        params: {
-          genre_seeds: genre_seed_string,
-          artist_seeds: artist_seed_string,
-          track_seeds: track_seed_string,
-        },
-      }).then((res) => {
-        this.recommended_songs = Object.assign(
-          this.recommended_songs,
-          res.data
+          ? param.artists.reduce((a, b) => `${a};${b}`)
+          : "",
+      created_after_month: param.created_after_month,
+      created_before_month: param.created_before_month,
+      all_my_songs: all_my_songs,
+      all_my_artists: all_my_artists,
+    },
+  })
+    .then((value) => (songs_to_add_array = value.data))
+    .catch((error) => {
+      console.log(error);
+      localStorage.clear();
+      sessionStorage.clear();
+      router.push("/"); // If there's an error go to home page
+    });
+  songs.value = songs_to_add_array;
+  recommended_songs.value = {};
+  await getRecommendations(param);
+  loading_songs.value = false;
+};
+
+const getRecommendations = async (param) => {
+  var songs_to_add_array = songs.value;
+  // Get recommended songs: order of seeds genres > tracks > artists
+  const token_string = await (await getUtils()).accessToken;
+  const genre_seed_string =
+    param.genres.length > 0
+      ? param.genres
+          .slice(0, Math.min(param.genres.length, 5))
+          .reduce((f, s) => `${f};${s}`)
+      : "";
+  const artist_seed_string =
+    param.artists.length > 0
+      ? param.artists
+          .slice(0, Math.min(param.artists.length, 5))
+          .reduce((a, b) => `${a};${b}`)
+      : "";
+  var track_seed_string = "";
+  Object.keys(songs_to_add_array).forEach(function (key, index) {
+    if (index < 5) {
+      if (index > 0) {
+        track_seed_string += ";";
+      }
+      track_seed_string += key;
+    }
+  });
+  // const track_seed_string = JSON.stringify(this.songs);
+  await axios({
+    method: "get",
+    url: `${urlBase}/backend/getRecommendations`,
+    headers: {
+      Token: token_string,
+    },
+    params: {
+      genre_seeds: genre_seed_string,
+      artist_seeds: artist_seed_string,
+      track_seeds: track_seed_string,
+    },
+  }).then((res) => {
+    recommended_songs.value = Object.assign(recommended_songs.value, res.data);
+  });
+};
+
+const removeSong = (index) => {
+  delete songs.value[index];
+};
+
+const removeRecommendedSong = (index) => {
+  delete recommended_songs.value[index];
+};
+
+const handleNextOne = async () => {
+  // Get all genres from session storage
+  if (
+    sessionStorage.getItem("all_genres") != null &&
+    sessionStorage.getItem("all_genres") != "undefined"
+  ) {
+    genres_options = JSON.parse(sessionStorage.getItem("all_genres"));
+  }
+  // Get all artists from session storage
+  if (
+    sessionStorage.getItem("all_artists") != null &&
+    sessionStorage.getItem("all_artists") != "undefined"
+  ) {
+    var all_artists = JSON.parse(sessionStorage.getItem("all_artists"));
+    Object.keys(all_artists).forEach((key) => {
+      all_artists[key] = all_artists[key]["name"];
+    });
+    artist_options = all_artists;
+  }
+};
+
+const getAllTracksFromLibrary = async () => {
+  if (
+    sessionStorage.getItem("all_songs") != null &&
+    sessionStorage.getItem("all_artists") != null &&
+    sessionStorage.getItem("all_genres") != null &&
+    sessionStorage.getItem("all_songs") != "undefined" &&
+    sessionStorage.getItem("all_artists") != "undefined" &&
+    sessionStorage.getItem("all_genres") != "undefined"
+  ) {
+    loading.value = false;
+  } else {
+    const token_string = await (await getUtils()).accessToken;
+    await axios({
+      method: "get",
+      url: `${urlBase}/backend/getAllTracksFromLibrary`,
+      headers: {
+        Token: token_string,
+      },
+    })
+      .then((response) => {
+        sessionStorage.setItem(
+          "all_songs",
+          JSON.stringify(response.data.all_songs)
         );
-      });
-    },
-    removeSong(index) {
-      delete this.songs[index];
-    },
-    removeRecommendedSong(index) {
-      delete this.recommended_songs[index];
-    },
-    async handleNextOne() {
-      // Get all genres from session storage
-      if (
-        sessionStorage.getItem("all_genres") != null &&
-        sessionStorage.getItem("all_genres") != "undefined"
-      ) {
-        this.genres_options = JSON.parse(sessionStorage.getItem("all_genres"));
-      }
-      // Get all artists from session storage
-      if (
-        sessionStorage.getItem("all_artists") != null &&
-        sessionStorage.getItem("all_artists") != "undefined"
-      ) {
-        var all_artists = JSON.parse(sessionStorage.getItem("all_artists"));
-        Object.keys(all_artists).forEach((key) => {
-          all_artists[key] = all_artists[key]["name"];
-        });
-        this.artist_options = all_artists;
-      }
-    },
-    async getAllTracksFromLibrary() {
-      if (
-        sessionStorage.getItem("all_songs") != null &&
-        sessionStorage.getItem("all_artists") != null &&
-        sessionStorage.getItem("all_genres") != null &&
-        sessionStorage.getItem("all_songs") != "undefined" &&
-        sessionStorage.getItem("all_artists") != "undefined" &&
-        sessionStorage.getItem("all_genres") != "undefined"
-      ) {
-        this.loading = false;
-      } else {
-        const token_string = await (await getUtils()).accessToken;
-        await axios({
-          method: "get",
-          url: `${this.urlBase}/backend/getAllTracksFromLibrary`,
-          headers: {
-            Token: token_string,
-          },
-        })
-          .then((response) => {
-            sessionStorage.setItem(
-              "all_songs",
-              JSON.stringify(response.data.all_songs)
-            );
-            sessionStorage.setItem(
-              "all_artists",
-              JSON.stringify(response.data.all_artists)
-            );
-            sessionStorage.setItem(
-              "all_genres",
-              JSON.stringify(response.data.all_genres)
-            );
-          })
-          .catch((error) => {
-            console.log(error);
-            localStorage.clear();
-            sessionStorage.clear();
-            this.$router.push("/"); // If there's an error go to home page
-          });
-        this.loading = false;
-      }
-    },
-    async handleSubmit(param) {
-      this.loading = true;
-      const token_string = await (await getUtils()).accessToken;
-      var songs_to_add_array =
-        Object.keys(this.songs) + "," + Object.keys(this.recommended_songs);
-      // Create the playlist
-      await axios({
-        method: "post",
-        url: `${this.urlBase}/backend/createPlaylist`,
-        headers: {
-          Token: token_string,
-        },
-        data: {
-          name: param.playlistInformation.name,
-          description: param.playlistInformation.description,
-          display: param.playlistInformation.display,
-          songs_to_add: songs_to_add_array,
-        },
-      }).catch((error) => {
+        sessionStorage.setItem(
+          "all_artists",
+          JSON.stringify(response.data.all_artists)
+        );
+        sessionStorage.setItem(
+          "all_genres",
+          JSON.stringify(response.data.all_genres)
+        );
+      })
+      .catch((error) => {
         console.log(error);
         localStorage.clear();
         sessionStorage.clear();
-        this.$router.push("/"); // If there's an error go to home page
+        router.push("/"); // If there's an error go to home page
       });
-      this.$router.push("/my-playlists");
-      this.loading = false;
-    },
-  },
-  created() {
-    this.getAllTracksFromLibrary();
-  },
+    loading.value = false;
+  }
 };
+
+const handleSubmit = async (param) => {
+  loading.value = true;
+  const token_string = await (await getUtils()).accessToken;
+  var songs_to_add_array =
+    Object.keys(songs.value) + "," + Object.keys(recommended_songs.value);
+  // Create the playlist
+  await axios({
+    method: "post",
+    url: `${urlBase}/backend/createPlaylist`,
+    headers: {
+      Token: token_string,
+    },
+    data: {
+      name: param.playlistInformation.name,
+      description: param.playlistInformation.description,
+      display: param.playlistInformation.display,
+      songs_to_add: songs_to_add_array,
+    },
+  }).catch((error) => {
+    console.log(error);
+    localStorage.clear();
+    sessionStorage.clear();
+    router.push("/"); // If there's an error go to home page
+  });
+  router.push("/my-playlists");
+  loading.value = false;
+};
+
+onBeforeMount(() => {
+  getAllTracksFromLibrary();
+});
 </script>
 
 <style>
