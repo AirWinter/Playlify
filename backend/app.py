@@ -225,7 +225,7 @@ def create_playlist():
 
     playlist_id = response_create['id']
 
-    songs_to_add_string = json.loads(request.data)['songs_to_add']
+    songs_to_add_string = req['songs_to_add']
     songs_to_add = songs_to_add_string.split(",")
     # print(f"Songs to add: {songs_to_add}")
 

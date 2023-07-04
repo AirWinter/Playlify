@@ -12,6 +12,6 @@
 
 <script setup lang="ts">
 import TopHeader from "../components/TopHeader.vue";
-import MultiStepComponent from "../components/MultiStepComponent.vue";
+import MultiStepComponent from "../components/MultiStep/MultiStepComponent.vue";
 import LogOutButton from "../components/LogOutButton.vue";
 </script>

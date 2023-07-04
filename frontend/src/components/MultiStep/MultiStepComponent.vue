@@ -24,7 +24,7 @@
             :value="playlist"
             :disabled="loading"
             :before-step-change="
-              ({ currentStep, targetStep, delta }) => {
+              ({ currentStep, targetStep, delta }: Step) => {
                 // Prevent skipping steps
                 if (Math.abs(delta) > 1) {
                   return false;
@@ -439,17 +439,26 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import axios from "axios";
-import { ref, onBeforeMount } from "vue";
+import { ref, Ref, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
-const getUtils = () => import("../utils.ts");
+const getUtils = () => import("../../utils");
 import Multiselect from "@vueform/multiselect";
+import type {
+  // eslint-disable-next-line no-unused-vars
+  Step,
+  Genre_Options,
+  Artist_Options,
+  Song,
+  Playlist,
+  Filters,
+} from "./types";
 
 const router = useRouter();
 
-const urlBase = process.env.VUE_APP_URL_BASE;
-let playlist = {
+const urlBase: string = process.env.VUE_APP_URL_BASE;
+let playlist: Playlist = {
   playlistInformation: {
     name: "",
     description: "",
@@ -463,14 +472,14 @@ let playlist = {
   },
 };
 
-let genres_options = [{ label: "Any", options: [] }];
-let artist_options = [{ label: "Any", value: "any" }];
-let loading = ref(true);
-let loading_songs = ref(true);
-let songs = ref({});
-let recommended_songs = ref({});
-let show_songs = ref(false);
-let show_recommended = ref(false);
+let genres_options: Array<Genre_Options> = [{ label: "Any", options: [] }];
+let artist_options: Array<Artist_Options> = [{ label: "Any", value: "any" }];
+let loading: Ref<boolean> = ref(true);
+let loading_songs: Ref<boolean> = ref(true);
+let songs: Ref<Record<string, Song>> = ref({});
+let recommended_songs: Ref<Record<string, Song>> = ref({});
+let show_songs: Ref<boolean> = ref(false);
+let show_recommended: Ref<boolean> = ref(false);
 
 const handleShowSongs = () => {
   show_songs.value = !show_songs.value;
@@ -480,9 +489,9 @@ const handleShowRecommended = () => {
   show_recommended.value = !show_recommended.value;
 };
 
-const getSongsToAdd = async (param) => {
+const getSongsToAdd = async (param: Filters) => {
+  console.log(param);
   loading_songs.value = true;
-  var songs_to_add_array = null;
   const all_my_songs = sessionStorage.getItem("all_songs");
   const all_my_artists = sessionStorage.getItem("all_artists");
 
@@ -493,11 +502,11 @@ const getSongsToAdd = async (param) => {
     data: {
       genres:
         param.genres.length > 0
-          ? param.genres.reduce((f, s) => `${f};${s}`)
+          ? param.genres.reduce((f: string, s: string) => `${f};${s}`)
           : "",
       artists:
         param.artists.length > 0
-          ? param.artists.reduce((a, b) => `${a};${b}`)
+          ? param.artists.reduce((a: string, b: string) => `${a};${b}`)
           : "",
       created_after_month: param.created_after_month,
       created_before_month: param.created_before_month,
@@ -505,20 +514,21 @@ const getSongsToAdd = async (param) => {
       all_my_artists: all_my_artists,
     },
   })
-    .then((value) => (songs_to_add_array = value.data))
+    .then((response) => {
+      songs.value = response.data;
+    })
     .catch((error) => {
       console.log(error);
       localStorage.clear();
       sessionStorage.clear();
       router.push("/"); // If there's an error go to home page
     });
-  songs.value = songs_to_add_array;
   recommended_songs.value = {};
   await getRecommendations(param);
   loading_songs.value = false;
 };
 
-const getRecommendations = async (param) => {
+const getRecommendations = async (param: Filters) => {
   var songs_to_add_array = songs.value;
   // Get recommended songs: order of seeds genres > tracks > artists
   const token_string = await (await getUtils()).accessToken;
@@ -534,7 +544,7 @@ const getRecommendations = async (param) => {
           .slice(0, Math.min(param.artists.length, 5))
           .reduce((a, b) => `${a};${b}`)
       : "";
-  var track_seed_string = "";
+  var track_seed_string: string = "";
   Object.keys(songs_to_add_array).forEach(function (key, index) {
     if (index < 5) {
       if (index > 0) {
@@ -560,11 +570,11 @@ const getRecommendations = async (param) => {
   });
 };
 
-const removeSong = (index) => {
+const removeSong = (index: string) => {
   delete songs.value[index];
 };
 
-const removeRecommendedSong = (index) => {
+const removeRecommendedSong = (index: any) => {
   delete recommended_songs.value[index];
 };
 
@@ -574,14 +584,14 @@ const handleNextOne = async () => {
     sessionStorage.getItem("all_genres") != null &&
     sessionStorage.getItem("all_genres") != "undefined"
   ) {
-    genres_options = JSON.parse(sessionStorage.getItem("all_genres"));
+    genres_options = JSON.parse(sessionStorage.getItem("all_genres") ?? "");
   }
   // Get all artists from session storage
   if (
     sessionStorage.getItem("all_artists") != null &&
     sessionStorage.getItem("all_artists") != "undefined"
   ) {
-    var all_artists = JSON.parse(sessionStorage.getItem("all_artists"));
+    var all_artists = JSON.parse(sessionStorage.getItem("all_artists") ?? "");
     Object.keys(all_artists).forEach((key) => {
       all_artists[key] = all_artists[key]["name"];
     });
@@ -632,9 +642,9 @@ const getAllTracksFromLibrary = async () => {
   }
 };
 
-const handleSubmit = async (param) => {
+const handleSubmit = async (param: Playlist) => {
   loading.value = true;
-  const token_string = await (await getUtils()).accessToken;
+  const token_string: string = await (await getUtils()).accessToken;
   var songs_to_add_array =
     Object.keys(songs.value) + "," + Object.keys(recommended_songs.value);
   // Create the playlist
