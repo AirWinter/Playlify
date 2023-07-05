@@ -278,8 +278,8 @@
                         <tbody>
                           <tr v-for="(song, index) in songs" :key="index">
                             <td class="py-3">
-                              <a :href="song.song_url" target="_blank">{{
-                                song.song_name
+                              <a :href="song.external_url" target="_blank">{{
+                                song.name
                               }}</a>
                             </td>
                             <td class="py-3">
@@ -361,8 +361,8 @@
                             :key="index"
                           >
                             <td class="py-3">
-                              <a :href="song.song_url" target="_blank">{{
-                                song.song_name
+                              <a :href="song.external_url" target="_blank">{{
+                                song.name
                               }}</a>
                             </td>
                             <td class="py-3">

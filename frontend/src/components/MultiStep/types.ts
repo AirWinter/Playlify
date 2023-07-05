@@ -33,17 +33,22 @@ export interface Artist {
 }
 
 export interface Song {
-  song_name: string;
-  song_url: string;
+  name: string;
+  external_url: string;
   artists: Array<Artist>;
 }
 
 export interface Genre_Options {
   label: string;
-  options: Array<string>;
+  options: Array<Genre>;
 }
 
 export interface Artist_Options {
+  label: string;
+  value: string;
+}
+
+export interface Genre {
   label: string;
   value: string;
 }
