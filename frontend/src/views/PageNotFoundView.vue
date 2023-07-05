@@ -31,4 +31,9 @@
 
 <script setup lang="ts">
 import TopHeader from "@/components/TopHeader.vue";
+import { onBeforeMount } from "vue";
+
+onBeforeMount(() => {
+  document.body.style.overscrollBehavior = "none";
+});
 </script>

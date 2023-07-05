@@ -122,6 +122,7 @@ const getPlaylists = async () => {
 };
 
 onBeforeMount(() => {
+  document.body.style.overscrollBehavior = "none";
   getPlaylists();
 });
 </script>

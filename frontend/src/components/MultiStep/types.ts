@@ -33,8 +33,8 @@ export interface Artist {
 }
 
 export interface Song {
-  name: string;
-  external_url: string;
+  song_name: string;
+  song_url: string;
   artists: Array<Artist>;
 }
 

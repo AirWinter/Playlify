@@ -14,4 +14,9 @@
 import TopHeader from "../components/TopHeader.vue";
 import MultiStepComponent from "../components/MultiStep/MultiStepComponent.vue";
 import LogOutButton from "../components/LogOutButton.vue";
+import { onBeforeMount } from "vue";
+
+onBeforeMount(() => {
+  document.body.style.overscrollBehavior = "none";
+});
 </script>
