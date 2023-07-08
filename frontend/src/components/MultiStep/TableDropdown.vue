@@ -26,7 +26,7 @@
     <div class="container text-center" v-if="show_songs">
       <table class="table table-fixed text-sm max-sm:text-xs">
         <!-- Table Header-->
-        <thead class="sticky top-10 bg-white z-30">
+        <thead class="sticky top-5 md:top-10 bg-white z-30">
           <tr>
             <th class="w-16 max-sm:w-6" scope="col">Name</th>
             <th class="w-16 max-sm:w-6" scope="col">Artist(s)</th>
