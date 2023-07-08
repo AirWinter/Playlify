@@ -46,106 +46,11 @@
             <!-- Step One: Basic Information-->
             <StepOne :value="playlist" />
             <!-- Step Two: Defining filters-->
-            <FormKit type="step" name="filters" label="Filters">
-              <div>
-                <p class="p-1 font-bold text-black text-sm max-sm:text-xs">
-                  Genres to add to your playlist (Optional)
-                </p>
-                <Multiselect
-                  mode="tags"
-                  v-model="playlist.filters.genres"
-                  :groups="true"
-                  :options="genres_options"
-                  :close-on-select="true"
-                  class="multiselect-green"
-                  :classes="{
-                    container:
-                      'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
-                    tag: 'bg-lime text-white text-xs font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-0 rtl:mr-0 rtl:ml-0',
-                    groupLabel:
-                      'flex text-m box-border items-center justify-start text-white text-left py-1 px-3 font-bold bg-lime cursor-default leading-normal',
-                  }"
-                  name="GenresMultiselect"
-                  placeholder="Genres"
-                  :searchable="true"
-                />
-                <p class="p-0.5 font text-slate-700 text-xs max-sm:text-2xs">
-                  Add songs that match any of these genres
-                </p>
-              </div>
-              <div>
-                <p class="p-1 font-bold text-black text-sm max-sm:text-xs">
-                  Artists for your playlist (Optional)
-                </p>
-                <Multiselect
-                  mode="tags"
-                  v-model="playlist.filters.artists"
-                  :options="artist_options"
-                  class="multiselect-green"
-                  :classes="{
-                    container:
-                      'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer border-[1px] border-outer rounded bg-white text-base leading-snug',
-                    tag: 'bg-lime text-white text-xs font-semibold py-0.5 pl-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1',
-                  }"
-                  name="ArtistsMultiselect"
-                  placeholder="Artists"
-                  :searchable="true"
-                />
-                <p class="p-0.5 font text-slate-700 text-xs max-sm:text-2xs">
-                  Add songs from any of these artists
-                </p>
-              </div>
-              <div class="p-1"></div>
-              <FormKit
-                type="month"
-                help="Add songs created after this date"
-                label="Songs Created After (Optional)"
-                name="created_after_month"
-                :validation="`$date_before:{{value.filters.created_before_month}}`"
-                validation-visibility="live"
-                :validation-messages="{
-                  date_before: 'Date range invalid',
-                }"
-              />
-              <FormKit
-                type="month"
-                help="Add songs created before this date"
-                label="Songs Created Before (Optional)"
-                name="created_before_month"
-                :validation="`$date_after:{{value.filters.created_after_month}}`"
-                validation-visibility="live"
-                :validation-messages="{
-                  date_after: 'Date range invalid',
-                }"
-              />
-              <!-- Go back to basic Information -->
-              <template #stepPrevious="{ handlers, node }">
-                <button
-                  type="button"
-                  class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs hover:bg-green text-white font-bold rounded-full"
-                  @click="handlers.incrementStep(-1, node.context)()"
-                >
-                  Previous
-                </button>
-              </template>
-              <!-- Go to validation step-->
-              <template #stepNext="{ handlers, node }">
-                <button
-                  type="button"
-                  v-if="
-                    value.filters.created_before_month >
-                      value.filters.created_after_month ||
-                    value.filters.created_before_month == '' ||
-                    value.filters.created_after_month == ''
-                  "
-                  class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs hover:bg-green text-white font-bold rounded-full"
-                  @click="handlers.incrementStep(1, node.context)()"
-                  data-next="true"
-                >
-                  Validate
-                </button>
-              </template>
-            </FormKit>
+            <StepTwo
+              :genres_options="genres_options"
+              :artist_options="artist_options"
+              :filters="playlist.filters"
+            />
             <!-- Step Three: Validation -->
             <StepThree
               :loading_songs="loading_songs"
@@ -168,8 +73,8 @@ import axios from "axios";
 import { ref, Ref, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
 const getUtils = () => import("../../utils");
-import Multiselect from "@vueform/multiselect";
 import StepOne from "./StepOne.vue";
+import StepTwo from "./StepTwo.vue";
 import StepThree from "./StepThree.vue";
 import type {
   // eslint-disable-next-line no-unused-vars
@@ -199,14 +104,13 @@ let playlist: Playlist = {
 };
 
 let genres_options: Array<Genre_Options> = [{ label: "Any", options: [] }];
-let artist_options: Array<Artist_Options> = [{ label: "Any", value: "any" }];
+let artist_options: Ref<Array<Artist_Options>> = ref([]);
 let loading: Ref<boolean> = ref(true);
 let loading_songs: Ref<boolean> = ref(true);
 let songs: Ref<Record<string, Song>> = ref({});
 let recommended_songs: Ref<Record<string, Song>> = ref({});
 
 const getSongsToAdd = async (param: Filters) => {
-  console.log(param);
   loading_songs.value = true;
   const all_my_songs = sessionStorage.getItem("all_songs");
   const all_my_artists = sessionStorage.getItem("all_artists");
@@ -309,9 +213,11 @@ const handleNextOne = async () => {
   ) {
     var all_artists = JSON.parse(sessionStorage.getItem("all_artists") ?? "");
     Object.keys(all_artists).forEach((key) => {
-      all_artists[key] = all_artists[key]["name"];
+      artist_options.value.push({
+        value: key,
+        label: all_artists[key]["name"],
+      });
     });
-    artist_options = all_artists;
   }
 };
 
@@ -361,8 +267,9 @@ const getAllTracksFromLibrary = async () => {
 const handleSubmit = async (param: Playlist) => {
   loading.value = true;
   const token_string: string = await (await getUtils()).accessToken;
-  var songs_to_add_array =
-    Object.keys(songs.value) + "," + Object.keys(recommended_songs.value);
+  var songs_string =
+    Object.keys(songs.value).length > 0 ? Object.keys(songs.value) + "," : "";
+  var songs_to_add_array = songs_string + Object.keys(recommended_songs.value);
   // Create the playlist
   await axios({
     method: "post",
@@ -390,16 +297,3 @@ onBeforeMount(() => {
   getAllTracksFromLibrary();
 });
 </script>
-
-<style>
-@import "@vueform/multiselect/themes/default.css";
-
-#myelement {
-  width: 300px;
-}
-@media only screen and (min-width: 800px) {
-  #myelement {
-    width: 490px;
-  }
-}
-</style>
