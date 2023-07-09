@@ -16,7 +16,7 @@ async function getAccessToken(): Promise<string> {
     const refresh_token = localStorage.getItem("refresh_token");
     await axios({
       method: "get",
-      url: `${urlBase}/refresh`,
+      url: `${urlBase}/authentication/refresh`,
       headers: {
         RefreshToken: refresh_token,
       },

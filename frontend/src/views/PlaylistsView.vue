@@ -104,7 +104,7 @@ const getPlaylists = async () => {
   } else {
     await axios({
       method: "get",
-      url: `${urlBase}/backend/getPlaylists`,
+      url: `${urlBase}/playlist/get-playlists`,
       headers: {
         Token: token_string,
       },

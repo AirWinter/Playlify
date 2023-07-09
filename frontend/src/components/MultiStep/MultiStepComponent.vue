@@ -273,7 +273,7 @@ const handleSubmit = async (param: Playlist) => {
   // Create the playlist
   await axios({
     method: "post",
-    url: `${urlBase}/backend/createPlaylist`,
+    url: `${urlBase}/playlist/create-playlist`,
     headers: {
       Token: token_string,
     },
