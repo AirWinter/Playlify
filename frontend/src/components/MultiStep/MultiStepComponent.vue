@@ -118,7 +118,7 @@ const getSongsToAdd = async (param: Filters) => {
   // Use POST to avoid 414
   await axios({
     method: "post",
-    url: `${urlBase}/backend/getSongsToAdd`,
+    url: `${urlBase}/tracks/get-tracks-to-add`,
     data: {
       genres:
         param.genres.length > 0
@@ -176,7 +176,7 @@ const getRecommendations = async (param: Filters) => {
   // const track_seed_string = JSON.stringify(this.songs);
   await axios({
     method: "get",
-    url: `${urlBase}/backend/getRecommendations`,
+    url: `${urlBase}/tracks/get-recommendations`,
     headers: {
       Token: token_string,
     },
@@ -235,7 +235,7 @@ const getAllTracksFromLibrary = async () => {
     const token_string = await (await getUtils()).accessToken;
     await axios({
       method: "get",
-      url: `${urlBase}/backend/getAllTracksFromLibrary`,
+      url: `${urlBase}/tracks/get-all`,
       headers: {
         Token: token_string,
       },
