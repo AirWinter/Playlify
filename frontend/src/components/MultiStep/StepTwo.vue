@@ -95,7 +95,7 @@
   </FormKit>
 </template>
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from "vue";
+import { defineProps, ref } from "vue";
 import Multiselect from "@vueform/multiselect";
 import { Artist_Options, Filters, Genre_Options } from "./types";
 
@@ -104,8 +104,6 @@ const props = defineProps<{
   artist_options: Array<Artist_Options>;
   filters: Filters;
 }>();
-
-defineEmits(["change_month"]);
 
 let local_filters = ref(props.filters);
 </script>

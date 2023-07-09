@@ -28,15 +28,15 @@
           title="Songs From Your Library"
           :songs="props.songs"
           :get_more="false"
-          @remove-song="(index) => $emit('remove-song', index)"
+          @remove-song="(index) => emit('remove-song', index)"
         />
         <!-- Create table containing recommended songs -->
         <TableDropdown
           title="Recommended Songs"
           :songs="props.recommended_songs"
           :get_more="true"
-          @remove-song="(index) => $emit('remove-recommended-song', index)"
-          @get-more="$emit('get-recommendations')"
+          @remove-song="(index) => emit('remove-recommended-song', index)"
+          @get-more="emit('get-recommendations')"
         />
       </div>
     </div>
@@ -59,7 +59,7 @@
         type="button"
         class="btn-sm bg-lime text-base h-10 w-24 max-sm:h-8 max-sm:w-20 max-sm:text-xs text-white font-bold rounded-full"
         :class="loading_songs ? 'hover:bg-lime' : 'hover:bg-green'"
-        @click="$emit('submit')"
+        @click="emit('submit')"
         data-next="true"
         :disabled="loading_songs"
       >
@@ -80,10 +80,14 @@ const props = defineProps<{
   recommended_songs: Record<string, Song>;
 }>();
 
-defineEmits([
-  "remove-song",
-  "remove-recommended-song",
-  "get-recommendations",
-  "submit",
-]);
+const emit = defineEmits<{
+  // eslint-disable-next-line
+  (e: "remove-song", index: string): void;
+  // eslint-disable-next-line
+  (e: "remove-recommended-song", index: string): void;
+  // eslint-disable-next-line
+  (e: "get-recommendations"): void;
+  // eslint-disable-next-line
+  (e: "submit"): void;
+}>();
 </script>

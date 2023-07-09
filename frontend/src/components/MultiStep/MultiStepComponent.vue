@@ -194,7 +194,7 @@ const removeSong = (index: string) => {
   delete songs.value[index];
 };
 
-const removeRecommendedSong = (index: any) => {
+const removeRecommendedSong = (index: string) => {
   delete recommended_songs.value[index];
 };
 

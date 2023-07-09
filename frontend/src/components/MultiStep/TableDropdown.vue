@@ -54,7 +54,7 @@
               <button
                 class="bg-transparent px-1"
                 type="button"
-                @click="$emit('remove-song', index)"
+                @click="emit('remove-song', index)"
               >
                 <img
                   src="trash-can.png"
@@ -69,7 +69,7 @@
         v-if="props.get_more"
         type="button"
         class="bg-white border-2 border-black text-sm h-8 w-20 max-sm:h-8 max-sm:w-20 max-sm:text-xs rounded-full text-black opacity-90 hover:opacity-100 font-bold mb-1"
-        @click="$emit('get-more')"
+        @click="emit('get-more')"
       >
         Get More
       </button>
@@ -81,7 +81,12 @@
 import { Ref, ref, defineEmits, defineProps } from "vue";
 import type { Song } from "./types";
 
-defineEmits(["remove-song", "get-more", "submit"]);
+const emit = defineEmits<{
+  // eslint-disable-next-line
+  (e: "remove-song", index: string): void;
+  // eslint-disable-next-line
+  (e: "get-more"): void;
+}>();
 
 const props = defineProps<{
   title: string;
