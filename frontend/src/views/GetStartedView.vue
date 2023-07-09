@@ -15,7 +15,7 @@
         </div>
         <!-- Link to Login -->
         <div class="w-full bg-dark flex flex-col items-center">
-          <a :href="urlBase + '/login'">
+          <a :href="urlBase + '/authentication/login'">
             <button
               class="btn h-12 w-40 md:h-20 md:w-64 bg-green border-0 text-black text-xl md:text-3xl font-semibold hover:scale-105 hover:text-black rounded-full"
             >
