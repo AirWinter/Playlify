@@ -39,27 +39,26 @@ def get_all_tracks_from_library():
     all_my_songs = {}
     while True:
         items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
-        for i in range(0, len(items)):
-            number_of_artists = len(items[i]['track']['artists'])
+        track_array = list(map(lambda i: i['track'], items))
+        for track in track_array:
             artists = {}
-            for j in range(0, number_of_artists):
-                a_id = items[i]['track']['artists'][j]['id']
-                a_name = items[i]['track']['artists'][j]['name']
-                a_url = items[i]['track']['artists'][j]['external_urls']['spotify']
+            for artist in track['artists']:
+                a_id = artist['id']
+                a_name = artist['name']
+                a_url = artist['external_urls']['spotify']
                 artists[a_id] = a_name
                 if a_id not in all_my_artists.keys():
                     all_my_artists[a_id] = {'name': a_name, 'external_url': a_url}
-            song_id = items[i]['track']['id']
-            song_name = items[i]['track']['name']
-            date = items[i]['track']['album']['release_date']
-            song_url = items[i]['track']['external_urls']['spotify']
+            song_id = track['id']
+            song_name = track['name']
+            date = track['album']['release_date']
+            song_url = track['external_urls']['spotify']
             all_my_songs[song_id] = {'name': song_name, 'artists': artists, 'date-created': date,
                                      'external_url': song_url}
 
         count += 1
         if len(items) < 50:
             break
-
     for chunks_of_artist_ids in chunks(list(all_my_artists.keys()), 50):
         artists_information = sp.artists(chunks_of_artist_ids)
         for artist_information in artists_information['artists']:
