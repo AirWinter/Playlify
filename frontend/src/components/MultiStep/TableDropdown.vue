@@ -117,7 +117,7 @@ var playing: Ref<boolean> = ref(false);
 
 const handleShowSongs = () => {
   show_songs.value = !show_songs.value;
-  if (!show_songs.value) {
+  if (!show_songs.value && playing.value) {
     handlePauseSong();
   }
 };
