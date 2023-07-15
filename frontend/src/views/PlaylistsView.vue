@@ -16,15 +16,15 @@
         <!-- Cards -->
         <div class="w-full flex flex-wrap">
           <!-- Hardcoded Create Playlist -->
-          <div class="p-2 w-48 h-64 max-sm:w-44">
+          <div :class="styling_string">
             <a href="/create-playlist" style="text-decoration: none">
               <div
                 class="bg-card_bg opacity-80 hover:opacity-95 w-full h-full p-3 rounded-lg shadow-md"
               >
-                <img src="PlusSign.png" class="h-36 w-36 shadow rounded" />
+                <img src="PlusSign.png" class="h-4/5 w-full shadow rounded" />
 
                 <h1
-                  class="text-xl mt-3 font-semibold text-white text-center tracking-wide"
+                  class="text-xl mb-[12px] mt-3 font-semibold truncate text-white text-center tracking-wide"
                 >
                   Create Playlist
                 </h1>
@@ -35,7 +35,7 @@
           <div
             v-for="playlist in playlists"
             :key="playlists.indexOf(playlist)"
-            class="p-2 w-48 h-64 max-sm:w-44"
+            :class="styling_string"
           >
             <!-- Card -->
             <a
@@ -44,13 +44,13 @@
               style="text-decoration: none"
             >
               <div
-                class="bg-card_bg opacity-80 hover:opacity-100 w-full h-full p-3 rounded-lg shadow-md"
+                class="bg-card_bg opacity-80 hover:opacity-100 w-full h-full pb-4 p-3 rounded-lg shadow-md"
               >
                 <!-- Playlist Cover Photo -->
                 <img
                   v-if="playlist.imageUrl != ''"
                   :src="playlist.imageUrl"
-                  class="h-36 w-36 object-cover shadow mb-2 rounded"
+                  class="h-4/5 w-full object-cover shadow mb-2 rounded"
                 />
                 <img
                   v-else
@@ -66,13 +66,13 @@
                 <!-- Playlist Description -->
                 <h2
                   v-if="playlist.description != ''"
-                  class="text-sm text-lightest tracking-wide line-clamp-2 mb-1"
+                  class="text-sm text-lightest tracking-wide truncate line-clamp-2 mb-1"
                 >
                   {{ playlist.description }}
                 </h2>
                 <h2
                   v-else
-                  class="text-sm text-lightest tracking-wide line-clamp-2 mb-1"
+                  class="text-sm text-lightest tracking-wide truncate line-clamp-2 mb-1"
                 >
                   {{ "By " + playlist.creator }}
                 </h2>
@@ -125,4 +125,7 @@ onBeforeMount(() => {
   document.body.style.overscrollBehavior = "none";
   getPlaylists();
 });
+
+const styling_string =
+  "p-2 w-1/2 h-10/12 md:w-1/4 lg:w-1/5 xl:w-1/6 2xl:w-[12.5%] 3xl:w-1/12 ";
 </script>
