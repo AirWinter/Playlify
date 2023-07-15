@@ -155,7 +155,9 @@ const handleClickSong = (song: Song) => {
 };
 
 const handleRemoveSong = (index: string) => {
-  handlePauseSong();
+  if (playing.value) {
+    handlePauseSong();
+  }
   emit("remove-song", index);
 };
 </script>
