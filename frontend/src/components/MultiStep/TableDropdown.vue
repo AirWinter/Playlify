@@ -70,7 +70,7 @@
               <button
                 class="bg-transparent px-1"
                 type="button"
-                @click="emit('remove-song', index)"
+                @click="handleRemoveSong(index)"
               >
                 <img
                   src="trash-can.png"
@@ -117,6 +117,9 @@ var playing: Ref<boolean> = ref(false);
 
 const handleShowSongs = () => {
   show_songs.value = !show_songs.value;
+  if (!show_songs.value) {
+    handlePauseSong();
+  }
 };
 
 var player: HTMLAudioElement;
@@ -143,5 +146,10 @@ const handleClickSong = (song: Song) => {
   } else {
     handlePlaySong(song);
   }
+};
+
+const handleRemoveSong = (index: string) => {
+  handlePauseSong();
+  emit("remove-song", index);
 };
 </script>
