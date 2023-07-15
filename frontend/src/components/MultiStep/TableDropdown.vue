@@ -122,13 +122,19 @@ const handleShowSongs = () => {
   }
 };
 
+const endEventListener = () => {
+  handlePauseSong();
+};
+
 var player: HTMLAudioElement;
+
 const handlePlaySong = (song: Song) => {
   if (player != undefined) {
     player.pause();
   }
   if (song.song_name != song_playing.value) {
     player = new Audio(song.preview_url);
+    player.addEventListener("ended", endEventListener);
     song_playing.value = song.song_name;
   }
   player.play();
