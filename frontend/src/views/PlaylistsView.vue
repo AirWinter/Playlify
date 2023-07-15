@@ -127,5 +127,5 @@ onBeforeMount(() => {
 });
 
 const styling_string =
-  "p-2 w-1/2 h-10/12 md:w-1/4 lg:w-1/5 xl:w-1/6 2xl:w-[12.5%] 3xl:w-1/12 ";
+  "p-2 w-1/2 h-11/12 md:w-1/4 lg:w-1/5 xl:w-1/6 2xl:w-[12.5%] 3xl:w-1/12 ";
 </script>
