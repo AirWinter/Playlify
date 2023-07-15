@@ -297,3 +297,9 @@ onBeforeMount(() => {
   getAllTracksFromLibrary();
 });
 </script>
+
+<style>
+.formkit-outer {
+  padding: 0px;
+}
+</style>

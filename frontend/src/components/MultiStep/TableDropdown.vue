@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white drop-shadow-lg rounded bg-white m-2 max-sm:m-1">
+  <div class="bg-white drop-shadow-lg rounded bg-white md:m-2 m-1">
     <div class="flex sticky top-0 bg-white items-center justify-start z-40">
       <!-- Button for opening/closing suggested songs table -->
       <button
@@ -24,10 +24,11 @@
       </button>
     </div>
     <div class="container text-center" v-if="show_songs">
-      <table class="table table-fixed text-sm max-sm:text-xs">
+      <table class="table table-fixed text-[8px] md:text-sm">
         <!-- Table Header-->
         <thead class="sticky top-5 md:top-10 bg-white z-30">
           <tr>
+            <th class="w-8 max-sm:w-4" scope="col">Preview</th>
             <th class="w-16 max-sm:w-6" scope="col">Name</th>
             <th class="w-16 max-sm:w-6" scope="col">Artist(s)</th>
             <th class="w-10 max-sm:w-4" scope="col">Remove</th>
@@ -35,10 +36,25 @@
         </thead>
         <tbody>
           <tr v-for="(song, index) in props.songs" :key="index">
-            <td class="py-3">
+            <!-- Play Button to preview-->
+            <td class="align-middle">
+              <button
+                v-if="song.preview_url != undefined && song.preview_url != ''"
+                type="button"
+                @click="handleClickSong(song)"
+                class="h-4 w-4 md:h-6 md:w-6 opacity-80"
+              >
+                <img
+                  v-if="song_playing == song.song_name && playing"
+                  src="pause.svg"
+                />
+                <img v-else src="play.svg" />
+              </button>
+            </td>
+            <td class="py-3 align-middle overflow-hidden">
               <a :href="song.song_url" target="_blank">{{ song.song_name }}</a>
             </td>
-            <td class="py-3">
+            <td class="py-3 align-middle">
               <a
                 v-for="(artist, index) in song.artists"
                 :key="index"
@@ -50,7 +66,7 @@
                 }}</a
               >
             </td>
-            <td>
+            <td class="align-middle overflow-hidden">
               <button
                 class="bg-transparent px-1"
                 type="button"
@@ -58,7 +74,7 @@
               >
                 <img
                   src="trash-can.png"
-                  class="h-6 w-6 opacity-80 hover:opacity-100"
+                  class="h-4 w-4 md:h-6 md:w-6 opacity-80 hover:opacity-100"
                 />
               </button>
             </td>
@@ -96,7 +112,36 @@ const props = defineProps<{
 
 let show_songs: Ref<boolean> = ref(false);
 
+var song_playing: Ref<string> = ref("");
+var playing: Ref<boolean> = ref(false);
+
 const handleShowSongs = () => {
   show_songs.value = !show_songs.value;
+};
+
+var player: HTMLAudioElement;
+const handlePlaySong = (song: Song) => {
+  if (player != undefined) {
+    player.pause();
+  }
+  if (song.song_name != song_playing.value) {
+    player = new Audio(song.preview_url);
+    song_playing.value = song.song_name;
+  }
+  player.play();
+  playing.value = true;
+};
+
+const handlePauseSong = () => {
+  player.pause();
+  playing.value = false;
+};
+
+const handleClickSong = (song: Song) => {
+  if (song.song_name == song_playing.value && playing.value) {
+    handlePauseSong();
+  } else {
+    handlePlaySong(song);
+  }
 };
 </script>

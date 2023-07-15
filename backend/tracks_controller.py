@@ -53,8 +53,9 @@ def get_all_tracks_from_library():
             song_name = track['name']
             date = track['album']['release_date']
             song_url = track['external_urls']['spotify']
+            preview_url = track['preview_url']
             all_my_songs[song_id] = {'name': song_name, 'artists': artists, 'date-created': date,
-                                     'external_url': song_url}
+                                     'external_url': song_url, 'preview_url': preview_url}
 
         count += 1
         if len(items) < 50:
@@ -146,7 +147,8 @@ def get_tracks_to_add():
             artists.append({'name': all_my_songs[song_id]['artists'][artist_id],
                             'external_url': all_my_artists[artist_id]['external_url']})
         result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']),
-                           'song_url': all_my_songs[song_id]['external_url'], "artists": artists}
+                           'song_url': all_my_songs[song_id]['external_url'], "artists": artists,
+                           'preview_url': all_my_songs[song_id]['preview_url']}
     return jsonify(result)
 
 
@@ -202,6 +204,7 @@ def get_recommendations():
         track_id = track['id']
         track_url = track['external_urls']['spotify']
         track_date = track['album']['release_date']
+        preview_url = track['preview_url']
         artists = track['artists']
         track_artists = []
         for artist in artists:
@@ -210,7 +213,7 @@ def get_recommendations():
             track_artists.append({'external_url': artist_url, 'name': artist_name})
 
         songs[track_id] = {'artists': track_artists, 'date-created': track_date, 'song_url': track_url,
-                           'song_name': track_name}
+                           'song_name': track_name, 'preview_url': preview_url}
 
     response = jsonify(songs)
     response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')

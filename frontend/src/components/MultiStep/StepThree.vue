@@ -1,6 +1,6 @@
 <template>
   <FormKit type="step" name="validation" label="Validation">
-    <div class="overflow-y-auto overflow-x-contain h-96 text-center">
+    <div class="overflow-y-auto overflow-x-contain h-96 w-full text-center">
       <!-- Loading Sign-->
       <div
         role="status"
@@ -14,7 +14,7 @@
       </div>
       <div v-else>
         <!-- Sum of total songs that will be added -->
-        <div class="">
+        <div>
           <p class="text-center text-2xl text-darkest font-bold max-sm:text-sm">
             Total Suggested Songs:
             {{

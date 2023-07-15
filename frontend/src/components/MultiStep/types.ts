@@ -36,6 +36,7 @@ export interface Song {
   song_name: string;
   song_url: string;
   artists: Array<Artist>;
+  preview_url: string;
 }
 
 export interface Genre_Options {
