@@ -137,6 +137,10 @@ secrets*
 # JSON Files
 /backend/JSON files/*
 
+# Sample data for testing
+sample_data*
+/backend/tests/sample_data.py
+
 # Node Modules
 /frontend/node_modules/*
 
