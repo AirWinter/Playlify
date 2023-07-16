@@ -20,7 +20,7 @@ def get_playlists(user, sp):
     return my_playlists
 
 
-def create_playlist(user, req, sp):
+def create_playlist(user_id, req, sp):
     name = req['name']
     display_on_profile = False  # False by default
     # If public is specified then overwrite
@@ -31,20 +31,22 @@ def create_playlist(user, req, sp):
 
     # If the user provided a description
     if description is not None and description != "":
-        response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile,
+        response_create = sp.user_playlist_create(user=user_id, name=name, public=display_on_profile,
                                                   description=description)
-        if response_create['description'] is None or response_create['description'] == "":
+        if 'description' not in response_create.keys() or response_create['description'] is None or response_create[
+            'description'] == "":
             count = 0
             playlist_id = response_create['id']
             # Try at most 10 times to set the playlist description
-            while count <= 10:
+            while count < 10:
                 response_update = sp.playlist_change_details(playlist_id=playlist_id, description=description)
                 count += 1
-                if response_update['description'] is not None and response_update['description'] != "":
+                if 'description' in response_update.keys() and response_update['description'] is not None and \
+                        response_update['description'] != "":
                     break
     else:
         # Create empty playlist without a description
-        response_create = sp.user_playlist_create(user=user['id'], name=name, public=display_on_profile)
+        response_create = sp.user_playlist_create(user=user_id, name=name, public=display_on_profile)
 
     playlist_id = response_create['id']
 

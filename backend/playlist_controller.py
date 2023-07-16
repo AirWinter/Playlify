@@ -40,7 +40,7 @@ def create_playlist_endpoint():
 
     req = json.loads(request.data)
 
-    create_playlist(user, req, sp)
+    create_playlist(user['id'], req, sp)
 
     headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{secrets.url_base}'}
     response = Response(status=200, headers=headers)
