@@ -88,7 +88,7 @@ import type {
 
 const router = useRouter();
 
-const urlBase: string = process.env.VUE_APP_URL_BASE;
+const urlBase = process.env.VUE_APP_URL_BASE;
 let playlist: Playlist = {
   playlistInformation: {
     name: "",
@@ -151,7 +151,7 @@ const getSongsToAdd = async (param: Filters) => {
 const getRecommendations = async (param: Filters) => {
   var songs_to_add_array = songs.value;
   // Get recommended songs: order of seeds genres > tracks > artists
-  const token_string = await (await getUtils()).accessToken;
+  const token_string = await (await getUtils()).getAccessToken();
   const genre_seed_string =
     param.genres.length > 0
       ? param.genres
@@ -232,7 +232,7 @@ const getAllTracksFromLibrary = async () => {
   ) {
     loading.value = false;
   } else {
-    const token_string = await (await getUtils()).accessToken;
+    const token_string = await (await getUtils()).getAccessToken();
     await axios({
       method: "get",
       url: `${urlBase}/tracks/get-all`,
@@ -266,7 +266,7 @@ const getAllTracksFromLibrary = async () => {
 
 const handleSubmit = async (param: Playlist) => {
   loading.value = true;
-  const token_string: string = await (await getUtils()).accessToken;
+  const token_string: string = await (await getUtils()).getAccessToken();
   var songs_string =
     Object.keys(songs.value).length > 0 ? Object.keys(songs.value) + "," : "";
   var songs_to_add_array = songs_string + Object.keys(recommended_songs.value);

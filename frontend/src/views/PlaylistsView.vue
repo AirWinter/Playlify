@@ -94,11 +94,11 @@ import type { Playlist } from "./types";
 const getUtils = () => import("../utils");
 
 const router = useRouter();
-const urlBase: string = process.env.VUE_APP_URL_BASE;
+const urlBase = process.env.VUE_APP_URL_BASE;
 var playlists: Ref<Playlist[]> = ref([]);
 
 const getPlaylists = async () => {
-  const token_string: string = await (await getUtils()).accessToken; // lazy import and then await async function
+  const token_string: string = await (await getUtils()).getAccessToken(); // lazy import and then await async function
   if (token_string === "") {
     router.push("/");
   } else {
