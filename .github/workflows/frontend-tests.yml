@@ -10,14 +10,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-  steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-
-    - name: Install npm packages
-      run: npm ci --omit=optional
-      working-directory: frontend
-
-    - name: Run tests
-      run: npm run test:unit
-      working-directory: frontend
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+  
+      - name: Install npm packages
+        run: npm ci --omit=optional
+        working-directory: frontend
+  
+      - name: Run tests
+        run: npm run test:unit
+        working-directory: frontend
