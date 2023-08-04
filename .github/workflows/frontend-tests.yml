@@ -2,24 +2,24 @@ name: Frontend Unit Tests
 
 on:
   push:
-    branches: [master, main]
+    branches: [main]
   pull_request:
-    branches: [master, main]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
   steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
 #      with:
 #        node-version: 14
 
     - name: Install npm packages
-        run: npm ci --omit=optional
-        working-directory: frontend
+      run: npm ci --omit=optional
+      working-directory: frontend
 
     - name: Run tests
-        run: npm run test:unit
-        working-directory: frontend
+      run: npm run test:unit
+      working-directory: frontend
