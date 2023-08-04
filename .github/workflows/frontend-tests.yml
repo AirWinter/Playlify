@@ -9,12 +9,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [ 14 ]
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          - node-version: 14.19.3
+          node-version: ${{ matrix.node }}
   
       - name: Install npm packages
         run: npm ci --omit=optional
