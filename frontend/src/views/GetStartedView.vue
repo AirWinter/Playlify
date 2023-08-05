@@ -128,7 +128,7 @@ import TopHeader from "@/components/TopHeader.vue";
 import PageLinks from "@/components/PageLinks.vue";
 import { onBeforeMount } from "vue";
 
-const urlBase: string = process.env.VUE_APP_URL_BASE;
+const urlBase: string = process.env.VUE_APP_URL_BASE!;
 
 onBeforeMount(() => {
   document.body.style.overscrollBehavior = "none";

@@ -10,10 +10,10 @@
           <div
             role="status"
             class="absolute -translate-x-1/2 -translate-y-1/3 top-1/3 left-1/2"
-            v-if="loading"
+            v-if="store.state.loading_modal"
           >
             <div
-              :aria-hidden="loading"
+              :aria-hidden="store.state.loading_modal"
               class="w-24 h-24 max-sm:w-20 max-sm:h-20 spinner-border text-green"
             ></div>
           </div>
@@ -22,7 +22,7 @@
             tab-style="progress"
             #default="{ value }"
             :value="playlist"
-            :disabled="loading"
+            :disabled="store.state.loading_modal"
             :before-step-change="
               ({ currentStep, targetStep, delta }: Step) => {
                 // Prevent skipping steps
@@ -53,7 +53,7 @@
             />
             <!-- Step Three: Validation -->
             <StepThree
-              :loading_songs="loading_songs"
+              :loading_songs="store.state.loading_songs"
               :songs="songs"
               :recommended_songs="recommended_songs"
               @remove-song="(index) => removeSong(index)"
@@ -72,6 +72,7 @@
 import axios from "axios";
 import { ref, Ref, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 const getUtils = () => import("../../utils");
 import StepOne from "./StepOne.vue";
 import StepTwo from "./StepTwo.vue";
@@ -87,8 +88,9 @@ import type {
 } from "./types";
 
 const router = useRouter();
+const store = useStore();
 
-const urlBase = process.env.VUE_APP_URL_BASE;
+const urlBase: string = process.env.VUE_APP_URL_BASE!;
 let playlist: Playlist = {
   playlistInformation: {
     name: "",
@@ -105,13 +107,11 @@ let playlist: Playlist = {
 
 let genres_options: Array<Genre_Options> = [{ label: "Any", options: [] }];
 let artist_options: Ref<Array<Artist_Options>> = ref([]);
-let loading: Ref<boolean> = ref(true);
-let loading_songs: Ref<boolean> = ref(true);
 let songs: Ref<Record<string, Song>> = ref({});
 let recommended_songs: Ref<Record<string, Song>> = ref({});
 
 const getSongsToAdd = async (param: Filters) => {
-  loading_songs.value = true;
+  store.commit("setLoadingSongs", true);
   const all_my_songs = sessionStorage.getItem("all_songs");
   const all_my_artists = sessionStorage.getItem("all_artists");
 
@@ -145,7 +145,7 @@ const getSongsToAdd = async (param: Filters) => {
     });
   recommended_songs.value = {};
   await getRecommendations(param);
-  loading_songs.value = false;
+  store.commit("setLoadingSongs", false);
 };
 
 const getRecommendations = async (param: Filters) => {
@@ -230,7 +230,7 @@ const getAllTracksFromLibrary = async () => {
     sessionStorage.getItem("all_artists") != "undefined" &&
     sessionStorage.getItem("all_genres") != "undefined"
   ) {
-    loading.value = false;
+    store.commit("setLoadingModal", false);
   } else {
     const token_string = await (await getUtils()).getAccessToken();
     await axios({
@@ -260,12 +260,12 @@ const getAllTracksFromLibrary = async () => {
         sessionStorage.clear();
         router.push("/"); // If there's an error go to home page
       });
-    loading.value = false;
+    store.commit("setLoadingModal", false);
   }
 };
 
 const handleSubmit = async (param: Playlist) => {
-  loading.value = true;
+  store.commit("setLoadingModal", true);
   const token_string: string = await (await getUtils()).getAccessToken();
   var songs_string =
     Object.keys(songs.value).length > 0 ? Object.keys(songs.value) + "," : "";
@@ -290,7 +290,7 @@ const handleSubmit = async (param: Playlist) => {
     router.push("/"); // If there's an error go to home page
   });
   router.push("/my-playlists");
-  loading.value = false;
+  store.commit("setLoadingModal", false);
 };
 
 onBeforeMount(() => {

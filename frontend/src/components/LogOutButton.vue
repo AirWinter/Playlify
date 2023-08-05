@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-const urlBase = process.env.VUE_APP_URL_BASE;
+const urlBase: string = process.env.VUE_APP_URL_BASE!;
 
 const handleLogout = () => {
   localStorage.clear();
