@@ -1,5 +1,6 @@
 // store/index.js
 import { createStore } from "vuex";
+import createPersistedState from "vuex-persistedstate";
 
 const store = createStore({
   state: {
@@ -26,6 +27,7 @@ const store = createStore({
       return state.loading_modal;
     },
   },
+  plugins: [createPersistedState()],
 });
 
 export default store;

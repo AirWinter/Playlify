@@ -10,10 +10,10 @@
           <div
             role="status"
             class="absolute -translate-x-1/2 -translate-y-1/3 top-1/3 left-1/2"
-            v-if="store.getters.getLoadingModal"
+            v-if="store.state.loading_modal"
           >
             <div
-              :aria-hidden="store.getters.getLoadingModal"
+              :aria-hidden="store.state.loading_modal"
               class="w-24 h-24 max-sm:w-20 max-sm:h-20 spinner-border text-green"
             ></div>
           </div>
@@ -77,6 +77,7 @@ const getUtils = () => import("../../utils");
 import StepOne from "./StepOne.vue";
 import StepTwo from "./StepTwo.vue";
 import StepThree from "./StepThree.vue";
+import { getAllTracksFromLibrary } from "@/services/songs";
 import type {
   // eslint-disable-next-line no-unused-vars
   Step,
@@ -221,49 +222,6 @@ const handleNextOne = async () => {
   }
 };
 
-const getAllTracksFromLibrary = async () => {
-  if (
-    sessionStorage.getItem("all_songs") != null &&
-    sessionStorage.getItem("all_artists") != null &&
-    sessionStorage.getItem("all_genres") != null &&
-    sessionStorage.getItem("all_songs") != "undefined" &&
-    sessionStorage.getItem("all_artists") != "undefined" &&
-    sessionStorage.getItem("all_genres") != "undefined"
-  ) {
-    store.commit("setLoadingModal", false);
-  } else {
-    const token_string = await (await getUtils()).getAccessToken();
-    await axios({
-      method: "get",
-      url: `${urlBase}/tracks/get-all`,
-      headers: {
-        Token: token_string,
-      },
-    })
-      .then((response) => {
-        sessionStorage.setItem(
-          "all_songs",
-          JSON.stringify(response.data.all_songs)
-        );
-        sessionStorage.setItem(
-          "all_artists",
-          JSON.stringify(response.data.all_artists)
-        );
-        sessionStorage.setItem(
-          "all_genres",
-          JSON.stringify(response.data.all_genres)
-        );
-      })
-      .catch((error) => {
-        console.log(error);
-        localStorage.clear();
-        sessionStorage.clear();
-        router.push("/"); // If there's an error go to home page
-      });
-    store.commit("setLoadingModal", false);
-  }
-};
-
 const handleSubmit = async (param: Playlist) => {
   store.commit("setLoadingModal", true);
   const token_string: string = await (await getUtils()).getAccessToken();
@@ -294,7 +252,9 @@ const handleSubmit = async (param: Playlist) => {
 };
 
 onBeforeMount(() => {
-  getAllTracksFromLibrary();
+  if (store.getters.getLoadingModal) {
+    getAllTracksFromLibrary();
+  }
 });
 </script>
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import router from "../router/index";
 const getUtils = () => import("../utils");
 
-const urlBase = process.env.VUE_APP_URL_BASE;
+const urlBase: string = process.env.VUE_APP_URL_BASE ?? "";
 
 export const getPlaylists = async () => {
   const token_string: string = await (await getUtils()).getAccessToken(); // lazy import and then await async function

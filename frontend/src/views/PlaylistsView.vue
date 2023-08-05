@@ -90,12 +90,14 @@ import LogOutButton from "../components/LogOutButton.vue";
 import { Ref, ref, onBeforeMount } from "vue";
 import type { Playlist } from "./types";
 import { getPlaylists } from "../services/playlists";
+import { getAllTracksFromLibrary } from "@/services/songs";
 
 var playlists: Ref<Playlist[]> = ref([]);
 
 onBeforeMount(async () => {
   document.body.style.overscrollBehavior = "none";
   playlists.value = await getPlaylists();
+  getAllTracksFromLibrary();
 });
 
 const styling_string =
