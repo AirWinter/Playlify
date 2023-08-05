@@ -10,10 +10,10 @@
           <div
             role="status"
             class="absolute -translate-x-1/2 -translate-y-1/3 top-1/3 left-1/2"
-            v-if="store.state.loading_modal"
+            v-if="store.getters.getLoadingModal"
           >
             <div
-              :aria-hidden="store.state.loading_modal"
+              :aria-hidden="store.getters.getLoadingModal"
               class="w-24 h-24 max-sm:w-20 max-sm:h-20 spinner-border text-green"
             ></div>
           </div>
@@ -53,7 +53,7 @@
             />
             <!-- Step Three: Validation -->
             <StepThree
-              :loading_songs="store.state.loading_songs"
+              :loading_songs="store.getters.getLoadingSongs"
               :songs="songs"
               :recommended_songs="recommended_songs"
               @remove-song="(index) => removeSong(index)"

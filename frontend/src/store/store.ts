@@ -19,6 +19,12 @@ const store = createStore({
   },
   getters: {
     // Your getter functions go here
+    getLoadingSongs(state) {
+      return state.loading_songs;
+    },
+    getLoadingModal(state) {
+      return state.loading_modal;
+    },
   },
 });
 
