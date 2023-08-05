@@ -87,43 +87,15 @@
 <script setup lang="ts">
 import TopHeader from "../components/TopHeader.vue";
 import LogOutButton from "../components/LogOutButton.vue";
-import axios from "axios";
 import { Ref, ref, onBeforeMount } from "vue";
-import { useRouter } from "vue-router";
 import type { Playlist } from "./types";
-const getUtils = () => import("../utils");
+import { getPlaylists } from "../services/playlists";
 
-const router = useRouter();
-const urlBase = process.env.VUE_APP_URL_BASE;
 var playlists: Ref<Playlist[]> = ref([]);
 
-const getPlaylists = async () => {
-  const token_string: string = await (await getUtils()).getAccessToken(); // lazy import and then await async function
-  if (token_string === "") {
-    router.push("/");
-  } else {
-    await axios({
-      method: "get",
-      url: `${urlBase}/playlist/get-playlists`,
-      headers: {
-        Token: token_string,
-      },
-    })
-      .then((value) => {
-        playlists.value = value.data;
-      })
-      .catch((error) => {
-        console.log(error);
-        localStorage.clear();
-        sessionStorage.clear();
-        router.push("/"); // If there's an error go to home page
-      });
-  }
-};
-
-onBeforeMount(() => {
+onBeforeMount(async () => {
   document.body.style.overscrollBehavior = "none";
-  getPlaylists();
+  playlists.value = await getPlaylists();
 });
 
 const styling_string =
