@@ -48,7 +48,6 @@ describe("getAccessToken", () => {
 
     // Set a test access token in local storage
     localStorage.setItem("access_token", "test_access_token");
-    debugger;
     const result = await utilsFunc.getAccessToken();
 
     expect(result).toBe("test_access_token");

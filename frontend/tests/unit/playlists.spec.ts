@@ -22,7 +22,7 @@ describe("Playlist Service", () => {
     jest
       .spyOn(utilsFunc, "getAccessToken")
       .mockImplementation(async () => "valid token");
-    var result = await getPlaylists();
+    const result = await getPlaylists();
     expect(mockGet).toBeCalledTimes(1);
     expect(result).not.toBeUndefined();
   });
