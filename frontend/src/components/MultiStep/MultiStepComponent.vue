@@ -103,7 +103,10 @@ let playlist: Playlist = {
 };
 
 onBeforeMount(() => {
-  if (store.getters.getLoadingModal) {
+  if (
+    store.getters.getLoadingModal ||
+    store.getters.getTTL < Date.now() - 3600000
+  ) {
     getAllTracksFromLibrary();
   }
 });

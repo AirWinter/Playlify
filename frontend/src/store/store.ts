@@ -14,6 +14,7 @@ export interface State {
   recommended_songs: Record<string, Song>;
   artist_options: Array<Artist_Options>;
   genre_options: Array<Genre_Options>;
+  TTL: number;
 }
 
 const store = createStore<State>({
@@ -24,6 +25,7 @@ const store = createStore<State>({
     recommended_songs: {},
     artist_options: [],
     genre_options: [],
+    TTL: 0,
   },
   mutations: {
     setLoadingSongs(state, newValue) {
@@ -50,6 +52,9 @@ const store = createStore<State>({
     setGenreOptions(state, newValue) {
       state.genre_options = newValue;
     },
+    resetTTL(state) {
+      state.TTL = Date.now();
+    },
   },
   actions: {
     // Your action functions go here
@@ -73,6 +78,9 @@ const store = createStore<State>({
     },
     getGenreOptions(state) {
       return state.genre_options;
+    },
+    getTTL(state) {
+      return state.TTL;
     },
   },
   plugins: [createPersistedState()],

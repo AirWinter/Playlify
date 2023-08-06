@@ -88,16 +88,20 @@
 import TopHeader from "../components/TopHeader.vue";
 import LogOutButton from "../components/LogOutButton.vue";
 import { Ref, ref, onBeforeMount } from "vue";
+import { useStore } from "vuex";
 import type { Playlist } from "./types";
 import { getPlaylists } from "../services/playlists";
 import { getAllTracksFromLibrary } from "@/services/songs";
 
 var playlists: Ref<Playlist[]> = ref([]);
+const store = useStore();
 
 onBeforeMount(async () => {
   document.body.style.overscrollBehavior = "none";
   playlists.value = await getPlaylists();
-  getAllTracksFromLibrary();
+  if (store.getters.getTTL < Date.now() - 3600000) {
+    getAllTracksFromLibrary();
+  }
 });
 
 const styling_string =
