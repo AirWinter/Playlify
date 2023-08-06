@@ -1,5 +1,5 @@
 from utils import stringify, chunks
-from redis_repository import get_from_db, has_key, write_to_db
+import redis_repository
 
 
 def get_all_tracks_from_library(sp, market):
@@ -78,13 +78,13 @@ def get_all_tracks_from_library(sp, market):
     for a_id in all_my_artists.keys():
         artist_options[a_id] = all_my_artists[a_id]['name']
     user = sp.me()
-    write_to_db(user['id'], all_my_songs)
+    redis_repository.write_to_db(user['id'], all_my_songs)
     res = {'artist_options': artist_options, 'all_genres': all_my_genres}
     return res
 
 
 def get_tracks_to_add(filters, user_id):
-    all_my_songs = get_from_db(user_id)
+    all_my_songs = redis_repository.get_from_db(user_id)
     songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
