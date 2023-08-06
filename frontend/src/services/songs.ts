@@ -8,12 +8,8 @@ const urlBase: string = process.env.VUE_APP_URL_BASE ?? "";
 
 export const getAllTracksFromLibrary = async () => {
   if (
-    sessionStorage.getItem("all_songs") == null ||
-    sessionStorage.getItem("all_artists") == null ||
-    sessionStorage.getItem("all_genres") == null ||
-    sessionStorage.getItem("all_songs") == "undefined" ||
-    sessionStorage.getItem("all_artists") == "undefined" ||
-    sessionStorage.getItem("all_genres") == "undefined"
+    store.getters.getArtistOptions.length == 0 ||
+    store.getters.getGenreOptions.length == 0
   ) {
     const token_string = await (await getUtils()).getAccessToken();
     try {
@@ -22,7 +18,6 @@ export const getAllTracksFromLibrary = async () => {
           Token: token_string,
         },
       });
-      console.log(response.data);
       store.commit("setArtistOptions", response.data.artist_options);
       store.commit("setGenreOptions", response.data.all_genres);
     } catch (error) {
