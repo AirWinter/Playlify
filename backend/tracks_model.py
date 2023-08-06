@@ -27,7 +27,7 @@ def get_all_tracks_from_library(sp, market):
                 a_id = artist['id']
                 a_name = artist['name']
                 a_url = artist['external_urls']['spotify']
-                artists[a_id] = {'artist_name': a_name, 'artist_url': a_url}
+                artists[a_id] = {'n': a_name, 'u': a_url}
                 if a_id not in all_my_artists.keys():
                     all_my_artists[a_id] = {'name': a_name, 'external_url': a_url}
             song_id = track['id']
@@ -35,8 +35,8 @@ def get_all_tracks_from_library(sp, market):
             date = track['album']['release_date']
             song_url = track['external_urls']['spotify']
             preview_url = track['preview_url']
-            all_my_songs[song_id] = {'name': song_name, 'artists': artists, 'date-created': date,
-                                     'external_url': song_url, 'preview_url': preview_url}
+            all_my_songs[song_id] = {'n': song_name, 'a': artists, 'd': date,
+                                     'eu': song_url, 'pu': preview_url}
 
         count += 1
         if len(items) < 50:
@@ -60,12 +60,13 @@ def get_all_tracks_from_library(sp, market):
                         break
 
     for song_id in all_my_songs.keys():
-        song_artists_ids = all_my_songs[song_id]['artists']
-        song_genres = []
+        song_artists_ids = all_my_songs[song_id]['a']
+        song_genres = set()
         for artist_id in song_artists_ids:
-            song_genres.extend(all_my_artists[artist_id]['genres'])
+            for g in all_my_artists[artist_id]['genres']:
+                song_genres.add(g)
 
-        all_my_songs[song_id]['genres'] = song_genres
+        all_my_songs[song_id]['g'] = list(song_genres)
 
     for genre_group in all_my_genres:
         if len(genre_group['options']) == 0:
@@ -93,7 +94,7 @@ def get_tracks_to_add(filters, user_id):
             all_genres = filters["genres"].split(";")
             if len(all_genres) > 0 and "any" not in all_genres:
                 songs_to_add = list(
-                    filter(lambda s: any(filter_genre in all_my_songs[s]['genres'] for filter_genre in all_genres),
+                    filter(lambda s: any(filter_genre in all_my_songs[s]['g'] for filter_genre in all_genres),
                            songs_to_add))
         if apply_filter == "artists" and filters[apply_filter] is not None and filters[apply_filter] != '':
             all_artists = filters[apply_filter].split(";")
@@ -101,26 +102,26 @@ def get_tracks_to_add(filters, user_id):
                 # print("Filtered by artists")
                 songs_to_add = list(
                     filter(lambda s: any(
-                        filter_artists in all_my_songs[s]['artists'].keys() for filter_artists in all_artists),
+                        filter_artists in all_my_songs[s]['a'].keys() for filter_artists in all_artists),
                            songs_to_add))
         elif apply_filter == "created_after_month" and filters[apply_filter] != "":
             # print("Filtered by created_after_month")
             songs_to_add = list(
-                filter(lambda s: all_my_songs[s]['date-created'] >= filters[apply_filter], songs_to_add))
+                filter(lambda s: all_my_songs[s]['d'] >= filters[apply_filter], songs_to_add))
         elif apply_filter == "created_before_month" and filters[apply_filter] != "":
             # print("Filtered by created_before_month")
             songs_to_add = list(
-                filter(lambda s: all_my_songs[s]['date-created'] <= filters[apply_filter], songs_to_add))
+                filter(lambda s: all_my_songs[s]['d'] <= filters[apply_filter], songs_to_add))
 
     result = {}
     for song_id in songs_to_add:
         artists = []
-        for artist_id in all_my_songs[song_id]['artists'].keys():
-            artists.append({'name': all_my_songs[song_id]['artists'][artist_id]['artist_name'],
-                            'external_url': all_my_songs[song_id]['artists'][artist_id]['artist_url']})
-        result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']),
-                           'song_url': all_my_songs[song_id]['external_url'], "artists": artists,
-                           'preview_url': all_my_songs[song_id]['preview_url']}
+        for artist_id in all_my_songs[song_id]['a'].keys():
+            artists.append({'name': all_my_songs[song_id]['a'][artist_id]['n'],
+                            'external_url': all_my_songs[song_id]['a'][artist_id]['u']})
+        result[song_id] = {"song_name": stringify(all_my_songs[song_id]['n']),
+                           'song_url': all_my_songs[song_id]['eu'], "artists": artists,
+                           'preview_url': all_my_songs[song_id]['pu']}
 
     return result
 
