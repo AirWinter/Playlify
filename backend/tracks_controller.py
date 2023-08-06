@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, Response
 from backend import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
 import spotipy
-import json
+from redis_repository import has_key
 
 tracks = Blueprint("tracks", __name__)
 
@@ -28,19 +28,27 @@ def get_all_tracks_from_library_endpoint():
     return response
 
 
-@tracks.route('/get-tracks-to-add', methods=['POST'])
+@tracks.route('/get-tracks-to-add', methods=['GET'])
 def get_tracks_to_add_endpoint():
     # print("Get songs to Add")
-    req = json.loads(request.data)
+    if 'Token' not in request.headers:
+        print("No Token Passed")
+        return Response(status=401)
+
+    req = request.headers
+    access_token = req['Token']
+    sp = spotipy.Spotify(auth=access_token)
+    user = sp.me()
+    if not has_key(user['id']):
+        print("No songs in database")
+        return Response(status=401)
+
     filters = {"genres": req['genres'],
                "artists": req['artists'],
                "created_after_month": req['created_after_month'],
                "created_before_month": req['created_before_month']}
 
-    all_my_songs = json.loads(req['all_my_songs'])
-    all_my_artists = json.loads(req['all_my_artists'])
-
-    result = get_tracks_to_add(filters, all_my_songs, all_my_artists)
+    result = get_tracks_to_add(filters, user['id'])
 
     return jsonify(result)
 

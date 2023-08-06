@@ -1,13 +1,19 @@
 // store/index.js
 import { createStore } from "vuex";
 import createPersistedState from "vuex-persistedstate";
-import type { Song } from "@/components/MultiStep/types";
+import type {
+  Artist_Options,
+  Genre_Options,
+  Song,
+} from "@/components/MultiStep/types";
 
 export interface State {
   loading_songs: boolean;
   loading_modal: boolean;
   songs: Record<string, Song>;
   recommended_songs: Record<string, Song>;
+  artist_options: Array<Artist_Options>;
+  genre_options: Array<Genre_Options>;
 }
 
 const store = createStore<State>({
@@ -16,6 +22,8 @@ const store = createStore<State>({
     loading_modal: true,
     songs: {},
     recommended_songs: {},
+    artist_options: [],
+    genre_options: [],
   },
   mutations: {
     setLoadingSongs(state, newValue) {
@@ -36,6 +44,12 @@ const store = createStore<State>({
     clearRecommendedSongs(state) {
       state.recommended_songs = {};
     },
+    setArtistOptions(state, newValue) {
+      state.artist_options = newValue;
+    },
+    setGenreOptions(state, newValue) {
+      state.genre_options = newValue;
+    },
   },
   actions: {
     // Your action functions go here
@@ -53,6 +67,12 @@ const store = createStore<State>({
     },
     getRecommendedSongs(state) {
       return state.recommended_songs;
+    },
+    getArtistOptions(state) {
+      return state.artist_options;
+    },
+    getGenreOptions(state) {
+      return state.genre_options;
     },
   },
   plugins: [createPersistedState()],

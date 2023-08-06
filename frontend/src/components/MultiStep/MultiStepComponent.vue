@@ -29,9 +29,6 @@
                 if (Math.abs(delta) > 1) {
                   return false;
                 }
-                if (targetStep.stepName == 'Filters') {
-                  handleNextOne();
-                }
                 if (targetStep.stepName == 'Validation') {
                   playlist.filters.created_after_month =
                     currentStep.value.created_after_month;
@@ -48,8 +45,8 @@
             <StepOne :value="playlist" />
             <!-- Step Two: Defining filters-->
             <StepTwo
-              :genres_options="genres_options"
-              :artist_options="artist_options"
+              :genres_options="store.getters.getGenreOptions"
+              :artist_options="store.getters.getArtistOptions"
               :filters="playlist.filters"
             />
             <!-- Step Three: Validation -->
@@ -60,7 +57,7 @@
               @remove-song="(index) => removeSong(index)"
               @remove-recommended-song="(index) => removeRecommendedSong(index)"
               @get-recommendations="getRecommendations(playlist.filters)"
-              @submit="handleSubmit(value)"
+              @submit="createPlaylist(value)"
             />
           </FormKit>
         </div>
@@ -70,14 +67,12 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
-import { ref, Ref, onBeforeMount } from "vue";
-import { useRouter } from "vue-router";
+import { onBeforeMount } from "vue";
 import { useStore } from "vuex";
-const getUtils = () => import("../../utils");
 import StepOne from "./StepOne.vue";
 import StepTwo from "./StepTwo.vue";
 import StepThree from "./StepThree.vue";
+import { createPlaylist } from "@/services/playlists";
 import {
   getAllTracksFromLibrary,
   getRecommendations,
@@ -88,15 +83,11 @@ import {
 import type {
   // eslint-disable-next-line no-unused-vars
   Step,
-  Genre_Options,
-  Artist_Options,
   Playlist,
 } from "./types";
 
-const router = useRouter();
 const store = useStore();
 
-const urlBase: string = process.env.VUE_APP_URL_BASE!;
 let playlist: Playlist = {
   playlistInformation: {
     name: "",
@@ -109,64 +100,6 @@ let playlist: Playlist = {
     created_after_month: "",
     created_before_month: "",
   },
-};
-
-let genres_options: Array<Genre_Options> = [{ label: "Any", options: [] }];
-let artist_options: Ref<Array<Artist_Options>> = ref([]);
-
-const handleNextOne = async () => {
-  // Get all genres from session storage
-  if (
-    sessionStorage.getItem("all_genres") != null &&
-    sessionStorage.getItem("all_genres") != "undefined"
-  ) {
-    genres_options = JSON.parse(sessionStorage.getItem("all_genres") ?? "");
-  }
-  // Get all artists from session storage
-  if (
-    sessionStorage.getItem("all_artists") != null &&
-    sessionStorage.getItem("all_artists") != "undefined"
-  ) {
-    var all_artists = JSON.parse(sessionStorage.getItem("all_artists") ?? "");
-    Object.keys(all_artists).forEach((key) => {
-      artist_options.value.push({
-        value: key,
-        label: all_artists[key]["name"],
-      });
-    });
-  }
-};
-
-const handleSubmit = async (param: Playlist) => {
-  store.commit("setLoadingModal", true);
-  const token_string: string = await (await getUtils()).getAccessToken();
-  var songs_string =
-    Object.keys(store.getters.getSongs).length > 0
-      ? Object.keys(store.getters.getSongs) + ","
-      : "";
-  var songs_to_add_array =
-    songs_string + Object.keys(store.getters.getRecommendedSongs);
-  // Create the playlist
-  await axios({
-    method: "post",
-    url: `${urlBase}/playlist/create-playlist`,
-    headers: {
-      Token: token_string,
-    },
-    data: {
-      name: param.playlistInformation.name,
-      description: param.playlistInformation.description,
-      display: param.playlistInformation.display,
-      songs_to_add: songs_to_add_array,
-    },
-  }).catch((error) => {
-    console.log(error);
-    localStorage.clear();
-    sessionStorage.clear();
-    router.push("/"); // If there's an error go to home page
-  });
-  router.push("/my-playlists");
-  store.commit("setLoadingModal", false);
 };
 
 onBeforeMount(() => {

@@ -1,4 +1,5 @@
 from utils import stringify, chunks
+from redis_repository import get_from_db, has_key, write_to_db
 
 
 def get_all_tracks_from_library(sp, market):
@@ -26,7 +27,7 @@ def get_all_tracks_from_library(sp, market):
                 a_id = artist['id']
                 a_name = artist['name']
                 a_url = artist['external_urls']['spotify']
-                artists[a_id] = a_name
+                artists[a_id] = {'artist_name': a_name, 'artist_url': a_url}
                 if a_id not in all_my_artists.keys():
                     all_my_artists[a_id] = {'name': a_name, 'external_url': a_url}
             song_id = track['id']
@@ -73,11 +74,17 @@ def get_all_tracks_from_library(sp, market):
             label = genre_group['label']
             genre_group['label'] = "All " + label + " Genres"
 
-    res = {'all_songs': all_my_songs, 'all_artists': all_my_artists, 'all_genres': all_my_genres}
+    artist_options = {}
+    for a_id in all_my_artists.keys():
+        artist_options[a_id] = all_my_artists[a_id]['name']
+    user = sp.me()
+    write_to_db(user['id'], all_my_songs)
+    res = {'artist_options': artist_options, 'all_genres': all_my_genres}
     return res
 
 
-def get_tracks_to_add(filters, all_my_songs, all_my_artists):
+def get_tracks_to_add(filters, user_id):
+    all_my_songs = get_from_db(user_id)
     songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
@@ -109,8 +116,8 @@ def get_tracks_to_add(filters, all_my_songs, all_my_artists):
     for song_id in songs_to_add:
         artists = []
         for artist_id in all_my_songs[song_id]['artists'].keys():
-            artists.append({'name': all_my_songs[song_id]['artists'][artist_id],
-                            'external_url': all_my_artists[artist_id]['external_url']})
+            artists.append({'name': all_my_songs[song_id]['artists'][artist_id]['artist_name'],
+                            'external_url': all_my_songs[song_id]['artists'][artist_id]['artist_url']})
         result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']),
                            'song_url': all_my_songs[song_id]['external_url'], "artists": artists,
                            'preview_url': all_my_songs[song_id]['preview_url']}
