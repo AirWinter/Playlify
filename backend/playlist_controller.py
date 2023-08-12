@@ -1,3 +1,4 @@
+from auth_middleware import token_required
 from flask import Blueprint, request, jsonify, Response
 from backend import secrets
 from playlist_model import get_playlists, create_playlist
@@ -8,13 +9,8 @@ playlist = Blueprint("playlist", __name__)
 
 
 @playlist.route('/get-playlists')
-def get_playlist_endpoint():
-    # print("Get Playlists")
-    if 'Token' not in request.headers:
-        print("No Token Passed")
-        return Response(status=401)
-
-    access_token = request.headers['Token']
+@token_required
+def get_playlist_endpoint(access_token):
     sp = spotipy.Spotify(auth=access_token)
     user = sp.me()
 
@@ -27,14 +23,8 @@ def get_playlist_endpoint():
 
 
 @playlist.route('/create-playlist', methods=['POST'])
-def create_playlist_endpoint():
-    # print("Creating Playlist")
-    if 'Token' not in request.headers:
-        print("No Token Passed")
-        return Response(status=401)
-
-    access_token = request.headers['Token']
-
+@token_required
+def create_playlist_endpoint(access_token):
     sp = spotipy.Spotify(auth=access_token)
     user = sp.me()
 
