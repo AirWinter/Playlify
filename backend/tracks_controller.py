@@ -28,10 +28,9 @@ def get_all_tracks_from_library_endpoint():
     return response
 
 
-@tracks.route('/get-tracks-to-add', methods=['POST'])
+@tracks.route('/get-tracks-to-add', methods=['GET'])
 def get_tracks_to_add_endpoint():
     # print("Get songs to Add")
-    req = json.loads(request.data)
     if 'Token' not in request.headers:
         print("No Token Passed")
         return Response(status=401)
@@ -39,7 +38,7 @@ def get_tracks_to_add_endpoint():
     access_token = request.headers['Token']
     sp = spotipy.Spotify(auth=access_token)
     user = sp.me()
-
+    req = request.headers
     filters = {"genres": req['genres'],
                "artists": req['artists'],
                "created_after_month": req['created_after_month'],
@@ -52,13 +51,12 @@ def get_tracks_to_add_endpoint():
 
 @tracks.route('/get-recommendations', methods=['GET'])
 def get_recommendations_endpoint():
-    # print("Get Recommendations")
-    if 'Token' not in request.headers:
+    print("Get Recommendations")
+    if 'Token' not in request.headers and request.headers['Token'] != "":
         print("No Token Passed")
         return Response(status=401)
 
     access_token = request.headers['Token']
-
     sp = spotipy.Spotify(auth=access_token)
 
     track_seeds_string = request.args.get('track_seeds')

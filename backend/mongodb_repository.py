@@ -1,5 +1,5 @@
 import certifi
-import secrets
+from backend import secrets
 from pymongo.mongo_client import MongoClient
 from bson.objectid import ObjectId
 from datetime import datetime
