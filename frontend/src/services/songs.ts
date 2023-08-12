@@ -2,18 +2,16 @@ import axios from "axios";
 import router from "../router/index";
 const getUtils = () => import("../utils");
 import store from "@/store/store";
-import type { Filters } from "@/components/MultiStep/types";
+import type { Artist_Options, Filters } from "@/components/MultiStep/types";
 
 const urlBase: string = process.env.VUE_APP_URL_BASE ?? "";
 
 export const getAllTracksFromLibrary = async () => {
   if (
     sessionStorage.getItem("all_songs") == null ||
-    sessionStorage.getItem("all_artists") == null ||
-    sessionStorage.getItem("all_genres") == null ||
     sessionStorage.getItem("all_songs") == "undefined" ||
-    sessionStorage.getItem("all_artists") == "undefined" ||
-    sessionStorage.getItem("all_genres") == "undefined"
+    sessionStorage.getItem("all_artists") == null ||
+    sessionStorage.getItem("all_artists") == "undefined"
   ) {
     const token_string = await (await getUtils()).getAccessToken();
     try {
@@ -30,10 +28,16 @@ export const getAllTracksFromLibrary = async () => {
         "all_artists",
         JSON.stringify(response.data.all_artists)
       );
-      sessionStorage.setItem(
-        "all_genres",
-        JSON.stringify(response.data.all_genres)
-      );
+      const artist_options: Array<Artist_Options> = [];
+      Object.keys(response.data.all_artists).forEach((key) => {
+        artist_options.push({
+          value: key,
+          label: response.data.all_artists[key]["name"],
+        });
+      });
+
+      store.commit("setArtistOptions", artist_options);
+      store.commit("setGenreOptions", response.data.all_genres);
     } catch (error) {
       console.log(error);
       localStorage.clear();
