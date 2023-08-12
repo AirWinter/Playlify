@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import request, Response
+import spotipy
 
 
 def token_required(f):
@@ -9,6 +10,7 @@ def token_required(f):
             return Response(status=401)
 
         token = request.headers["Token"]
-        return f(token, *args, **kwargs)
+        sp = spotipy.Spotify(auth=token)
+        return f(sp, *args, **kwargs)
 
     return decorated

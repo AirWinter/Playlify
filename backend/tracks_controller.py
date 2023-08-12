@@ -2,7 +2,6 @@ from auth_middleware import token_required
 from flask import Blueprint, request, jsonify
 from backend import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
-import spotipy
 import json
 
 tracks = Blueprint("tracks", __name__)
@@ -10,8 +9,7 @@ tracks = Blueprint("tracks", __name__)
 
 @tracks.route('/get-all', methods=['GET'])
 @token_required
-def get_all_tracks_from_library_endpoint(access_token):
-    sp = spotipy.Spotify(auth=access_token)
+def get_all_tracks_from_library_endpoint(sp):
     user = sp.me()
     market = user['country']
 
@@ -42,9 +40,7 @@ def get_tracks_to_add_endpoint():
 
 @tracks.route('/get-recommendations', methods=['GET'])
 @token_required
-def get_recommendations_endpoint(access_token):
-    sp = spotipy.Spotify(auth=access_token)
-
+def get_recommendations_endpoint(sp):
     track_seeds_string = request.args.get('track_seeds')
     genre_seeds_string = request.args.get('genre_seeds')
     artist_seeds_string = request.args.get('artist_seeds')

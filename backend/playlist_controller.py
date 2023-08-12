@@ -2,7 +2,6 @@ from auth_middleware import token_required
 from flask import Blueprint, request, jsonify, Response
 from backend import secrets
 from playlist_model import get_playlists, create_playlist
-import spotipy
 import json
 
 playlist = Blueprint("playlist", __name__)
@@ -10,8 +9,7 @@ playlist = Blueprint("playlist", __name__)
 
 @playlist.route('/get-playlists')
 @token_required
-def get_playlist_endpoint(access_token):
-    sp = spotipy.Spotify(auth=access_token)
+def get_playlist_endpoint(sp):
     user = sp.me()
 
     my_playlists = get_playlists(user, sp)
@@ -24,8 +22,7 @@ def get_playlist_endpoint(access_token):
 
 @playlist.route('/create-playlist', methods=['POST'])
 @token_required
-def create_playlist_endpoint(access_token):
-    sp = spotipy.Spotify(auth=access_token)
+def create_playlist_endpoint(sp):
     user = sp.me()
 
     req = json.loads(request.data)
