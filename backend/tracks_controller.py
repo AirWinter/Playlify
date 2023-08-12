@@ -32,15 +32,20 @@ def get_all_tracks_from_library_endpoint():
 def get_tracks_to_add_endpoint():
     # print("Get songs to Add")
     req = json.loads(request.data)
+    if 'Token' not in request.headers:
+        print("No Token Passed")
+        return Response(status=401)
+
+    access_token = request.headers['Token']
+    sp = spotipy.Spotify(auth=access_token)
+    user = sp.me()
+
     filters = {"genres": req['genres'],
                "artists": req['artists'],
                "created_after_month": req['created_after_month'],
                "created_before_month": req['created_before_month']}
 
-    all_my_songs = json.loads(req['all_my_songs'])
-    all_my_artists = json.loads(req['all_my_artists'])
-
-    result = get_tracks_to_add(filters, all_my_songs, all_my_artists)
+    result = get_tracks_to_add(filters, user['id'])
 
     return jsonify(result)
 
