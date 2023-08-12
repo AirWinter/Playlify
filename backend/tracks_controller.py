@@ -1,22 +1,15 @@
-from flask import Blueprint, request, jsonify, Response
+from auth_middleware import token_required
+from flask import Blueprint, request, jsonify
 from backend import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
-import spotipy
 import json
 
 tracks = Blueprint("tracks", __name__)
 
 
 @tracks.route('/get-all', methods=['GET'])
-def get_all_tracks_from_library_endpoint():
-    # print("Get All Tracks")
-    if 'Token' not in request.headers:
-        print("No Token Passed")
-        return Response(status=401)
-
-    access_token = request.headers['Token']
-
-    sp = spotipy.Spotify(auth=access_token)
+@token_required
+def get_all_tracks_from_library_endpoint(sp):
     user = sp.me()
     market = user['country']
 
@@ -50,15 +43,8 @@ def get_tracks_to_add_endpoint():
 
 
 @tracks.route('/get-recommendations', methods=['GET'])
-def get_recommendations_endpoint():
-    # print("Get Recommendations")
-    if 'Token' not in request.headers and request.headers['Token'] != "":
-        print("No Token Passed")
-        return Response(status=401)
-
-    access_token = request.headers['Token']
-    sp = spotipy.Spotify(auth=access_token)
-
+@token_required
+def get_recommendations_endpoint(sp):
     track_seeds_string = request.args.get('track_seeds')
     genre_seeds_string = request.args.get('genre_seeds')
     artist_seeds_string = request.args.get('artist_seeds')
