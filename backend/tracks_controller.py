@@ -51,7 +51,7 @@ def get_tracks_to_add_endpoint():
 
 @tracks.route('/get-recommendations', methods=['GET'])
 def get_recommendations_endpoint():
-    print("Get Recommendations")
+    # print("Get Recommendations")
     if 'Token' not in request.headers and request.headers['Token'] != "":
         print("No Token Passed")
         return Response(status=401)

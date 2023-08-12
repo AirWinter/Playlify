@@ -1,10 +1,16 @@
 from utils import stringify, chunks
 import mongodb_repository
 
+
 def get_all_tracks_from_library(sp, market):
+    user = sp.me()
+    if mongodb_repository.has_data_for_user(user['id']):
+        mongodb_repository.reset_ttl_for_user(user['id'])
+        data = mongodb_repository.get_by_user_id(user['id'])
+        return {'artist_options': data["artist_options"], 'genre_options': data["genre_options"]}
     count = 0
     # Hard-coded genre groups
-    all_my_genres = [{'label': 'Classical', 'options': []}, {'label': 'Country', 'options': []},
+    genre_options = [{'label': 'Classical', 'options': []}, {'label': 'Country', 'options': []},
                      {'label': 'EDM', 'options': []}, {'label': 'Folk', 'options': []},
                      {'label': 'Hip Hop', 'options': []}, {'label': 'Indie', 'options': []},
                      {'label': 'Jazz', 'options': []}, {'label': 'Metal', 'options': []},
@@ -48,7 +54,7 @@ def get_all_tracks_from_library(sp, market):
             all_my_artists[artist_id]['genres'] = genres
             for genre in genres:
                 genre_string = stringify(genre)
-                for genre_group in all_my_genres:
+                for genre_group in genre_options:
                     if genre_group['label'].upper() in genre_string.upper() \
                             or genre_group['label'].upper() in genre.upper() \
                             or genre_group['label'].upper() == "OTHERS":
@@ -67,9 +73,9 @@ def get_all_tracks_from_library(sp, market):
 
         all_my_songs[song_id]['genres'] = list(song_genres)
 
-    for genre_group in all_my_genres:
+    for genre_group in genre_options:
         if len(genre_group['options']) == 0:
-            all_my_genres.remove(genre_group)
+            genre_options.remove(genre_group)
         else:
             label = genre_group['label']
             genre_group['label'] = "All " + label + " Genres"
@@ -77,14 +83,14 @@ def get_all_tracks_from_library(sp, market):
     artist_options = {}
     for a_id in all_my_artists.keys():
         artist_options[a_id] = all_my_artists[a_id]['name']
-    user = sp.me()
-    mongodb_repository.write_to_db(user['id'], all_my_songs)
-    res = {'artist_options': artist_options, 'all_genres': all_my_genres}
+
+    mongodb_repository.write_to_db(user['id'], all_my_songs, artist_options, genre_options)
+    res = {'artist_options': artist_options, 'genre_options': genre_options}
     return res
 
 
 def get_tracks_to_add(filters, user_id: str):
-    all_my_songs = mongodb_repository.get_by_user_id(user_id)
+    all_my_songs = mongodb_repository.get_by_user_id(user_id)["songs"]
     songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():

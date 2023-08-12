@@ -2,7 +2,7 @@ import axios from "axios";
 import router from "../router/index";
 const getUtils = () => import("../utils");
 import store from "@/store/store";
-import type { Artist_Options, Filters } from "@/components/MultiStep/types";
+import type { Filters } from "@/components/MultiStep/types";
 
 const urlBase: string = process.env.VUE_APP_URL_BASE ?? "";
 
@@ -18,9 +18,8 @@ export const getAllTracksFromLibrary = async () => {
           Token: token_string,
         },
       });
-
       store.commit("setArtistOptions", response.data.artist_options);
-      store.commit("setGenreOptions", response.data.all_genres);
+      store.commit("setGenreOptions", response.data.genre_options);
     } catch (error) {
       console.log(error);
       localStorage.clear();
