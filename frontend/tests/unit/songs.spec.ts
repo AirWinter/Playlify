@@ -21,7 +21,6 @@ describe("Songs Service", () => {
   });
   test("GetAllTracksFromLibrary already set don't call axios", async () => {
     sessionStorage.setItem("all_songs", "");
-    sessionStorage.setItem("all_genres", "");
     sessionStorage.setItem("all_artists", "");
     await getAllTracksFromLibrary();
     expect(mockGet).toBeCalledTimes(0);
@@ -35,9 +34,6 @@ describe("Songs Service", () => {
     );
     expect(sessionStorage.getItem("all_artists")).toBe(
       JSON.stringify("test_all_artists")
-    );
-    expect(sessionStorage.getItem("all_genres")).toBe(
-      JSON.stringify("test_all_genres")
     );
   });
 });

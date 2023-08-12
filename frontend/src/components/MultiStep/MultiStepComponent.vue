@@ -29,9 +29,6 @@
                 if (Math.abs(delta) > 1) {
                   return false;
                 }
-                if (targetStep.stepName == 'Filters') {
-                  handleNextOne();
-                }
                 if (targetStep.stepName == 'Validation') {
                   playlist.filters.created_after_month =
                     currentStep.value.created_after_month;
@@ -48,8 +45,8 @@
             <StepOne :value="playlist" />
             <!-- Step Two: Defining filters-->
             <StepTwo
-              :genres_options="genres_options"
-              :artist_options="artist_options"
+              :genres_options="store.getters.getGenreOptions"
+              :artist_options="store.getters.getArtistOptions"
               :filters="playlist.filters"
             />
             <!-- Step Three: Validation -->
@@ -71,7 +68,7 @@
 
 <script setup lang="ts">
 import axios from "axios";
-import { ref, Ref, onBeforeMount } from "vue";
+import { onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 const getUtils = () => import("../../utils");
@@ -88,8 +85,6 @@ import {
 import type {
   // eslint-disable-next-line no-unused-vars
   Step,
-  Genre_Options,
-  Artist_Options,
   Playlist,
 } from "./types";
 
@@ -109,32 +104,6 @@ let playlist: Playlist = {
     created_after_month: "",
     created_before_month: "",
   },
-};
-
-let genres_options: Array<Genre_Options> = [{ label: "Any", options: [] }];
-let artist_options: Ref<Array<Artist_Options>> = ref([]);
-
-const handleNextOne = async () => {
-  // Get all genres from session storage
-  if (
-    sessionStorage.getItem("all_genres") != null &&
-    sessionStorage.getItem("all_genres") != "undefined"
-  ) {
-    genres_options = JSON.parse(sessionStorage.getItem("all_genres") ?? "");
-  }
-  // Get all artists from session storage
-  if (
-    sessionStorage.getItem("all_artists") != null &&
-    sessionStorage.getItem("all_artists") != "undefined"
-  ) {
-    var all_artists = JSON.parse(sessionStorage.getItem("all_artists") ?? "");
-    Object.keys(all_artists).forEach((key) => {
-      artist_options.value.push({
-        value: key,
-        label: all_artists[key]["name"],
-      });
-    });
-  }
 };
 
 const handleSubmit = async (param: Playlist) => {
