@@ -57,7 +57,7 @@
               @remove-song="(index) => removeSong(index)"
               @remove-recommended-song="(index) => removeRecommendedSong(index)"
               @get-recommendations="getRecommendations(playlist.filters)"
-              @submit="handleSubmit(value)"
+              @submit="createPlaylist(value)"
             />
           </FormKit>
         </div>
@@ -67,11 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import axios from "axios";
 import { onBeforeMount } from "vue";
-import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-const getUtils = () => import("../../utils");
 import StepOne from "./StepOne.vue";
 import StepTwo from "./StepTwo.vue";
 import StepThree from "./StepThree.vue";
@@ -87,11 +84,10 @@ import type {
   Step,
   Playlist,
 } from "./types";
+import { createPlaylist } from "@/services/playlists";
 
-const router = useRouter();
 const store = useStore();
 
-const urlBase: string = process.env.VUE_APP_URL_BASE!;
 let playlist: Playlist = {
   playlistInformation: {
     name: "",
@@ -106,42 +102,8 @@ let playlist: Playlist = {
   },
 };
 
-const handleSubmit = async (param: Playlist) => {
-  store.commit("setLoadingModal", true);
-  const token_string: string = await (await getUtils()).getAccessToken();
-  var songs_string =
-    Object.keys(store.getters.getSongs).length > 0
-      ? Object.keys(store.getters.getSongs) + ","
-      : "";
-  var songs_to_add_array =
-    songs_string + Object.keys(store.getters.getRecommendedSongs);
-  // Create the playlist
-  await axios({
-    method: "post",
-    url: `${urlBase}/playlist/create-playlist`,
-    headers: {
-      Token: token_string,
-    },
-    data: {
-      name: param.playlistInformation.name,
-      description: param.playlistInformation.description,
-      display: param.playlistInformation.display,
-      songs_to_add: songs_to_add_array,
-    },
-  }).catch((error) => {
-    console.log(error);
-    localStorage.clear();
-    sessionStorage.clear();
-    router.push("/"); // If there's an error go to home page
-  });
-  router.push("/my-playlists");
-  store.commit("setLoadingModal", false);
-};
-
 onBeforeMount(() => {
-  if (store.getters.getLoadingModal) {
-    getAllTracksFromLibrary();
-  }
+  getAllTracksFromLibrary();
 });
 </script>
 
