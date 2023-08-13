@@ -1,16 +1,10 @@
 from utils import stringify, chunks
-import mongodb_repository
 
 
 def get_all_tracks_from_library(sp, market):
-    user = sp.me()
-    if mongodb_repository.has_data_for_user(user['id']):
-        mongodb_repository.reset_ttl_for_user(user['id'])
-        data = mongodb_repository.get_by_user_id(user['id'])
-        return {'artist_options': data["artist_options"], 'genre_options': data["genre_options"]}
     count = 0
     # Hard-coded genre groups
-    genre_options = [{'label': 'Classical', 'options': []}, {'label': 'Country', 'options': []},
+    all_my_genres = [{'label': 'Classical', 'options': []}, {'label': 'Country', 'options': []},
                      {'label': 'EDM', 'options': []}, {'label': 'Folk', 'options': []},
                      {'label': 'Hip Hop', 'options': []}, {'label': 'Indie', 'options': []},
                      {'label': 'Jazz', 'options': []}, {'label': 'Metal', 'options': []},
@@ -32,7 +26,7 @@ def get_all_tracks_from_library(sp, market):
                 a_id = artist['id']
                 a_name = artist['name']
                 a_url = artist['external_urls']['spotify']
-                artists[a_id] = {'name': a_name, 'external_url': a_url}
+                artists[a_id] = a_name
                 if a_id not in all_my_artists.keys():
                     all_my_artists[a_id] = {'name': a_name, 'external_url': a_url}
             song_id = track['id']
@@ -54,7 +48,7 @@ def get_all_tracks_from_library(sp, market):
             all_my_artists[artist_id]['genres'] = genres
             for genre in genres:
                 genre_string = stringify(genre)
-                for genre_group in genre_options:
+                for genre_group in all_my_genres:
                     if genre_group['label'].upper() in genre_string.upper() \
                             or genre_group['label'].upper() in genre.upper() \
                             or genre_group['label'].upper() == "OTHERS":
@@ -65,33 +59,25 @@ def get_all_tracks_from_library(sp, market):
                         break
 
     for song_id in all_my_songs.keys():
-        song_artists_ids = all_my_songs[song_id]['artists'].keys()
-        song_genres = set()
+        song_artists_ids = all_my_songs[song_id]['artists']
+        song_genres = []
         for artist_id in song_artists_ids:
-            for g in all_my_artists[artist_id]['genres']:
-                song_genres.add(g)
+            song_genres.extend(all_my_artists[artist_id]['genres'])
 
-        all_my_songs[song_id]['genres'] = list(song_genres)
+        all_my_songs[song_id]['genres'] = song_genres
 
-    for genre_group in genre_options:
+    for genre_group in all_my_genres:
         if len(genre_group['options']) == 0:
-            genre_options.remove(genre_group)
+            all_my_genres.remove(genre_group)
         else:
             label = genre_group['label']
             genre_group['label'] = "All " + label + " Genres"
 
-    artist_options = {}
-    for a_id in all_my_artists.keys():
-        artist_options[a_id] = all_my_artists[a_id]['name']
-
-    if not mongodb_repository.has_data_for_user(user['id']):
-        mongodb_repository.write_to_db(user['id'], all_my_songs, artist_options, genre_options)
-    res = {'artist_options': artist_options, 'genre_options': genre_options}
+    res = {'all_songs': all_my_songs, 'all_artists': all_my_artists, 'all_genres': all_my_genres}
     return res
 
 
-def get_tracks_to_add(filters, user_id: str):
-    all_my_songs = mongodb_repository.get_by_user_id(user_id)["songs"]
+def get_tracks_to_add(filters, all_my_songs, all_my_artists):
     songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
@@ -123,8 +109,8 @@ def get_tracks_to_add(filters, user_id: str):
     for song_id in songs_to_add:
         artists = []
         for artist_id in all_my_songs[song_id]['artists'].keys():
-            artists.append({'name': all_my_songs[song_id]['artists'][artist_id]['name'],
-                            'external_url': all_my_songs[song_id]['artists'][artist_id]['external_url']})
+            artists.append({'name': all_my_songs[song_id]['artists'][artist_id],
+                            'external_url': all_my_artists[artist_id]['external_url']})
         result[song_id] = {"song_name": stringify(all_my_songs[song_id]['name']),
                            'song_url': all_my_songs[song_id]['external_url'], "artists": artists,
                            'preview_url': all_my_songs[song_id]['preview_url']}

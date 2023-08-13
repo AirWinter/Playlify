@@ -2,6 +2,7 @@ from auth_middleware import token_required
 from flask import Blueprint, request, jsonify
 from backend import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
+import json
 
 tracks = Blueprint("tracks", __name__)
 
@@ -20,17 +21,19 @@ def get_all_tracks_from_library_endpoint(sp):
     return response
 
 
-@tracks.route('/get-tracks-to-add', methods=['GET'])
-@token_required
-def get_tracks_to_add_endpoint(sp):
-    user = sp.me()
-    req = request.headers
+@tracks.route('/get-tracks-to-add', methods=['POST'])
+def get_tracks_to_add_endpoint():
+    # print("Get songs to Add")
+    req = json.loads(request.data)
     filters = {"genres": req['genres'],
                "artists": req['artists'],
                "created_after_month": req['created_after_month'],
                "created_before_month": req['created_before_month']}
 
-    result = get_tracks_to_add(filters, user['id'])
+    all_my_songs = json.loads(req['all_my_songs'])
+    all_my_artists = json.loads(req['all_my_artists'])
+
+    result = get_tracks_to_add(filters, all_my_songs, all_my_artists)
 
     return jsonify(result)
 
