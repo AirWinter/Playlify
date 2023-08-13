@@ -7,25 +7,20 @@ import type { Filters } from "@/components/MultiStep/types";
 const urlBase: string = process.env.VUE_APP_URL_BASE ?? "";
 
 export const getAllTracksFromLibrary = async () => {
-  if (
-    store.getters.getGenreOptions.length == 0 ||
-    store.getters.getArtistOptions.length == 0
-  ) {
-    const token_string = await (await getUtils()).getAccessToken();
-    try {
-      const response = await axios.get(`${urlBase}/tracks/get-all`, {
-        headers: {
-          Token: token_string,
-        },
-      });
-      store.commit("setArtistOptions", response.data.artist_options);
-      store.commit("setGenreOptions", response.data.genre_options);
-    } catch (error) {
-      console.log(error);
-      localStorage.clear();
-      sessionStorage.clear();
-      router.push("/"); // If there's an error go to home page
-    }
+  const token_string = await (await getUtils()).getAccessToken();
+  try {
+    const response = await axios.get(`${urlBase}/tracks/get-all`, {
+      headers: {
+        Token: token_string,
+      },
+    });
+    store.commit("setArtistOptions", response.data.artist_options);
+    store.commit("setGenreOptions", response.data.genre_options);
+  } catch (error) {
+    console.log(error);
+    localStorage.clear();
+    sessionStorage.clear();
+    router.push("/"); // If there's an error go to home page
   }
   store.commit("setLoadingModal", false);
 };

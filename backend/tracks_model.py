@@ -84,7 +84,8 @@ def get_all_tracks_from_library(sp, market):
     for a_id in all_my_artists.keys():
         artist_options[a_id] = all_my_artists[a_id]['name']
 
-    mongodb_repository.write_to_db(user['id'], all_my_songs, artist_options, genre_options)
+    if not mongodb_repository.has_data_for_user(user['id']):
+        mongodb_repository.write_to_db(user['id'], all_my_songs, artist_options, genre_options)
     res = {'artist_options': artist_options, 'genre_options': genre_options}
     return res
 

@@ -2,7 +2,6 @@ from auth_middleware import token_required
 from flask import Blueprint, request, jsonify
 from backend import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
-import json
 
 tracks = Blueprint("tracks", __name__)
 
@@ -22,14 +21,8 @@ def get_all_tracks_from_library_endpoint(sp):
 
 
 @tracks.route('/get-tracks-to-add', methods=['GET'])
-def get_tracks_to_add_endpoint():
-    # print("Get songs to Add")
-    if 'Token' not in request.headers:
-        print("No Token Passed")
-        return Response(status=401)
-
-    access_token = request.headers['Token']
-    sp = spotipy.Spotify(auth=access_token)
+@token_required
+def get_tracks_to_add_endpoint(sp):
     user = sp.me()
     req = request.headers
     filters = {"genres": req['genres'],
