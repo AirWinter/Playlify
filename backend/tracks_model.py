@@ -146,9 +146,10 @@ def get_recommendations(sp, track_seeds_string, genre_seeds_string, artist_seeds
     else:
         artist_seeds = None
 
+    user = sp.me()
     songs = {}
     recommendations = sp.recommendations(seed_genres=genre_seeds, seed_artists=artist_seeds, seed_tracks=track_seeds,
-                                         limit=N)
+                                         limit=N, country=user['country'])
     if 'tracks' in recommendations.keys():
         for track in recommendations['tracks']:
             track_name = track['name']
