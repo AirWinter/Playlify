@@ -12,13 +12,10 @@
       type="textarea"
       name="description"
       id="description"
+      v-model="local_info.playlistInformation.description"
       label="Description (optional)"
       placeholder="Description"
-      :help="
-        props.value.playlistInformation?.description !== undefined
-          ? `${props.value.playlistInformation.description.length} / 300`
-          : `0 / 300`
-      "
+      :help="`${local_info.playlistInformation.description.length} / 300`"
       validation="length:0,300"
       validation-visibility="live"
       :validation-messages="{
@@ -59,9 +56,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
+import { defineProps, ref } from "vue";
+import { Playlist } from "./types";
 
 const props = defineProps<{
-  value: any;
+  value: Playlist;
 }>();
+
+var local_info = ref(props.value);
 </script>
