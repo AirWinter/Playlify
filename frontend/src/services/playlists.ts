@@ -20,9 +20,7 @@ export const getPlaylists = async () => {
       return response.data;
     } catch (error) {
       console.log(error);
-      localStorage.clear();
-      sessionStorage.clear();
-      router.push("/"); // If there's an error go to home page
+      store.commit("setShowErrorModal", true);
     }
   }
 };
@@ -54,9 +52,7 @@ export const createPlaylist = async (param: Playlist) => {
     );
   } catch (error) {
     console.log(error);
-    localStorage.clear();
-    sessionStorage.clear();
-    router.push("/"); // If there's an error go to home page
+    store.commit("setShowErrorModal", true);
   }
 
   router.push("/my-playlists");

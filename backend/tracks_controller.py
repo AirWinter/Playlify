@@ -1,5 +1,5 @@
 from auth_middleware import token_required
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from backend import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
 import json
@@ -14,6 +14,9 @@ def get_all_tracks_from_library_endpoint(sp):
     market = user['country']
 
     res = get_all_tracks_from_library(sp, market)
+    if len(res['all_songs']) == 0:
+        print("User doesn't have any tracks saved")
+        return Response(status=204)
 
     response = jsonify(res)
     response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')

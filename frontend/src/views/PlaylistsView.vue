@@ -1,4 +1,19 @@
 <template>
+  <!-- Error Modal-->
+  <DefaultErrorModal />
+  <!-- Empty My Library Modal-->
+  <ModalTemplate
+    v-if="store.getters.getShowEmptyLibraryModal"
+    @close="closeWarning()"
+  >
+    <template v-slot:header> WARNING </template>
+    <template v-slot:body>
+      You do not have any songs added to your library on Spotify, which means
+      that Playlify won't work. Please add songs to your library before using
+      Playlify.
+    </template>
+    <template v-slot:footer> I understand </template>
+  </ModalTemplate>
   <!-- Set the background colour everywhere -->
   <div class="bg-dark min-h-screen">
     <!-- Top Header with Log Out Button -->
@@ -91,8 +106,17 @@ import { Ref, ref, onBeforeMount } from "vue";
 import type { Playlist } from "./types";
 import { getPlaylists } from "../services/playlists";
 import { getAllTracksFromLibrary } from "@/services/songs";
+import ModalTemplate from "@/components/ModalTemplate.vue";
+import { useStore } from "vuex";
+import DefaultErrorModal from "@/components/DefaultErrorModal.vue";
 
 var playlists: Ref<Playlist[]> = ref([]);
+const store = useStore();
+
+const closeWarning = () => {
+  store.commit("setShowEmptyLibraryModal", false);
+  document.body.style.overflow = "";
+};
 
 onBeforeMount(async () => {
   document.body.style.overscrollBehavior = "none";

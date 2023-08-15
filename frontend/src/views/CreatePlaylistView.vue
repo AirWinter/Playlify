@@ -1,4 +1,5 @@
 <template>
+  <DefaultErrorModalVue />
   <TopHeader />
   <LogOutButton />
   <!-- Main Content-->
@@ -15,6 +16,7 @@ import TopHeader from "../components/TopHeader.vue";
 import MultiStepComponent from "../components/MultiStep/MultiStepComponent.vue";
 import LogOutButton from "../components/LogOutButton.vue";
 import { onBeforeMount } from "vue";
+import DefaultErrorModalVue from "@/components/DefaultErrorModal.vue";
 
 onBeforeMount(() => {
   document.body.style.overscrollBehavior = "none";

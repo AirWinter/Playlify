@@ -1,5 +1,4 @@
 import axios from "axios";
-import router from "../router/index";
 const getUtils = () => import("../utils");
 import store from "@/store/store";
 import type { Artist_Options, Filters } from "@/components/MultiStep/types";
@@ -20,6 +19,10 @@ export const getAllTracksFromLibrary = async () => {
           Token: token_string,
         },
       });
+      // Special case where user doesn't have any tracks saved in their library
+      if (response.status == 204) {
+        store.commit("setShowEmptyLibraryModal", true);
+      }
       sessionStorage.setItem(
         "all_songs",
         JSON.stringify(response.data.all_songs)
@@ -40,9 +43,7 @@ export const getAllTracksFromLibrary = async () => {
       store.commit("setGenreOptions", response.data.all_genres);
     } catch (error) {
       console.log(error);
-      localStorage.clear();
-      sessionStorage.clear();
-      router.push("/"); // If there's an error go to home page
+      store.commit("setShowErrorModal", true);
     }
   }
   store.commit("setLoadingModal", false);
@@ -73,9 +74,7 @@ export const getSongsToAdd = async (param: Filters) => {
     store.commit("setSongs", response.data);
   } catch (error) {
     console.log(error);
-    localStorage.clear();
-    sessionStorage.clear();
-    router.push("/"); // If there's an error go to home page
+    store.commit("setShowErrorModal", true);
   }
   await getRecommendations(param);
   store.commit("setLoadingSongs", false);

@@ -14,6 +14,8 @@ export interface State {
   recommended_songs: Record<string, Song>;
   artist_options: Array<Artist_Options>;
   genre_options: Array<Genre_Options>;
+  show_empty_library_modal: boolean;
+  show_error_modal: boolean;
 }
 
 const store = createStore<State>({
@@ -24,6 +26,8 @@ const store = createStore<State>({
     recommended_songs: {},
     artist_options: [],
     genre_options: [],
+    show_empty_library_modal: true,
+    show_error_modal: false,
   },
   mutations: {
     setLoadingSongs(state, newValue) {
@@ -50,6 +54,12 @@ const store = createStore<State>({
     setGenreOptions(state, newValue) {
       state.genre_options = newValue;
     },
+    setShowEmptyLibraryModal(state, newValue) {
+      state.show_empty_library_modal = newValue;
+    },
+    setShowErrorModal(state, newValue) {
+      state.show_error_modal = newValue;
+    },
   },
   actions: {
     // Your action functions go here
@@ -73,6 +83,12 @@ const store = createStore<State>({
     },
     getGenreOptions(state) {
       return state.genre_options;
+    },
+    getShowEmptyLibraryModal(state) {
+      return state.show_empty_library_modal;
+    },
+    getShowErrorModal(state) {
+      return state.show_error_modal;
     },
   },
   plugins: [createPersistedState()],
