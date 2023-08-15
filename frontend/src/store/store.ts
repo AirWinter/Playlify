@@ -26,7 +26,7 @@ const store = createStore<State>({
     recommended_songs: {},
     artist_options: [],
     genre_options: [],
-    show_empty_library_modal: true,
+    show_empty_library_modal: false,
     show_error_modal: false,
   },
   mutations: {
