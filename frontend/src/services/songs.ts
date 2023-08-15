@@ -22,6 +22,8 @@ export const getAllTracksFromLibrary = async () => {
       // Special case where user doesn't have any tracks saved in their library
       if (response.status == 204) {
         store.commit("setShowEmptyLibraryModal", true);
+        store.commit("setLoadingModal", false);
+        return;
       }
       sessionStorage.setItem(
         "all_songs",
