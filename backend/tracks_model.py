@@ -1,7 +1,13 @@
 from utils import stringify, chunks
 
 
-def get_all_tracks_from_library(sp, market):
+def get_all_tracks_from_library(sp):
+    """
+    Get all songs that the user has saved in their library.
+
+    :param sp: Connection to the Spotify API from which we can recover the user's songs
+    :return: A dictionary containing all the user's songs, artists and genres
+    """
     count = 0
     # Hard-coded genre groups
     all_my_genres = [{'label': 'Classical', 'options': []}, {'label': 'Country', 'options': []},
@@ -17,6 +23,8 @@ def get_all_tracks_from_library(sp, market):
                      {'label': 'Others', 'options': []}]
     all_my_artists = {}
     all_my_songs = {}
+    user = sp.me()
+    market = user['country']
     while True:
         items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
         track_array = list(map(lambda i: i['track'], items))
@@ -78,6 +86,14 @@ def get_all_tracks_from_library(sp, market):
 
 
 def get_tracks_to_add(filters, all_my_songs, all_my_artists):
+    """
+    Function to apply user defined filters and return the result.
+
+    :param filters: Dictionary with different filters defined by the user
+    :param all_my_songs: All songs that the user has in their library
+    :param all_my_artists: All artists that the user has songs from
+    :return: All songs that match all the filters
+    """
     songs_to_add = list(all_my_songs)
     # Apply all the filters on the songs
     for apply_filter in filters.keys():
@@ -118,8 +134,17 @@ def get_tracks_to_add(filters, all_my_songs, all_my_artists):
     return result
 
 
-def get_recommendations(sp, track_seeds_string, genre_seeds_string, artist_seeds_string):
-    N = 10
+def get_recommendations(sp, track_seeds_string, genre_seeds_string, artist_seeds_string, N=10):
+    """
+    Function to get track recommendations.
+
+    :param sp: Connection to Spotify API to get recommendations
+    :param track_seeds_string: String of track ids separated by ';'
+    :param genre_seeds_string: String of genres separated by ';'
+    :param artist_seeds_string: String of artist ids separated by ';'
+    :param N: Number of tracks that should be recommended, default is 10
+    :return: N recommended songs in a dictionary where the song id is the key
+    """
     number_of_seeds = 0
 
     if track_seeds_string is not None and len(track_seeds_string) > 0:

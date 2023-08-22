@@ -12,7 +12,7 @@ playlist = Blueprint("playlist", __name__)
 def get_playlist_endpoint(sp):
     user = sp.me()
 
-    my_playlists = get_playlists(user, sp)
+    my_playlists = get_playlists(user['id'], sp)
 
     response = jsonify(my_playlists)
     response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')

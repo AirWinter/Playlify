@@ -1,11 +1,18 @@
 from utils import chunks
 
 
-def get_playlists(user, sp):
+def get_playlists(user_id, sp):
+    """
+    Function to get all the user's playlist.
+
+    :param user_id: Spotify user id as a string
+    :param sp: Connection to Spotify API to be able to recover the user's playlists
+    :return: All of the user's playlists
+    """
     my_playlists = []
     count = 0
     while True:
-        playlists = sp.user_playlists(user=user['id'], limit=50, offset=count * 50)
+        playlists = sp.user_playlists(user=user_id, limit=50, offset=count * 50)
         for playlist in playlists['items']:
             image = ''
             if len(playlist['images']) > 0:
@@ -21,6 +28,14 @@ def get_playlists(user, sp):
 
 
 def create_playlist(user_id, req, sp):
+    """
+    Function to create and populate a playlist.
+
+    :param user_id: Spotify user id as a string
+    :param req: Request containing playlist name, description and songs to populate playlist with
+    :param sp: Connection to Spotify API we call to create and populate playlist
+    :return:
+    """
     name = req['name']
     display_on_profile = False  # False by default
     # If public is specified then overwrite

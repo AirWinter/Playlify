@@ -10,10 +10,7 @@ tracks = Blueprint("tracks", __name__)
 @tracks.route('/get-all', methods=['GET'])
 @token_required
 def get_all_tracks_from_library_endpoint(sp):
-    user = sp.me()
-    market = user['country']
-
-    res = get_all_tracks_from_library(sp, market)
+    res = get_all_tracks_from_library(sp)
     if len(res['all_songs']) == 0:
         print("User doesn't have any tracks saved")
         return Response(status=204)
