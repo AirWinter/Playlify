@@ -9,3 +9,8 @@ def stringify(str):
     """Method to make a string more beautiful"""
     res = str.replace('-', ' ')
     return res.title()
+
+
+def to_uri(track_id: str):
+    """Method to turn a track id into a spotify uri"""
+    return f"spotify:track:{track_id}"

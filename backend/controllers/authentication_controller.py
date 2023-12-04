@@ -1,48 +1,47 @@
-from flask import Blueprint, request, redirect, jsonify, Response
+from fastapi import APIRouter, Request, Response
+from fastapi.responses import RedirectResponse
+import secrets
 from spotipy.oauth2 import SpotifyOAuth
-from backend import secrets
 from urllib.parse import urlencode
 
-authentication = Blueprint("authentication", __name__)
+router = APIRouter(prefix='/authentication')
 
 
-@authentication.route('/login')
+@router.get('/login')
 def login():
     sp_oath = create_spotify_oath()
     auth_url = sp_oath.get_authorize_url()
 
-    return redirect(auth_url)
+    return RedirectResponse(auth_url, status_code=303)
 
 
-@authentication.route('/callback')
-def callback():
+@router.get('/callback')
+def callback(request: Request):
     sp_oath = create_spotify_oath()
     # If access denied -> Return to landing page
-    if 'error' in request.args.keys():
-        return redirect(f"{secrets.url_base}/")
-    code = request.args.get('code')
+    if 'error' in request.query_params.keys():
+        return RedirectResponse(f"{secrets.url_base}/")
+    code = request.query_params['code']
     token_info = sp_oath.get_access_token(code, check_cache=False)
-    response = redirect(f"{secrets.url_base}/my-playlists?{urlencode(token_info)}")
+    response = RedirectResponse(f"{secrets.url_base}/my-playlists?{urlencode(token_info)}")
     return response
 
 
-@authentication.route('/logout')
+@router.get('/logout')
 def logout():
-    return redirect(f"{secrets.url_base}/")
+    return RedirectResponse(f"{secrets.url_base}/")
 
 
-@authentication.route("/refresh", methods=['GET'])
-def refresh():
-    # print("refresh")
+@router.get("/refresh")
+def refresh(request: Request):
     # If refresh token isn't passed -> 401
-    if "RefreshToken" not in request.headers:
+    if "refresh" not in request.headers.keys():
         print("No refresh token passed")
-        return Response(status=401)
+        return Response(status_code=401)
 
-    refresh_token = request.headers["RefreshToken"]
+    refresh_token = request.headers["refresh"]
     sp_oath = create_spotify_oath()
-    response = sp_oath.refresh_access_token(refresh_token)
-    return jsonify(response)
+    return sp_oath.refresh_access_token(refresh_token)
 
 
 def create_spotify_oath():
