@@ -1,17 +1,25 @@
-from flask import Flask
-from flask_cors import CORS
-from backend import secrets
-from authentication_controller import authentication
-from playlist_controller import playlist
-from tracks_controller import tracks
+import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from controllers import authentication_controller, tracks_controller, playlist_controller
+import secrets
 
-app = Flask(__name__)
-app.secret_key = secrets.secret_key
-app.register_blueprint(authentication, url_prefix="/authentication")
-app.register_blueprint(playlist, url_prefix="/playlist")
-app.register_blueprint(tracks, url_prefix="/tracks")
+app = FastAPI()
+app.include_router(authentication_controller.router)
+app.include_router(tracks_controller.router)
+app.include_router(playlist_controller.router)
 
-CORS(app)
+origins = [
+    secrets.url_base,
+]
 
-if __name__ == '__main__':
-    app.run()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="localhost", port=5000)
