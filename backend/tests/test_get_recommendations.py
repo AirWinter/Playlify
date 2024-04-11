@@ -1,6 +1,6 @@
 import unittest
 import sample_data
-from tracks_model import get_recommendations
+from src.tracks_model import get_recommendations
 from unittest.mock import MagicMock, call
 
 

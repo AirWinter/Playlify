@@ -1,6 +1,6 @@
 from auth_middleware import token_required
 from flask import Blueprint, request, jsonify, Response
-from backend import secrets
+import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
 import json
 

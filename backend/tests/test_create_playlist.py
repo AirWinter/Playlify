@@ -1,5 +1,5 @@
 import unittest
-from playlist_model import create_playlist
+from src.playlist_model import create_playlist
 from unittest.mock import MagicMock, call
 
 

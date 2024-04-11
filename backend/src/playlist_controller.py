@@ -1,6 +1,6 @@
 from auth_middleware import token_required
 from flask import Blueprint, request, jsonify, Response
-from backend import secrets
+import secrets
 from playlist_model import get_playlists, create_playlist
 import json
 

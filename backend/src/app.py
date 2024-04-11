@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from backend import secrets
+import secrets
 from authentication_controller import authentication
 from playlist_controller import playlist
 from tracks_controller import tracks

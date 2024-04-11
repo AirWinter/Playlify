@@ -1,5 +1,5 @@
 import unittest
-from utils import stringify
+from src.utils import stringify
 
 
 class TestUtils(unittest.TestCase):

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, jsonify, Response
 from spotipy.oauth2 import SpotifyOAuth
-from backend import secrets
+import secrets
 from urllib.parse import urlencode
 
 authentication = Blueprint("authentication", __name__)
