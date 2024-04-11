@@ -1,18 +1,18 @@
 from utils import chunks
+from api import get_user_playlists_call, get_user_call, create_playlist_call, change_playlist_details_call, \
+    add_songs_to_playlist_call
 
 
-def get_playlists(user_id, sp):
+async def get_playlists(token: str):
     """
     Function to get all the user's playlist.
-
-    :param user_id: Spotify user id as a string
-    :param sp: Connection to Spotify API to be able to recover the user's playlists
-    :return: All of the user's playlists
+    :param token: User's access token
+    :return: All the user's playlists
     """
     my_playlists = []
     count = 0
     while True:
-        playlists = sp.user_playlists(user=user_id, limit=50, offset=count * 50)
+        playlists = await get_user_playlists_call(token, limit=50, offset=count * 50)
         for playlist in playlists['items']:
             image = ''
             if len(playlist['images']) > 0:
@@ -27,49 +27,39 @@ def get_playlists(user_id, sp):
     return my_playlists
 
 
-def create_playlist(user_id, req, sp):
+async def create_playlist(token: str, name: str, song_ids: str, display: bool = False, description: str = None):
     """
-    Function to create and populate a playlist.
-
-    :param user_id: Spotify user id as a string
-    :param req: Request containing playlist name, description and songs to populate playlist with
-    :param sp: Connection to Spotify API we call to create and populate playlist
-    :return:
+    Function to create playlist
+    :param token: User's access token
+    :param name: Name of the playlist
+    :param song_ids: Songs to populate the playlist with, comma separated string
+    :param display: Optional boolean to indicate whether playlist should be displayed on profile
+    :param description: Optional description for the playlist
     """
-    name = req['name']
-    display_on_profile = False  # False by default
-    # If public is specified then overwrite
-    if 'display' in req.keys():
-        display_on_profile = req['display']
-
-    description = req['description']
-
+    user = await get_user_call(token)
     # If the user provided a description
     if description is not None and description != "":
-        response_create = sp.user_playlist_create(user=user_id, name=name, public=display_on_profile,
-                                                  description=description)
+        response_create = await create_playlist_call(user_id=user['id'], token=token, name=name, public=display,
+                                                     description=description)
         if 'description' not in response_create.keys() or response_create['description'] is None or response_create[
             'description'] == "":
             count = 0
             playlist_id = response_create['id']
             # Try at most 10 times to set the playlist description
             while count < 10:
-                response_update = sp.playlist_change_details(playlist_id=playlist_id, description=description)
+                response_update = await change_playlist_details_call(playlist_id=playlist_id, token=token, name=name,
+                                                                     description=description, public=display)
                 count += 1
                 if 'description' in response_update.keys() and response_update['description'] is not None and \
                         response_update['description'] != "":
                     break
     else:
         # Create empty playlist without a description
-        response_create = sp.user_playlist_create(user=user_id, name=name, public=display_on_profile)
+        response_create = await create_playlist_call(user_id=user['id'], token=token, name=name, public=display)
 
     playlist_id = response_create['id']
-
-    songs_to_add_string = req['songs_to_add']
-    songs_to_add = songs_to_add_string.split(",")
-    # print(f"Songs to add: {songs_to_add}")
+    songs_to_add = song_ids.split(",")
 
     # Populate Playlist
     for list_of_songs in chunks(songs_to_add, 100):
-        sp.playlist_add_items(playlist_id, list_of_songs)
-        # print(f"Populated: {response_populate}")
+        await add_songs_to_playlist_call(playlist_id=playlist_id, token=token, track_ids=list_of_songs)

@@ -15,4 +15,4 @@ restart:
 	cd backend && docker start playlify_container
 
 prune:
-	cd backend && docker system prune
+	cd backend && yes | docker system prune
