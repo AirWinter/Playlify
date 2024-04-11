@@ -1,7 +1,7 @@
 from flask import Blueprint, request, redirect, jsonify, Response
 from spotipy.oauth2 import SpotifyOAuth
-import secrets
 from urllib.parse import urlencode
+import os
 
 authentication = Blueprint("authentication", __name__)
 
@@ -19,16 +19,16 @@ def callback():
     sp_oath = create_spotify_oath()
     # If access denied -> Return to landing page
     if 'error' in request.args.keys():
-        return redirect(f"{secrets.url_base}/")
+        return redirect(f"{os.getenv('url_base')}/")
     code = request.args.get('code')
     token_info = sp_oath.get_access_token(code, check_cache=False)
-    response = redirect(f"{secrets.url_base}/my-playlists?{urlencode(token_info)}")
+    response = redirect(f"{os.getenv('url_base')}/my-playlists?{urlencode(token_info)}")
     return response
 
 
 @authentication.route('/logout')
 def logout():
-    return redirect(f"{secrets.url_base}/")
+    return redirect(f"{os.getenv('url_base')}/")
 
 
 @authentication.route("/refresh", methods=['GET'])
@@ -46,10 +46,13 @@ def refresh():
 
 
 def create_spotify_oath():
+    redirect_uri = os.getenv('url_backend')
+    client_id = os.getenv("client_id")
+    client_secret = os.getenv("secret")
     return SpotifyOAuth(
-        client_id=secrets.client_id,
-        client_secret=secrets.secret,
-        redirect_uri=f"{secrets.url_backend}/authentication/callback",
+        client_id=client_id,
+        client_secret=client_secret,
+        redirect_uri=f"{redirect_uri}/authentication/callback",
         show_dialog=True,  # Show permission screen every time
         scope="user-library-read playlist-modify-public playlist-modify-private user-read-private playlist-read-private playlist-read-collaborative"
     )

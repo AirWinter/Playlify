@@ -1,8 +1,8 @@
 from auth_middleware import token_required
 from flask import Blueprint, request, jsonify, Response
-import secrets
 from tracks_model import get_recommendations, get_tracks_to_add, get_all_tracks_from_library
 import json
+import os
 
 tracks = Blueprint("tracks", __name__)
 
@@ -16,7 +16,7 @@ def get_all_tracks_from_library_endpoint(sp):
         return Response(status=204)
 
     response = jsonify(res)
-    response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')
+    response.headers.add('Access-Control-Allow-Origin', f'{os.getenv("url_base")}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
@@ -48,6 +48,6 @@ def get_recommendations_endpoint(sp):
     songs = get_recommendations(sp, track_seeds_string, genre_seeds_string, artist_seeds_string)
 
     response = jsonify(songs)
-    response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')
+    response.headers.add('Access-Control-Allow-Origin', f'{os.getenv("url_base")}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
