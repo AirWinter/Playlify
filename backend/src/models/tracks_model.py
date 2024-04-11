@@ -1,12 +1,12 @@
-from utils import stringify, chunks
+from ..utils import stringify, chunks
+from ..api import get_user_tracks_call, get_artists_information_call, get_recommendations_call
 
 
-def get_all_tracks_from_library(sp):
+async def get_all_tracks_from_library(token: str):
     """
-    Get all songs that the user has saved in their library.
-
-    :param sp: Connection to the Spotify API from which we can recover the user's songs
-    :return: A dictionary containing all the user's songs, artists and genres
+    Get all tracks from user's library.
+    :param token: User's access token
+    :return: all_songs, all_artists, all_genres
     """
     count = 0
     # Hard-coded genre groups
@@ -23,10 +23,9 @@ def get_all_tracks_from_library(sp):
                      {'label': 'Others', 'options': []}]
     all_my_artists = {}
     all_my_songs = {}
-    user = sp.me()
-    market = user['country']
     while True:
-        items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
+        # items = sp.current_user_saved_tracks(limit=50, offset=count * 50, market=market)['items']
+        items = await get_user_tracks_call(token, offset=count * 50, limit=50)
         track_array = list(map(lambda i: i['track'], items))
         for track in track_array:
             artists = {}
@@ -49,7 +48,8 @@ def get_all_tracks_from_library(sp):
         if len(items) < 50:
             break
     for chunks_of_artist_ids in chunks(list(all_my_artists.keys()), 50):
-        artists_information = sp.artists(chunks_of_artist_ids)
+        # artists_information = sp.artists(chunks_of_artist_ids)
+        artists_information = await get_artists_information_call(token, chunks_of_artist_ids)
         for artist_information in artists_information['artists']:
             artist_id = artist_information['id']
             genres = artist_information['genres']
@@ -134,16 +134,15 @@ def get_tracks_to_add(filters, all_my_songs, all_my_artists):
     return result
 
 
-def get_recommendations(sp, track_seeds_string, genre_seeds_string, artist_seeds_string, N=10):
+async def get_recommendations(token, track_seeds_string: str, genre_seeds_string: str, artist_seeds_string: str, N=10):
     """
-    Function to get track recommendations.
-
-    :param sp: Connection to Spotify API to get recommendations
-    :param track_seeds_string: String of track ids separated by ';'
-    :param genre_seeds_string: String of genres separated by ';'
-    :param artist_seeds_string: String of artist ids separated by ';'
-    :param N: Number of tracks that should be recommended, default is 10
-    :return: N recommended songs in a dictionary where the song id is the key
+    Method to get recommendations from Spotify
+    :param token: Access token
+    :param track_seeds_string:
+    :param genre_seeds_string:
+    :param artist_seeds_string:
+    :param N:
+    :return:
     """
     number_of_seeds = 0
 
@@ -171,10 +170,8 @@ def get_recommendations(sp, track_seeds_string, genre_seeds_string, artist_seeds
     else:
         artist_seeds = None
 
-    user = sp.me()
     songs = {}
-    recommendations = sp.recommendations(seed_genres=genre_seeds, seed_artists=artist_seeds, seed_tracks=track_seeds,
-                                         limit=N, country=user['country'])
+    recommendations = await get_recommendations_call(token, track_seeds, genre_seeds, artist_seeds, N)
     if 'tracks' in recommendations.keys():
         for track in recommendations['tracks']:
             track_name = track['name']
