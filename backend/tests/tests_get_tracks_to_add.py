@@ -1,6 +1,6 @@
 import unittest
 import sample_data
-from tracks_model import get_tracks_to_add
+from src.tracks_model import get_tracks_to_add
 
 
 class TestGetTracksToAdd(unittest.TestCase):

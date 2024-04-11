@@ -1,8 +1,8 @@
 from auth_middleware import token_required
 from flask import Blueprint, request, jsonify, Response
-from backend import secrets
 from playlist_model import get_playlists, create_playlist
 import json
+import os
 
 playlist = Blueprint("playlist", __name__)
 
@@ -15,7 +15,7 @@ def get_playlist_endpoint(sp):
     my_playlists = get_playlists(user['id'], sp)
 
     response = jsonify(my_playlists)
-    response.headers.add('Access-Control-Allow-Origin', f'{secrets.url_base}')
+    response.headers.add('Access-Control-Allow-Origin', f'{os.getenv("url_base")}')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
 
@@ -29,7 +29,7 @@ def create_playlist_endpoint(sp):
 
     create_playlist(user['id'], req, sp)
 
-    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{secrets.url_base}'}
+    headers = {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': f'{os.getenv("url_base")}'}
     response = Response(status=200, headers=headers)
 
     return response

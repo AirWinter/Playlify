@@ -1,7 +1,7 @@
 import unittest
 import sample_data
 from unittest.mock import MagicMock
-from playlist_model import get_playlists
+from src.playlist_model import get_playlists
 
 
 class TestGetPlaylists(unittest.TestCase):
