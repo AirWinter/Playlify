@@ -1,5 +1,5 @@
-from ..utils import stringify, chunks
-from ..api import get_user_tracks_call, get_artists_information_call, get_recommendations_call
+from utils import stringify, chunks
+from api import get_user_tracks_call, get_artists_information_call, get_recommendations_call
 
 
 async def get_all_tracks_from_library(token: str):

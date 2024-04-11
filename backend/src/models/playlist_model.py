@@ -1,5 +1,5 @@
-from ..utils import chunks
-from ..api import get_user_playlists_call, get_user_call, create_playlist_call, change_playlist_details_call, \
+from utils import chunks
+from api import get_user_playlists_call, get_user_call, create_playlist_call, change_playlist_details_call, \
     add_songs_to_playlist_call
 
 

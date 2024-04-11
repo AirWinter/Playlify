@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header, Response
-from ..models.playlist_model import get_playlists, create_playlist
+from models.playlist_model import get_playlists, create_playlist
 from typing import Annotated, Union
 from pydantic import BaseModel
 

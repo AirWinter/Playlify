@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header, Request
-from ..models.tracks_model import get_all_tracks_from_library, get_tracks_to_add, get_recommendations
+from models.tracks_model import get_all_tracks_from_library, get_tracks_to_add, get_recommendations
 from typing import Annotated, Union
 from pydantic import BaseModel
 import json
