@@ -36,7 +36,7 @@ def get_tracks_to_add_endpoint(request: SongsToAddRequest):
     return result
 
 
-@router.api_route('/recommendations', methods=['GET'])
+@router.api_route('/get-recommendations', methods=['GET'])
 async def get_recommendations_endpoint(token: Annotated[str, Header()], request: Request):
     result = await get_recommendations(token, request.query_params['track_seeds'],
                                        request.query_params['genre_seeds'], request.query_params['artist_seeds'])

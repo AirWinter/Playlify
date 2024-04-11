@@ -13,12 +13,12 @@ async def get_playlists_endpoint(token: Annotated[str, Header()]):
 
 class CreatePlaylistRequest(BaseModel):
     name: str
-    song_ids: str
-    public: bool = False
+    songs_to_add: str
+    display: bool = False
     description: Union[str, None] = None
 
 
 @router.api_route("/create-playlist", methods=['POST'])
 async def create_playlist_endpoints(token: Annotated[str, Header()], body: CreatePlaylistRequest):
-    await create_playlist(token, body.name, body.song_ids, body.public, body.description)
+    await create_playlist(token, body.name, body.songs_to_add, body.display, body.description)
     return Response(status_code=204)
